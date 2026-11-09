@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sin permisos | Valky</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f2f5f9;
+            color: #243247;
+        }
+
+        .contenedor {
+            width: 100%;
+            max-width: 480px;
+            padding: 40px 30px;
+            background: white;
+            border-radius: 14px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,.07);
+        }
+
+        .icono {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 25px;
+            margin: 0 0 12px;
+            color: #17365d;
+        }
+
+        p {
+            color: #66758a;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        a {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #17365d;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="contenedor">
+        <div class="icono">🔒</div>
+        <h1>Sin permisos</h1>
+
+        <p>
+            No tienes permisos para acceder a esta sección.
+            Si necesitas acceso, comunícate con el administrador principal.
+        </p>
+
+        <a href="{% url 'inicio' %}">
+    Volver al portal
+</a>
+    </div>
+</body>
+</html>

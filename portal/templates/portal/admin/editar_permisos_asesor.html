@@ -1,0 +1,346 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <!-- =====================================================
+         1. CONFIGURACIÓN GENERAL
+    ====================================================== -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Editar permisos | Valky</title>
+
+
+    <!-- =====================================================
+         2. ESTILOS DE LA PÁGINA
+    ====================================================== -->
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f5f9;
+            color: #243247;
+        }
+
+        .contenedor {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 30px;
+        }
+
+        .panel {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.06);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #17365d;
+        }
+
+        .descripcion {
+            color: #64748b;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        /* FILAS DE PERMISOS */
+
+        .permiso {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 12px;
+            border-bottom: 1px solid #e5eaf0;
+            gap: 15px;
+        }
+
+        .permiso:last-child {
+            border-bottom: none;
+        }
+
+        .nombre {
+            font-weight: 600;
+        }
+
+        .estado {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #475569;
+            white-space: nowrap;
+        }
+
+        input[type="checkbox"] {
+            width: 19px;
+            height: 19px;
+            cursor: pointer;
+            accent-color: #17365d;
+        }
+
+        /* PERMISO OBLIGATORIO */
+
+        .permiso-obligatorio {
+            background: #f0f5fb;
+            border-radius: 7px;
+        }
+
+        .etiqueta-obligatorio {
+            display: block;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+
+        .bloqueado {
+            cursor: not-allowed !important;
+            opacity: .7;
+        }
+
+        /* BOTONES */
+
+        .botones {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        button, .volver {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        button {
+            background: #17365d;
+            color: white;
+        }
+
+        .volver {
+            background: #e8edf3;
+            color: #243247;
+        }
+
+        button:hover {
+            background: #244b78;
+        }
+
+        /* MENSAJES */
+
+        .mensajes {
+            margin-bottom: 20px;
+        }
+
+        .mensaje {
+            padding: 12px;
+            border-radius: 7px;
+            background: #e8f5e9;
+            color: #246b35;
+            margin-bottom: 8px;
+        }
+
+        /* ADAPTACIÓN A MÓVILES */
+
+        @media (max-width: 600px) {
+
+            .contenedor {
+                margin: 15px auto;
+                padding: 12px;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+
+            .permiso {
+                align-items: flex-start;
+            }
+
+            .botones {
+                flex-direction: column;
+            }
+
+            button, .volver {
+                text-align: center;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <!-- =====================================================
+         3. CONTENEDOR PRINCIPAL
+    ====================================================== -->
+
+    <div class="contenedor">
+
+        <div class="panel">
+
+
+            <!-- =================================================
+                 4. ENCABEZADO
+            ================================================== -->
+
+            <h1>Permisos del asesor</h1>
+
+            <p class="descripcion">
+
+                Configura los permisos individuales de
+
+                <strong>
+                    {{ asesor.get_full_name|default:asesor.username }}
+                </strong>.
+
+                Marca o desmarca las opciones según las funciones
+                que podrá realizar.
+
+            </p>
+
+
+            <!-- =================================================
+                 5. MENSAJES DEL SISTEMA
+            ================================================== -->
+
+            {% if messages %}
+
+                <div class="mensajes">
+
+                    {% for message in messages %}
+
+                        <div class="mensaje">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 6. FORMULARIO DE PERMISOS
+            ================================================== -->
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+
+                <!-- =============================================
+                     6.1 LISTADO DE PERMISOS
+                ============================================== -->
+
+                {% for permiso in lista_permisos %}
+
+                    <div class="permiso
+                        {% if permiso.campo == 'ver_estudiantes' %}
+                            permiso-obligatorio
+                        {% endif %}
+                    ">
+
+                        <div>
+
+                            <span class="nombre">
+                                {{ permiso.etiqueta }}
+                            </span>
+
+                            {% if permiso.campo == 'ver_estudiantes' %}
+
+                                <span class="etiqueta-obligatorio">
+                                    Permiso obligatorio
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- =====================================
+                             6.2 CONTROL DEL PERMISO
+                        ====================================== -->
+
+                        <label class="estado">
+
+                            <input
+                                type="checkbox"
+                                name="{{ permiso.campo }}"
+                                {% if permiso.habilitado %}checked{% endif %}
+                                {% if permiso.campo == 'ver_estudiantes' %}
+                                    disabled
+                                    class="bloqueado"
+                                {% endif %}
+                            >
+
+                            Habilitado
+
+                            {% if permiso.campo == 'ver_estudiantes' %}
+
+                                <!-- El checkbox está deshabilitado
+                                     visualmente, pero enviamos el
+                                     permiso obligatorio mediante
+                                     este campo oculto. -->
+
+                                <input
+                                    type="hidden"
+                                    name="ver_estudiantes"
+                                    value="on"
+                                >
+
+                            {% endif %}
+
+                        </label>
+
+                    </div>
+
+                {% endfor %}
+
+
+                <!-- =================================================
+                     7. BOTONES DE ACCIÓN
+                ================================================== -->
+
+                <div class="botones">
+
+                    <button type="submit">
+                        Guardar permisos
+                    </button>
+
+                    <a
+                        href="{% url 'admin_asesores' %}"
+                        class="volver"
+                    >
+                        Cancelar
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

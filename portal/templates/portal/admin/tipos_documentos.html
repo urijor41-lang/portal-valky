@@ -1,0 +1,652 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tipos de documentos | Valky</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f5f9;
+            color: #243247;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 245px;
+            background: #142b49;
+            color: white;
+            padding: 30px 20px;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 45px;
+        }
+
+        .brand span {
+            display: block;
+            font-size: 12px;
+            font-weight: normal;
+            color: #b9c9dc;
+            margin-top: 6px;
+        }
+
+        .menu a {
+            display: block;
+            color: #d9e3ef;
+            text-decoration: none;
+            padding: 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+        }
+
+        .menu a.active,
+        .menu a:hover {
+            background: #29496e;
+            color: white;
+        }
+
+        .main {
+            flex: 1;
+            padding: 35px 45px;
+            min-width: 0;
+        }
+
+        .header {
+            margin-bottom: 28px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 27px;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-top: 8px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        }
+
+        .panel h2 {
+            margin: 0 0 20px;
+            font-size: 19px;
+        }
+
+        .formulario {
+            display: flex;
+            gap: 12px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .campo {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d8e0e9;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        .btn {
+            display: inline-block;
+            border: none;
+            background: #234875;
+            color: white;
+            padding: 11px 15px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover { background: #18375e; }
+
+        .btn-secondary {
+            background: #e9eef5;
+            color: #29496e;
+        }
+
+        .btn-secondary:hover { background: #dce5f0; }
+
+        .btn-danger { background: #a83d3d; }
+        .btn-danger:hover { background: #862e2e; }
+
+        .btn-success { background: #287447; }
+        .btn-success:hover { background: #1e5b37; }
+
+        .contador {
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .tabla-contenedor { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th {
+            text-align: left;
+            color: #718096;
+            background: #f7f9fc;
+            font-size: 12px;
+            text-transform: uppercase;
+            padding: 14px;
+        }
+
+        td {
+            padding: 16px 14px;
+            border-bottom: 1px solid #edf0f5;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .estado {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .activo { color: #287447; }
+        .inactivo { color: #a83d3d; }
+
+        .acciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            align-items: center;
+        }
+
+        .acciones form { margin: 0; }
+
+        .mensaje {
+            padding: 13px 16px;
+            border-radius: 7px;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+
+        .mensaje.success {
+            background: #e8f5ed;
+            color: #236b3b;
+        }
+
+        .mensaje.error {
+            background: #fdecec;
+            color: #a52d2d;
+        }
+
+        .mensaje.info {
+            background: #eaf2fb;
+            color: #28527c;
+        }
+
+        .vacio {
+            text-align: center;
+            color: #8793a5;
+            padding: 30px;
+        }
+
+        .advertencia {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-top: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 30, 50, .55);
+            z-index: 10;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.contenido-visible { display: flex; }
+
+        .modal-contenido {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .modal-contenido h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        .modal-contenido p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .modal-campo { margin: 18px 0; }
+
+        .modal-botones {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 850px) {
+            .sidebar { width: 190px; }
+            .main { padding: 25px 18px; }
+        }
+
+        @media (max-width: 600px) {
+            .layout { display: block; }
+            .sidebar { width: 100%; }
+            .main { padding: 22px 15px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            VALKY
+            <span>Estudios en el Exterior</span>
+        </div>
+
+        <nav class="menu">
+            <a href="{% url 'admin_inicio' %}">Inicio</a>
+
+            <a href="{% url 'admin_tipos_documentos' %}" class="active">
+                Tipos de documentos
+            </a>
+
+            <a href="{% url 'admin_historial_estudiantes' %}">
+                Historial de estudiantes
+            </a>
+
+            <a href="{% url 'cerrar_sesion' %}">Cerrar sesión</a>
+        </nav>
+    </aside>
+
+    <main class="main">
+
+        <div class="header">
+            <h1>Tipos de documentos</h1>
+
+            <p class="subtitle">
+                Administra los documentos y los ejemplos que podrán consultar tus estudiantes.
+            </p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mensaje {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <section class="panel">
+            <h2>Agregar nuevo tipo de documento</h2>
+
+            <form method="POST" class="formulario">
+                {% csrf_token %}
+
+                <input type="hidden" name="accion" value="agregar">
+
+                <div class="campo">
+                    <label for="nombre">Nombre del documento</label>
+
+                    <input
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        placeholder="Ej. Hoja de vida"
+                        maxlength="150"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn">
+                    + Agregar documento
+                </button>
+            </form>
+
+            <p class="advertencia">
+                Después de crear el tipo de documento podrás editarlo y cargar un ejemplo de referencia.
+            </p>
+        </section>
+
+        <section class="panel">
+            <h2>Catálogo de documentos</h2>
+
+            <div class="contador">
+                Total de tipos de documentos: {{ tipos_documentos|length }}
+            </div>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Ejemplo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for tipo in tipos_documentos %}
+                            <tr>
+                                <td>
+                                    <strong>{{ tipo.nombre }}</strong>
+                                </td>
+
+                                <td>
+                                    {% if tipo.archivo_ejemplo %}
+                                        <a
+                                            href="{{ tipo.archivo_ejemplo.url }}"
+                                            target="_blank"
+                                            rel="noopener"
+                                        >
+                                            Ver ejemplo
+                                        </a>
+                                    {% else %}
+                                        <span style="color:#8793a5;">
+                                            Sin ejemplo
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if tipo.activo %}
+                                        <span class="estado activo">Activo</span>
+                                    {% else %}
+                                        <span class="estado inactivo">Inactivo</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="acciones">
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-secondary"
+                                            onclick="abrirEdicion(
+                                                '{{ tipo.id }}',
+                                                '{{ tipo.nombre|escapejs }}'
+                                            )"
+                                        >
+                                            Editar
+                                        </button>
+
+                                        {% if tipo.archivo_ejemplo %}
+                                            <form
+                                                method="POST"
+                                                onsubmit="return confirm('¿Retirar el archivo de ejemplo?');"
+                                            >
+                                                {% csrf_token %}
+
+                                                <input
+                                                    type="hidden"
+                                                    name="accion"
+                                                    value="eliminar_ejemplo"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="tipo_id"
+                                                    value="{{ tipo.id }}"
+                                                >
+
+                                                <button type="submit" class="btn btn-secondary">
+                                                    Retirar ejemplo
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                        <form method="POST">
+                                            {% csrf_token %}
+
+                                            <input
+                                                type="hidden"
+                                                name="accion"
+                                                value="cambiar_estado"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="tipo_id"
+                                                value="{{ tipo.id }}"
+                                            >
+
+                                            {% if tipo.activo %}
+                                                <button type="submit" class="btn btn-secondary">
+                                                    Desactivar
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-success">
+                                                    Activar
+                                                </button>
+                                            {% endif %}
+                                        </form>
+
+                                        <form
+                                            method="POST"
+                                            onsubmit="return confirm('¿Estás seguro de eliminar este tipo de documento? Si está asociado a estudiantes, el sistema impedirá la eliminación.');"
+                                        >
+                                            {% csrf_token %}
+
+                                            <input
+                                                type="hidden"
+                                                name="accion"
+                                                value="eliminar"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="tipo_id"
+                                                value="{{ tipo.id }}"
+                                            >
+
+                                            <button type="submit" class="btn btn-danger">
+                                                Eliminar
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </td>
+                            </tr>
+
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="vacio">
+                                    Todavía no hay tipos de documentos registrados.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+
+<!-- Ventana para editar documento -->
+
+<div class="modal" id="modalEdicion">
+
+    <div class="modal-contenido">
+
+        <h2>Editar tipo de documento</h2>
+
+        <p>
+            Si cambias el nombre, el cambio se reflejará en todos los estudiantes
+            que tengan asociado este tipo de documento.
+        </p>
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            onsubmit="return confirmarEdicion();"
+        >
+            {% csrf_token %}
+
+            <input type="hidden" name="accion" value="editar">
+
+            <input type="hidden" name="tipo_id" id="editar_id">
+
+            <div class="modal-campo">
+                <label for="editar_nombre">Nombre del documento</label>
+
+                <input
+                    type="text"
+                    id="editar_nombre"
+                    name="nombre"
+                    maxlength="150"
+                    required
+                >
+            </div>
+
+            <div class="modal-campo">
+                <label for="archivo_ejemplo">Cargar ejemplo o formato</label>
+
+                <input
+                    type="file"
+                    id="archivo_ejemplo"
+                    name="archivo_ejemplo"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                >
+
+                <p class="advertencia">
+                    Puedes cargar un PDF, Word o imagen. Si ya existe un ejemplo,
+                    cargar otro lo reemplazará.
+                </p>
+            </div>
+
+            <div class="modal-botones">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="cerrarEdicion()"
+                >
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn">
+                    Guardar cambios
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+<script>
+
+    // Abrir ventana de edición
+    function abrirEdicion(id, nombre) {
+
+        document.getElementById("editar_id").value = id;
+
+        document.getElementById("editar_nombre").value = nombre;
+
+        document.getElementById("editar_nombre").dataset.original = nombre.trim();
+
+        document.getElementById("modalEdicion").classList.add(
+            "contenido-visible"
+        );
+    }
+
+
+    // Confirmar si se modifica el nombre
+    function confirmarEdicion() {
+
+        const nombreOriginal = document.getElementById("editar_nombre").dataset.original;
+
+        const nombreNuevo = document.getElementById("editar_nombre").value.trim();
+
+        if (nombreOriginal !== nombreNuevo) {
+
+            return confirm(
+                "¿Estás seguro de cambiar el nombre de este documento? " +
+                "El cambio se reflejará en todos los estudiantes que tengan " +
+                "asociado este tipo de documento."
+            );
+        }
+
+        return true;
+    }
+
+
+    // Cerrar ventana de edición
+    function cerrarEdicion() {
+
+        document.getElementById("modalEdicion").classList.remove(
+            "contenido-visible"
+        );
+    }
+
+
+    // Cerrar al hacer clic fuera de la ventana
+    document.getElementById("modalEdicion").addEventListener(
+        "click",
+        function(event) {
+
+            if (event.target === this) {
+                cerrarEdicion();
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+</html>

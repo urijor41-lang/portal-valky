@@ -1,0 +1,545 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de estudiantes | Valky</title>
+
+    <style>
+
+        /* ====================================================== */
+        /* 1. CONFIGURACIÓN GENERAL */
+        /* ====================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f5f9;
+            color: #263445;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ====================================================== */
+        /* 2. BARRA LATERAL DE NAVEGACIÓN */
+        /* ====================================================== */
+
+        .sidebar {
+            width: 250px;
+            background: #102b4e;
+            color: white;
+            padding: 30px 20px;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: #b8c9dd;
+            margin-bottom: 40px;
+        }
+
+        .menu a {
+            display: block;
+            color: #dce6f2;
+            text-decoration: none;
+            padding: 13px 15px;
+            border-radius: 7px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #1e4774;
+            color: white;
+        }
+
+        /* ====================================================== */
+        /* 3. CONTENIDO PRINCIPAL */
+        /* ====================================================== */
+
+        .main {
+            flex: 1;
+            padding: 35px;
+            min-width: 0;
+        }
+
+        .header {
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 27px;
+            color: #102b4e;
+        }
+
+        .header p {
+            margin: 0;
+            color: #738092;
+            font-size: 14px;
+        }
+
+        /* ====================================================== */
+        /* 4. RESUMEN DEL HISTORIAL */
+        /* ====================================================== */
+
+        .summary {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .summary-label {
+            color: #738092;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .summary-number {
+            color: #102b4e;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        /* ====================================================== */
+        /* 5. TABLA DEL HISTORIAL DE ESTUDIANTES */
+        /* ====================================================== */
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 22px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            overflow-x: auto;
+        }
+
+        .table-container h2 {
+            color: #102b4e;
+            font-size: 18px;
+            margin: 0 0 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th {
+            text-align: left;
+            background: #f5f7fa;
+            color: #566579;
+            font-size: 12px;
+            padding: 14px 12px;
+            border-bottom: 1px solid #e5eaf0;
+        }
+
+        td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #edf0f4;
+            font-size: 13px;
+            vertical-align: top;
+        }
+
+        /* ====================================================== */
+        /* 6. RESULTADOS DE LOS PROCESOS */
+        /* ====================================================== */
+
+        .result {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .completado {
+            background: #e1f4e9;
+            color: #237647;
+        }
+
+        .desistio {
+            background: #fff1d9;
+            color: #94620a;
+        }
+
+        .otra_agencia {
+            background: #e5edfa;
+            color: #315c98;
+        }
+
+        .otro {
+            background: #eceff3;
+            color: #586575;
+        }
+
+        .observation {
+            max-width: 260px;
+            white-space: normal;
+            line-height: 1.5;
+            color: #667386;
+        }
+
+        /* ====================================================== */
+        /* 7. ACCIONES DEL HISTORIAL */
+        /* ====================================================== */
+
+        .delete-button {
+            background: #fff0f0;
+            color: #b42323;
+            border: 1px solid #f2caca;
+            border-radius: 6px;
+            padding: 8px 11px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .delete-button:hover {
+            background: #fbdede;
+        }
+
+        /* ====================================================== */
+        /* 8. ESTADO VACÍO */
+        /* ====================================================== */
+
+        .empty {
+            text-align: center;
+            padding: 45px 20px;
+            color: #8290a1;
+        }
+
+        .empty strong {
+            display: block;
+            color: #526174;
+            margin-bottom: 8px;
+        }
+
+        /* ====================================================== */
+        /* 9. MENSAJES DEL SISTEMA */
+        /* ====================================================== */
+
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 12px 15px;
+            border-radius: 7px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .message.success {
+            background: #e1f4e9;
+            color: #237647;
+        }
+
+        .message.error {
+            background: #fff0f0;
+            color: #a52a2a;
+        }
+
+        .message.warning {
+            background: #fff4df;
+            color: #8a5a08;
+        }
+
+        .message.info {
+            background: #e5edfa;
+            color: #315c98;
+        }
+
+        /* ====================================================== */
+        /* 10. DISEÑO RESPONSIVE */
+        /* ====================================================== */
+
+        @media (max-width: 750px) {
+
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .main {
+                padding: 22px 15px;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- ====================================================== -->
+    <!-- 11. BARRA LATERAL DE NAVEGACIÓN -->
+    <!-- ====================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            VALKY
+        </div>
+
+        <div class="brand-subtitle">
+            Estudios en el Exterior
+        </div>
+
+        <nav class="menu">
+
+            <a href="{% url 'admin_inicio' %}">
+                Inicio
+            </a>
+
+            <a href="{% url 'admin_tipos_documentos' %}">
+                Tipos de documentos
+            </a>
+
+            <a href="{% url 'admin_historial_estudiantes' %}" class="active">
+                Historial de estudiantes
+            </a>
+
+            <a href="{% url 'cerrar_sesion' %}">
+                Cerrar sesión
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- ====================================================== -->
+    <!-- 12. CONTENIDO PRINCIPAL -->
+    <!-- ====================================================== -->
+
+    <main class="main">
+
+        <!-- ENCABEZADO -->
+
+        <div class="header">
+
+            <h1>
+                Historial de estudiantes
+            </h1>
+
+            <p>
+                Consulta los procesos de estudiantes que han sido cerrados.
+            </p>
+
+        </div>
+
+        <!-- ================================================== -->
+        <!-- 13. MENSAJES DEL SISTEMA -->
+        <!-- ================================================== -->
+
+        {% if messages %}
+
+            <div class="messages">
+
+                {% for message in messages %}
+
+                    <div class="message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+        <!-- ================================================== -->
+        <!-- 14. RESUMEN DEL HISTORIAL -->
+        <!-- ================================================== -->
+
+        <section class="summary">
+
+            <div class="summary-label">
+                Total de procesos registrados
+            </div>
+
+            <div class="summary-number">
+                {{ historial_estudiantes|length }}
+            </div>
+
+        </section>
+
+        <!-- ================================================== -->
+        <!-- 15. TABLA DE PROCESOS FINALIZADOS -->
+        <!-- ================================================== -->
+
+        <section class="table-container">
+
+            <h2>
+                Registro de procesos finalizados
+            </h2>
+
+            {% if historial_estudiantes %}
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Estudiante</th>
+
+                            <th>Resultado</th>
+
+                            <th>Fecha de cierre</th>
+
+                            <th>Responsable</th>
+
+                            <th>Observación</th>
+
+                            {% if es_administrador_principal %}
+                                <th>Acciones</th>
+                            {% endif %}
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for registro in historial_estudiantes %}
+
+                            <tr>
+
+                                <!-- ESTUDIANTE -->
+
+                                <td>
+                                    <strong>
+                                        {{ registro.nombre_estudiante }}
+                                    </strong>
+                                </td>
+
+                                <!-- RESULTADO DEL PROCESO -->
+
+                                <td>
+
+                                    <span class="result {{ registro.resultado }}">
+                                        {{ registro.get_resultado_display }}
+                                    </span>
+
+                                </td>
+
+                                <!-- FECHA DE CIERRE -->
+
+                                <td>
+                                    {{ registro.fecha_finalizacion|date:"d/m/Y H:i" }}
+                                </td>
+
+                                <!-- RESPONSABLE -->
+
+                                <td>
+                                    {{ registro.responsable_nombre }}
+                                </td>
+
+                                <!-- OBSERVACIÓN -->
+
+                                <td class="observation">
+
+                                    {% if registro.observacion %}
+
+                                        {{ registro.observacion }}
+
+                                    {% else %}
+
+                                        Sin observaciones
+
+                                    {% endif %}
+
+                                </td>
+
+                                <!-- ELIMINAR REGISTRO -->
+                                <!-- EXCLUSIVO DEL ADMINISTRADOR PRINCIPAL -->
+
+                                {% if es_administrador_principal %}
+
+                                    <td>
+
+                                        <form
+                                            method="POST"
+                                            onsubmit="return confirm('¿Estás seguro de eliminar definitivamente este registro del historial?');"
+                                        >
+
+                                            {% csrf_token %}
+
+                                            <input
+                                                type="hidden"
+                                                name="accion"
+                                                value="eliminar_historial"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="historial_id"
+                                                value="{{ registro.id }}"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="delete-button"
+                                            >
+                                                Eliminar
+                                            </button>
+
+                                        </form>
+
+                                    </td>
+
+                                {% endif %}
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            {% else %}
+
+                <div class="empty">
+
+                    <strong>
+                        Todavía no hay estudiantes en el historial.
+                    </strong>
+
+                    Los procesos finalizados aparecerán aquí cuando se cierre y elimine un estudiante.
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

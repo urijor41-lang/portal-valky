@@ -1,0 +1,939 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Inicio | Valky Estudios en el Exterior</title>
+
+    <style>
+
+        /* ==========================================================
+           1. CONFIGURACIÓN GENERAL Y FONDO
+           ========================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #263449;
+
+            background-color: #f2f5f9;
+            background-image:
+                linear-gradient(
+                    rgba(242, 247, 252, 0.62),
+                    rgba(242, 247, 252, 0.62)
+                ),
+                url("{% static 'portal/img/fondo_mundi_valky.png' %}");
+
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+
+        /* ==========================================================
+           2. BARRA SUPERIOR
+           ========================================================== */
+
+        .barra-superior {
+            background: #18375d;
+            min-height: 88px;
+            padding: 12px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+            box-shadow: 0 3px 12px rgba(20, 45, 75, 0.12);
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo-contenedor {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            padding: 5px 12px;
+            border-radius: 10px;
+        }
+
+        .logo-valky {
+            display: block;
+            width: 155px;
+            max-width: 100%;
+            max-height: 60px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .menu-superior {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .menu-superior a {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            transition: opacity 0.2s ease;
+        }
+
+        .menu-superior a:hover {
+            opacity: 0.75;
+        }
+
+
+        /* ==========================================================
+           3. MENÚ DESPLEGABLE DEL ESTUDIANTE
+           ========================================================== */
+
+        .usuario-menu {
+            position: relative;
+        }
+
+        .usuario-superior {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            list-style: none;
+            padding: 8px 10px;
+            border-radius: 9px;
+            transition: background 0.2s ease;
+        }
+
+        .usuario-superior:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .usuario-superior::-webkit-details-marker {
+            display: none;
+        }
+
+        .icono-usuario {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.17);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .flecha-usuario {
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .usuario-menu[open] .flecha-usuario {
+            transform: rotate(180deg);
+        }
+
+        .menu-desplegable {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 235px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 11px;
+            box-shadow: 0 8px 25px rgba(20, 45, 75, 0.18);
+            padding: 8px;
+            z-index: 20;
+        }
+
+        .menu-desplegable a,
+        .menu-desplegable button {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 7px;
+            background: transparent;
+            color: #344b66;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .menu-desplegable a:hover,
+        .menu-desplegable button:hover {
+            background: #edf3fa;
+        }
+
+        .menu-desplegable .opcion-cerrar {
+            color: #b04444;
+        }
+
+        .menu-desplegable .opcion-cerrar:hover {
+            background: #fff0ef;
+        }
+
+        .separador-menu {
+            height: 1px;
+            background: #e8edf3;
+            margin: 5px 4px;
+        }
+
+        .form-cierre {
+            margin: 0;
+        }
+
+
+        /* ==========================================================
+           4. CONTENIDO PRINCIPAL
+           ========================================================== */
+
+        .contenedor {
+            max-width: 1250px;
+            width: 92%;
+            margin: 35px auto;
+        }
+
+        .bienvenida {
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid #e5ebf3;
+            border-radius: 14px;
+            padding: 27px 30px;
+            margin-bottom: 27px;
+            box-shadow: 0 4px 15px rgba(20, 45, 75, 0.06);
+        }
+
+        .bienvenida h1 {
+            color: #18375d;
+            font-size: 27px;
+            margin: 0 0 10px;
+        }
+
+        .bienvenida p {
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+
+        /* ==========================================================
+           5. DISTRIBUCIÓN EN DOS COLUMNAS
+           ========================================================== */
+
+        .columnas {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 25px;
+            align-items: stretch;
+        }
+
+        .tarjeta {
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 27px;
+            box-shadow: 0 4px 15px rgba(20, 45, 75, 0.06);
+        }
+
+        .tarjeta-cabecera {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .icono-seccion {
+            width: 43px;
+            height: 43px;
+            background: #eaf1fa;
+            color: #18375d;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .tarjeta h2 {
+            margin: 0;
+            color: #18375d;
+            font-size: 20px;
+        }
+
+        .descripcion {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0 0 23px;
+        }
+
+
+        /* ==========================================================
+           6. CONTADORES DE DOCUMENTOS
+           ========================================================== */
+
+        .contadores {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .contador {
+            border-radius: 11px;
+            padding: 17px 10px;
+            text-align: center;
+        }
+
+        .contador strong {
+            display: block;
+            font-size: 27px;
+            margin-bottom: 6px;
+        }
+
+        .contador span {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .contador-pendiente {
+            background: #fff5e6;
+            color: #a66b13;
+        }
+
+        .contador-aprobado {
+            background: #e9f7ee;
+            color: #287344;
+        }
+
+        .contador-corregir {
+            background: #fff0ef;
+            color: #bd4038;
+        }
+
+
+        /* ==========================================================
+           7. BOTÓN PRINCIPAL
+           ========================================================== */
+
+        .boton-principal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px 18px;
+            background: #18375d;
+            color: #ffffff;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: background 0.2s ease;
+        }
+
+        .boton-principal:hover {
+            background: #245183;
+        }
+
+
+        /* ==========================================================
+           8. ACCESOS DE MI PERFIL
+           ========================================================== */
+
+        .acceso-perfil {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 18px 0;
+            border-bottom: 1px solid #e8edf3;
+            transition: background 0.2s ease;
+        }
+
+        .acceso-perfil:last-child {
+            border-bottom: none;
+        }
+
+        .acceso-icono {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            background: #eaf1fa;
+            color: #18375d;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .acceso-contenido {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .acceso-contenido strong {
+            display: block;
+            color: #18375d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .acceso-contenido span {
+            display: block;
+            color: #718096;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .flecha {
+            color: #718096;
+            font-size: 22px;
+        }
+
+        .acceso-perfil:hover .acceso-contenido strong {
+            color: #3478c7;
+        }
+
+
+        /* ==========================================================
+           9. MENSAJES DEL SISTEMA
+           ========================================================== */
+
+        .mensaje {
+            padding: 14px 17px;
+            margin-bottom: 18px;
+            border-radius: 9px;
+            background: #e9f8ef;
+            color: #216b3a;
+            border: 1px solid #ccebd7;
+            font-size: 14px;
+        }
+
+        .mensaje.error {
+            background: #fff0ef;
+            color: #a93226;
+            border-color: #f1cfcb;
+        }
+
+
+        /* ==========================================================
+           10. ACCESO PÚBLICO
+           ========================================================== */
+
+        .acceso-publico {
+            background: rgba(255, 255, 255, 0.97);
+            padding: 40px;
+            border-radius: 14px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(20, 45, 75, 0.06);
+        }
+
+        .acceso-publico h1 {
+            color: #18375d;
+            margin-top: 0;
+        }
+
+        .acceso-publico p {
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .botones-publicos {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .boton-secundario {
+            display: inline-block;
+            background: #ffffff;
+            color: #18375d;
+            border: 1px solid #18375d;
+            border-radius: 8px;
+            padding: 13px 20px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .boton-secundario:hover {
+            background: #edf3fa;
+        }
+
+
+        /* ==========================================================
+           11. PIE DE PÁGINA Y ACCESO ADMINISTRATIVO
+           ========================================================== */
+
+        footer {
+            text-align: center;
+            color: #718096;
+            font-size: 12px;
+            padding: 25px 10px;
+        }
+
+        .administracion {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .administracion a {
+            color: #52647a;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 8px 13px;
+            border-radius: 7px;
+        }
+
+
+        /* ==========================================================
+           12. DISEÑO RESPONSIVE
+           ========================================================== */
+
+        @media (max-width: 850px) {
+
+            .columnas {
+                grid-template-columns: 1fr;
+            }
+
+            .barra-superior {
+                padding: 15px 4%;
+            }
+
+            .menu-superior {
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .barra-superior {
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 13px;
+            }
+
+            .logo-valky {
+                width: 125px;
+            }
+
+            .menu-superior {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 17px;
+            }
+
+            .usuario-superior {
+                font-size: 12px;
+                gap: 6px;
+            }
+
+            .icono-usuario {
+                width: 32px;
+                height: 32px;
+            }
+
+            .menu-desplegable {
+                right: 0;
+                width: 220px;
+            }
+
+            .contenedor {
+                width: 94%;
+                margin: 22px auto;
+            }
+
+            .bienvenida {
+                padding: 22px;
+            }
+
+            .bienvenida h1 {
+                font-size: 23px;
+            }
+
+            .tarjeta {
+                padding: 21px;
+            }
+
+            .contadores {
+                gap: 7px;
+            }
+
+            .contador {
+                padding: 14px 5px;
+            }
+
+            .contador strong {
+                font-size: 23px;
+            }
+
+            .contador span {
+                font-size: 11px;
+            }
+
+            .acceso-publico {
+                padding: 25px 18px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+
+<!-- ==========================================================
+     1. BARRA SUPERIOR
+     ========================================================== -->
+
+<header class="barra-superior">
+
+    <!-- LOGO OFICIAL -->
+
+    <div class="logo-contenedor">
+
+        <img
+            src="{% static 'portal/img/logo_valky.png' %}"
+            alt="Valky Estudios en el Exterior"
+            class="logo-valky"
+        >
+
+    </div>
+
+
+    {% if user.is_authenticated %}
+
+        <!-- NAVEGACIÓN -->
+
+        <nav class="menu-superior">
+
+            <a href="{% url 'inicio' %}">
+                Inicio
+            </a>
+
+            <a href="{% url 'mis_documentos' %}">
+                Mis documentos
+            </a>
+
+        </nav>
+
+
+        <!-- MENÚ DEL USUARIO -->
+
+        <details class="usuario-menu">
+
+            <summary class="usuario-superior">
+
+                <span class="icono-usuario">👤</span>
+
+                <span>
+                    {{ nombre_estudiante|default:user.username }}
+                </span>
+
+                <span class="flecha-usuario">▼</span>
+
+            </summary>
+
+
+            <div class="menu-desplegable">
+
+                <a href="{% url 'cambiar_contrasena' %}">
+                    <span>🔑</span>
+                    Cambiar contraseña
+                </a>
+
+                <div class="separador-menu"></div>
+
+                <form
+                    method="POST"
+                    action="{% url 'cerrar_sesion' %}"
+                    class="form-cierre"
+                >
+
+                    {% csrf_token %}
+
+                    <button type="submit" class="opcion-cerrar">
+                        <span>🚪</span>
+                        Cerrar sesión
+                    </button>
+
+                </form>
+
+            </div>
+
+        </details>
+
+    {% endif %}
+
+</header>
+
+
+<!-- ==========================================================
+     2. CONTENIDO PRINCIPAL
+     ========================================================== -->
+
+<main class="contenedor">
+
+    {% if user.is_authenticated %}
+
+
+        <!-- ==================================================
+             2.1 BIENVENIDA
+             ================================================== -->
+
+        <section class="bienvenida">
+
+            <h1>
+                ¡Hola, {{ nombre_estudiante|default:user.username }}!
+            </h1>
+
+            <p>
+                Bienvenido a tu espacio personal. Desde aquí puedes organizar
+                y consultar tus documentos para aplicar a la universidad.
+            </p>
+
+        </section>
+
+
+        <!-- ==================================================
+             2.2 MENSAJES DEL SISTEMA
+             ================================================== -->
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="mensaje {% if message.tags == 'error' %}error{% endif %}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <!-- ==================================================
+             2.3 DOS COLUMNAS
+             ================================================== -->
+
+        <section class="columnas">
+
+
+            <!-- ==============================================
+                 COLUMNA IZQUIERDA: MIS DOCUMENTOS
+                 ============================================== -->
+
+            <article class="tarjeta">
+
+                <div class="tarjeta-cabecera">
+
+                    <div class="icono-seccion">📁</div>
+
+                    <h2>Mis documentos</h2>
+
+                </div>
+
+                <p class="descripcion">
+                    Consulta los documentos solicitados por tu asesor,
+                    carga tus archivos y revisa su estado de aprobación.
+                </p>
+
+
+                <!-- CONTADORES -->
+
+                <div class="contadores">
+
+                    <div class="contador contador-pendiente">
+
+                        <strong>{{ documentos_pendientes }}</strong>
+
+                        <span>Pendientes</span>
+
+                    </div>
+
+
+                    <div class="contador contador-aprobado">
+
+                        <strong>{{ documentos_aprobados }}</strong>
+
+                        <span>Aprobados</span>
+
+                    </div>
+
+
+                    <div class="contador contador-corregir">
+
+                        <strong>{{ documentos_corregir }}</strong>
+
+                        <span>Por corregir</span>
+
+                    </div>
+
+                </div>
+
+
+                <a href="{% url 'mis_documentos' %}" class="boton-principal">
+                    Gestionar mis documentos →
+                </a>
+
+            </article>
+
+
+            <!-- ==============================================
+                 COLUMNA DERECHA: MI PERFIL
+                 ============================================== -->
+
+            <article class="tarjeta">
+
+                <div class="tarjeta-cabecera">
+
+                    <div class="icono-seccion">👤</div>
+
+                    <h2>Mi perfil</h2>
+
+                </div>
+
+                <p class="descripcion">
+                    Consulta y actualiza la información de tu perfil académico.
+                </p>
+
+
+                <!-- INFORMACIÓN PERSONAL -->
+
+                <a href="{% url 'mi_perfil' %}" class="acceso-perfil">
+
+                    <div class="acceso-icono">👤</div>
+
+                    <div class="acceso-contenido">
+
+                        <strong>Mi perfil</strong>
+
+                        <span>
+                            Información personal y de contacto.
+                        </span>
+
+                    </div>
+
+                    <span class="flecha">›</span>
+
+                </a>
+
+
+                <!-- PREFERENCIAS UNIVERSITARIAS -->
+
+                <a
+                    href="{% url 'mi_perfil' %}#preferencias-universitarias"
+                    class="acceso-perfil"
+                >
+
+                    <div class="acceso-icono">🎓</div>
+
+                    <div class="acceso-contenido">
+
+                        <strong>Preferencias universitarias</strong>
+
+                        <span>
+                            Carreras, universidades y países de interés.
+                        </span>
+
+                    </div>
+
+                    <span class="flecha">›</span>
+
+                </a>
+
+            </article>
+
+        </section>
+
+
+    {% else %}
+
+
+        <!-- ==================================================
+             2.4 PANTALLA DE ACCESO PÚBLICO
+             ================================================== -->
+
+        <section class="acceso-publico">
+
+            <h1>Tu espacio de formación y documentos</h1>
+
+            <p>
+                Crea tu cuenta o inicia sesión para comenzar
+                tu proceso con Valky Estudios en el Exterior.
+            </p>
+
+            <div class="botones-publicos">
+
+                <a
+                    class="boton-principal"
+                    style="width:auto;"
+                    href="{% url 'registro' %}"
+                >
+                    Crear cuenta
+                </a>
+
+                <a
+                    class="boton-secundario"
+                    href="{% url 'iniciar_sesion' %}"
+                >
+                    Iniciar sesión
+                </a>
+
+            </div>
+
+        </section>
+
+    {% endif %}
+
+
+    <!-- ======================================================
+         2.5 ACCESO ADMINISTRATIVO
+         ====================================================== -->
+
+    {% if user.is_authenticated and user.is_staff %}
+
+        <div class="administracion">
+
+            <a href="{% url 'admin:index' %}">
+                Acceso administrativo
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</main>
+
+
+<!-- ==========================================================
+     3. PIE DE PÁGINA
+     ========================================================== -->
+
+<footer>
+    Valky Estudios en el Exterior
+</footer>
+
+
+</body>
+</html>

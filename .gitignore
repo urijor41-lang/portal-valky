@@ -1,0 +1,31 @@
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Base de datos local
+db.sqlite3
+*.sqlite3
+
+# Documentos cargados por estudiantes
+media/
+
+# Archivos estáticos generados
+staticfiles/
+
+# Variables y secretos
+.env
+.env.*
+
+# Archivos temporales
+*.log
+.DS_Store
+
+# Archivos auxiliares de Windows
+desktop.ini
+Thumbs.db

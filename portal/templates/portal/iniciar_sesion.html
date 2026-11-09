@@ -1,0 +1,567 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <!-- ==========================================================
+         1. CONFIGURACIÓN GENERAL
+         ========================================================== -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Iniciar sesión | Valky Estudios en el Exterior</title>
+
+    <!-- ==========================================================
+         2. ESTILOS GENERALES
+         ========================================================== -->
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #142b49;
+            background: #dceeff;
+        }
+
+        /* ==========================================================
+           3. FONDO PRINCIPAL DE VALKY
+           ========================================================== */
+
+        .pagina-login {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow: hidden;
+
+            background-image: url("{% static 'portal/img/fondo_login_valky.png' %}");
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* ==========================================================
+           4. TARJETA DE INICIO DE SESIÓN
+           ========================================================== */
+
+        .login-card {
+            position: absolute;
+            top: 23%;
+            right: 3.5%;
+
+            width: 34%;
+            max-width: 520px;
+            min-width: 280px;
+
+            padding: 25px 27px;
+
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid #e5edf6;
+            border-radius: 13px;
+
+            box-shadow: 0 5px 20px rgba(20, 45, 75, 0.12);
+        }
+
+        /* ==========================================================
+           5. TÍTULO Y DESCRIPCIÓN
+           ========================================================== */
+
+        .login-card h1 {
+            margin: 0 0 9px;
+
+            text-align: center;
+            color: #142f59;
+
+            font-size: clamp(22px, 2.1vw, 30px);
+            font-weight: 700;
+        }
+
+        .descripcion {
+            margin: 0 0 20px;
+
+            text-align: center;
+            color: #526174;
+
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* ==========================================================
+           6. CAMPOS DEL FORMULARIO
+           ========================================================== */
+
+        .campo {
+            margin-bottom: 13px;
+        }
+
+        .campo input {
+            display: block;
+            width: 100%;
+            height: 42px;
+
+            padding: 10px 13px;
+
+            background: #ffffff;
+            border: 1px solid #cbd8e8;
+            border-radius: 8px;
+
+            color: #243247;
+            font-family: inherit;
+            font-size: 13px;
+
+            outline: none;
+        }
+
+        .campo input::placeholder {
+            color: #8795a9;
+        }
+
+        .campo input:focus {
+            border-color: #3478c7;
+            box-shadow: 0 0 0 3px rgba(52, 120, 199, 0.12);
+        }
+
+        /* ==========================================================
+           7. ICONOS DE LOS CAMPOS
+           ========================================================== */
+
+        .campo-con-icono {
+            position: relative;
+        }
+
+        .campo-con-icono .icono-campo {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+
+            transform: translateY(-50%);
+
+            color: #315b89;
+            font-size: 15px;
+
+            pointer-events: none;
+        }
+
+        .campo-con-icono input {
+            padding-left: 37px;
+        }
+
+        /* ==========================================================
+           8. MOSTRAR Y OCULTAR CONTRASEÑA
+           ========================================================== */
+
+        .password-contenedor {
+            position: relative;
+        }
+
+        .password-contenedor input {
+            padding-right: 42px;
+        }
+
+        .boton-ojo {
+            position: absolute;
+            top: 50%;
+            right: 11px;
+
+            transform: translateY(-50%);
+
+            border: none;
+            background: transparent;
+            color: #174d83;
+
+            cursor: pointer;
+            font-size: 17px;
+            padding: 4px;
+        }
+
+        .boton-ojo:hover {
+            color: #3478c7;
+        }
+
+        .opcion-password {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+
+            margin: 4px 0 15px;
+
+            color: #344b66;
+            font-size: 12px;
+        }
+
+        .opcion-password input {
+            width: 14px;
+            height: 14px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        /* ==========================================================
+           9. BOTÓN INGRESAR
+           ========================================================== */
+
+        .boton-ingresar {
+            display: block;
+            width: 100%;
+            min-height: 43px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: #06336d;
+            color: #ffffff;
+
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .boton-ingresar:hover {
+            background: #0b2850;
+        }
+
+        /* ==========================================================
+           10. ENLACES INFERIORES
+           ========================================================== */
+
+        .enlaces {
+            margin-top: 17px;
+
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .enlaces p {
+            margin: 8px 0;
+        }
+
+        .enlaces a {
+            color: #0753a5;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .enlaces a:hover {
+            text-decoration: underline;
+        }
+
+        .separador {
+            border: none;
+            border-top: 1px solid #dce4ef;
+            margin: 13px 0;
+        }
+
+        /* ==========================================================
+           11. MENSAJES Y ERRORES
+           ========================================================== */
+
+        .error-general {
+            padding: 10px;
+            margin-bottom: 13px;
+
+            border-radius: 7px;
+            background: #fff0ef;
+            color: #a93226;
+            border: 1px solid #f3cfca;
+
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .errorlist {
+            color: #b42318;
+            font-size: 12px;
+            padding-left: 17px;
+            margin: 5px 0;
+        }
+
+        /* ==========================================================
+           12. DISEÑO RESPONSIVE
+           ========================================================== */
+
+        @media (max-width: 760px) {
+
+            .pagina-login {
+                min-height: 100vh;
+                min-height: 100dvh;
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                padding: 25px 15px;
+
+                background-size: auto 100%;
+                background-position: 35% center;
+            }
+
+            .login-card {
+                position: relative;
+                top: auto;
+                right: auto;
+
+                width: 100%;
+                max-width: 390px;
+                min-width: 0;
+
+                padding: 25px 22px;
+            }
+
+            .login-card h1 {
+                font-size: 25px;
+            }
+
+            .descripcion {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 380px) {
+
+            .login-card {
+                padding: 21px 17px;
+            }
+
+            .login-card h1 {
+                font-size: 22px;
+            }
+
+            .campo input {
+                height: 40px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- ==========================================================
+         13. CONTENEDOR PRINCIPAL
+         ========================================================== -->
+
+    <div class="pagina-login">
+
+        <!-- ==========================================================
+             14. TARJETA DE AUTENTICACIÓN
+             ========================================================== -->
+
+        <main class="login-card">
+
+            <h1>Iniciar Sesión</h1>
+
+            <p class="descripcion">
+                Ingresa con tu nombre de usuario y contraseña
+                para acceder a tu portal.
+            </p>
+
+            <!-- ==========================================================
+                 15. FORMULARIO DE ACCESO
+                 ========================================================== -->
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <!-- ======================================================
+                     15.1. ERRORES GENERALES
+                     ====================================================== -->
+
+                {% if formulario.non_field_errors %}
+
+                    <div class="error-general">
+
+                        {% for error in formulario.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+                <!-- ======================================================
+                     15.2. NOMBRE DE USUARIO
+                     ====================================================== -->
+
+                <div class="campo campo-con-icono">
+
+                    <span class="icono-campo">✉</span>
+
+                    <input
+                        type="text"
+                        name="username"
+                        id="id_username"
+                        placeholder="Nombre de usuario"
+                        value="{{ formulario.username.value|default:'' }}"
+                        autocomplete="username"
+                        required
+                    >
+
+                    {% for error in formulario.username.errors %}
+
+                        <div class="error-general">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+                <!-- ======================================================
+                     15.3. CONTRASEÑA
+                     ====================================================== -->
+
+                <div class="campo campo-con-icono password-contenedor">
+
+                    <span class="icono-campo">🔒</span>
+
+                    <input
+                        type="password"
+                        name="password"
+                        id="id_password"
+                        placeholder="Contraseña"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="boton-ojo"
+                        id="mostrarPassword"
+                        aria-label="Mostrar contraseña"
+                        onclick="alternarPassword()"
+                    >
+                        ◉
+                    </button>
+
+                    {% for error in formulario.password.errors %}
+
+                        <div class="error-general">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+                <!-- ======================================================
+                     15.4. OPCIÓN MOSTRAR CONTRASEÑA
+                     ====================================================== -->
+
+                <label class="opcion-password">
+
+                    <input
+                        type="checkbox"
+                        id="checkboxPassword"
+                        onchange="alternarCheckboxPassword()"
+                    >
+
+                    Mostrar contraseña
+
+                </label>
+
+                <!-- ======================================================
+                     15.5. BOTÓN DE INGRESO
+                     ====================================================== -->
+
+                <button type="submit" class="boton-ingresar">
+                    Ingresar&nbsp; →
+                </button>
+
+            </form>
+
+            <!-- ==========================================================
+                 16. ENLACES DE NAVEGACIÓN
+                 ========================================================== -->
+
+            <div class="enlaces">
+
+                <p>
+                    ¿Aún no tienes cuenta?
+
+                    <a href="{% url 'registro' %}">
+                        Crear una cuenta
+                    </a>
+                </p>
+
+                <hr class="separador">
+
+                <p>
+                    <a href="/">
+                        ← Volver al inicio
+                    </a>
+                </p>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- ==========================================================
+         17. FUNCIONES JAVASCRIPT DE CONTRASEÑA
+         ========================================================== -->
+
+    <script>
+
+        function alternarPassword() {
+
+            const campo = document.getElementById("id_password");
+            const checkbox = document.getElementById("checkboxPassword");
+            const boton = document.getElementById("mostrarPassword");
+
+            const mostrar = campo.type === "password";
+
+            campo.type = mostrar ? "text" : "password";
+            checkbox.checked = mostrar;
+
+            boton.textContent = mostrar ? "◎" : "◉";
+
+            boton.setAttribute(
+                "aria-label",
+                mostrar ? "Ocultar contraseña" : "Mostrar contraseña"
+            );
+        }
+
+
+        function alternarCheckboxPassword() {
+
+            const campo = document.getElementById("id_password");
+            const checkbox = document.getElementById("checkboxPassword");
+            const boton = document.getElementById("mostrarPassword");
+
+            campo.type = checkbox.checked ? "text" : "password";
+
+            boton.textContent = checkbox.checked ? "◎" : "◉";
+
+            boton.setAttribute(
+                "aria-label",
+                checkbox.checked ? "Ocultar contraseña" : "Mostrar contraseña"
+            );
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,634 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Mis documentos | Valky Estudios en el Exterior</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #26364a;
+        }
+
+        /* ==================================================
+           1. BARRA SUPERIOR DE NAVEGACIÓN
+        ================================================== */
+
+        .barra-superior {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+            min-height: 76px;
+            padding: 12px 35px;
+            background: #18375d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .contenedor-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            padding: 6px 12px;
+            border-radius: 7px;
+        }
+
+        .logo-valky {
+            display: block;
+            width: auto;
+            height: 42px;
+            max-width: 180px;
+            object-fit: contain;
+        }
+
+        .boton-volver-superior {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 17px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .boton-volver-superior:hover {
+            background: rgba(255, 255, 255, 0.13);
+        }
+
+        /* ==================================================
+           2. CONTENEDOR PRINCIPAL
+        ================================================== */
+
+        .contenedor {
+            max-width: 1100px;
+            margin: auto;
+            padding: 35px 20px;
+        }
+
+        .encabezado {
+            margin-bottom: 28px;
+        }
+
+        .encabezado h1 {
+            color: #173b65;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .encabezado p {
+            color: #64748b;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* ==================================================
+           3. SECCIÓN DE DOCUMENTOS
+        ================================================== */
+
+        .seccion {
+            background: white;
+            padding: 26px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(23, 59, 101, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .seccion h2 {
+            color: #173b65;
+            margin-top: 0;
+            font-size: 21px;
+        }
+
+        .fila-documento {
+            display: grid;
+            grid-template-columns: 1.1fr 1.5fr auto 1fr;
+            align-items: center;
+            gap: 18px;
+            padding: 18px 14px;
+            border-bottom: 1px solid #e5ebf2;
+        }
+
+        .fila-documento:last-child {
+            border-bottom: none;
+        }
+
+        .nombre-documento {
+            color: #294968;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .selector-archivo {
+            width: 100%;
+            min-width: 0;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .selector-archivo::file-selector-button {
+            padding: 9px 12px;
+            margin-right: 8px;
+            border: 1px solid #cbd8e6;
+            border-radius: 7px;
+            background: #f1f5f9;
+            color: #294968;
+            cursor: pointer;
+        }
+
+        .boton-subir {
+            padding: 10px 16px;
+            background: #174477;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .boton-subir:hover {
+            background: #103457;
+        }
+
+        .boton-subir:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        /* ==================================================
+           4. ESTADOS DE LOS DOCUMENTOS
+        ================================================== */
+
+        .estado {
+            display: inline-block;
+            padding: 7px 11px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .estado-aprobado {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .estado-corregir {
+            color: #b42318;
+            background: #fee4e2;
+        }
+
+        .estado-pendiente {
+            color: #92400e;
+            background: #fef3c7;
+        }
+
+        .estado-sin-cargar {
+            color: #475569;
+            background: #e2e8f0;
+        }
+
+        /* ==================================================
+           5. OBSERVACIONES Y ARCHIVOS
+        ================================================== */
+
+        .observaciones {
+            grid-column: 1 / -1;
+            padding: 12px 14px;
+            margin-top: -5px;
+            border-left: 3px solid #dc5b52;
+            background: #fff5f4;
+            color: #8f302a;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        .observaciones p {
+            margin: 6px 0 0;
+            line-height: 1.5;
+        }
+
+        .archivo-actual {
+            grid-column: 1 / -1;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: -8px;
+            line-height: 1.6;
+        }
+
+        .archivo-actual a {
+            color: #174477;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .archivo-actual a:hover {
+            text-decoration: underline;
+        }
+
+        .fecha-carga {
+            margin-left: 12px;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .ayuda-carga {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+            margin-top: 7px;
+        }
+
+        /* ==================================================
+           6. MENSAJES
+        ================================================== */
+
+        .mensajes {
+            margin-bottom: 20px;
+            padding: 13px 16px;
+            border-radius: 8px;
+            background: #e7f6ec;
+            color: #17643a;
+            font-size: 14px;
+        }
+
+        .mensaje-error {
+            background: #fee4e2;
+            color: #b42318;
+        }
+
+        /* ==================================================
+           7. BOTÓN INFERIOR VOLVER
+        ================================================== */
+
+        .volver {
+            display: inline-block;
+            margin-top: 22px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            background: #e8eef5;
+            color: #294968;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .volver:hover {
+            background: #dce5ef;
+        }
+
+        /* ==================================================
+           8. DISEÑO RESPONSIVE
+        ================================================== */
+
+        @media (max-width: 800px) {
+
+            .barra-superior {
+                padding: 12px 20px;
+            }
+
+            .fila-documento {
+                grid-template-columns: 1fr 1fr;
+                gap: 13px;
+            }
+
+            .nombre-documento {
+                grid-column: 1 / -1;
+            }
+
+            .estado-contenedor {
+                grid-column: 1 / -1;
+            }
+
+            .observaciones,
+            .archivo-actual {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .barra-superior {
+                min-height: 68px;
+                padding: 10px 12px;
+                gap: 10px;
+            }
+
+            .logo-valky {
+                height: 34px;
+                max-width: 135px;
+            }
+
+            .contenedor-logo {
+                padding: 5px 8px;
+            }
+
+            .boton-volver-superior {
+                padding: 9px 11px;
+                font-size: 12px;
+                gap: 5px;
+            }
+
+            .contenedor {
+                padding: 22px 12px;
+            }
+
+            .encabezado h1 {
+                font-size: 24px;
+            }
+
+            .seccion {
+                padding: 16px;
+            }
+
+            .fila-documento {
+                grid-template-columns: 1fr;
+            }
+
+            .nombre-documento,
+            .estado-contenedor,
+            .observaciones,
+            .archivo-actual {
+                grid-column: 1;
+            }
+
+            .boton-subir {
+                width: 100%;
+            }
+
+            .fecha-carga {
+                display: block;
+                margin: 3px 0 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ==================================================
+     BARRA SUPERIOR
+================================================== -->
+
+<nav class="barra-superior">
+
+    <div class="contenedor-logo">
+        <img
+            src="{% static 'portal/img/logo_valky.png' %}"
+            alt="Valky Estudios en el Exterior"
+            class="logo-valky"
+        >
+    </div>
+
+    <a href="{% url 'inicio' %}" class="boton-volver-superior">
+        <span>←</span>
+        Volver al inicio
+    </a>
+
+</nav>
+
+
+<!-- ==================================================
+     CONTENIDO PRINCIPAL
+================================================== -->
+
+<div class="contenedor">
+
+    <div class="encabezado">
+        <h1>Mis documentos</h1>
+        <p>
+            Consulta los requisitos habilitados, carga tus archivos
+            y revisa su estado.
+        </p>
+    </div>
+
+    {% if messages %}
+        {% for mensaje in messages %}
+            <div class="mensajes {% if mensaje.tags == 'error' %}mensaje-error{% endif %}">
+                {{ mensaje }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <section class="seccion">
+
+        <h2>Documentos requeridos</h2>
+
+        {% for requisito in requisitos %}
+
+            <div class="fila-documento">
+
+                <div class="nombre-documento">
+                    {{ requisito.tipo_documento.nombre }}
+                </div>
+
+                {% if not requisito.documento_actual %}
+
+                    <form
+                        method="POST"
+                        enctype="multipart/form-data"
+                        id="formulario-{{ requisito.id }}"
+                    >
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="requisito_id"
+                            value="{{ requisito.id }}"
+                        >
+
+                        <input
+                            type="file"
+                            name="archivo"
+                            class="selector-archivo"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            required
+                        >
+
+                        <p class="ayuda-carga">
+                            Selecciona el archivo que deseas cargar.
+                        </p>
+                    </form>
+
+                    <button
+                        type="submit"
+                        form="formulario-{{ requisito.id }}"
+                        class="boton-subir"
+                    >
+                        Subir archivo
+                    </button>
+
+                {% elif requisito.documento_actual.estado == "corregir" %}
+
+                    <form
+                        method="POST"
+                        enctype="multipart/form-data"
+                        id="formulario-{{ requisito.id }}"
+                    >
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="requisito_id"
+                            value="{{ requisito.id }}"
+                        >
+
+                        <input
+                            type="file"
+                            name="archivo"
+                            class="selector-archivo"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            required
+                        >
+
+                        <p class="ayuda-carga">
+                            Selecciona el archivo corregido para reemplazar el anterior.
+                        </p>
+                    </form>
+
+                    <button
+                        type="submit"
+                        form="formulario-{{ requisito.id }}"
+                        class="boton-subir"
+                    >
+                        Reemplazar archivo
+                    </button>
+
+                {% elif requisito.documento_actual.estado == "aprobado" %}
+
+                    <span class="no-habilitado">
+                        Documento aprobado. No necesitas cargarlo nuevamente.
+                    </span>
+
+                    <button class="boton-subir" disabled>
+                        Aprobado
+                    </button>
+
+                {% else %}
+
+                    <span class="no-habilitado">
+                        Tu documento está siendo revisado.
+                    </span>
+
+                    <button class="boton-subir" disabled>
+                        En revisión
+                    </button>
+
+                {% endif %}
+
+                <div class="estado-contenedor">
+
+                    {% if requisito.documento_actual %}
+
+                        {% if requisito.documento_actual.estado == "aprobado" %}
+
+                            <span class="estado estado-aprobado">
+                                Aprobado
+                            </span>
+
+                        {% elif requisito.documento_actual.estado == "corregir" %}
+
+                            <span class="estado estado-corregir">
+                                Requiere corrección
+                            </span>
+
+                        {% else %}
+
+                            <span class="estado estado-pendiente">
+                                En revisión
+                            </span>
+
+                        {% endif %}
+
+                    {% else %}
+
+                        <span class="estado estado-sin-cargar">
+                            Sin cargar
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+                {% if requisito.documento_actual %}
+
+                    {% if requisito.documento_actual.archivo %}
+
+                        <div class="archivo-actual">
+
+                            Archivo cargado:
+
+                            <a
+                                href="{{ requisito.documento_actual.archivo.url }}"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                Ver documento
+                            </a>
+
+                            <span class="fecha-carga">
+                                Fecha de carga:
+                                {{ requisito.documento_actual.fecha_carga|date:"d/m/Y H:i" }}
+                            </span>
+
+                        </div>
+
+                    {% endif %}
+
+                    {% if requisito.documento_actual.observaciones %}
+
+                        <div class="observaciones">
+
+                            <strong>Observaciones del administrador:</strong>
+
+                            <p>
+                                {{ requisito.documento_actual.observaciones }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                {% endif %}
+
+            </div>
+
+        {% empty %}
+
+            <p>
+                Todavía no tienes documentos asignados.
+                Cuando el administrador habilite los requisitos,
+                aparecerán aquí.
+            </p>
+
+        {% endfor %}
+
+        <a href="{% url 'inicio' %}" class="volver">
+            Volver al inicio
+        </a>
+
+    </section>
+
+</div>
+
+</body>
+</html>

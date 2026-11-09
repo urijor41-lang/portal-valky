@@ -1,0 +1,336 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso administrativo | Valky</title>
+
+    <style>
+        /* ==========================================================
+           1. CONFIGURACIÓN GENERAL
+           ========================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #f3f6fb;
+            font-family: Arial, sans-serif;
+            color: #24344d;
+        }
+
+        /* ==========================================================
+           2. CONTENEDOR PRINCIPAL
+           ========================================================== */
+
+        .contenedor {
+            width: 100%;
+            max-width: 420px;
+            background: #ffffff;
+            padding: 38px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(20, 45, 80, 0.10);
+        }
+
+        /* ==========================================================
+           3. LOGO OFICIAL VALKY
+           ========================================================== */
+
+        .marca {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-valky {
+            display: block;
+            width: 210px;
+            max-width: 100%;
+            max-height: 100px;
+            height: auto;
+            object-fit: contain;
+            margin: 0 auto;
+        }
+
+        /* ==========================================================
+           4. TÍTULOS Y DESCRIPCIÓN
+           ========================================================== */
+
+        h2 {
+            margin: 0 0 8px;
+            color: #183b63;
+            font-size: 21px;
+            text-align: center;
+        }
+
+        .descripcion {
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        /* ==========================================================
+           5. CAMPOS DEL FORMULARIO
+           ========================================================== */
+
+        .campo {
+            margin-bottom: 19px;
+        }
+
+        .campo label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .campo input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccd5e0;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        .campo input:focus {
+            outline: none;
+            border-color: #245b91;
+            box-shadow: 0 0 0 2px rgba(36, 91, 145, 0.12);
+        }
+
+        /* ==========================================================
+           6. CAMPO DE CONTRASEÑA
+           ========================================================== */
+
+        .password-contenedor {
+            display: flex;
+            gap: 8px;
+        }
+
+        .password-contenedor input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .boton-mostrar {
+            padding: 0 12px;
+            border: 1px solid #ccd5e0;
+            border-radius: 7px;
+            background: #f5f7fa;
+            color: #244d78;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .boton-mostrar:hover {
+            background: #e8eef5;
+        }
+
+        /* ==========================================================
+           7. BOTÓN DE INGRESO
+           ========================================================== */
+
+        .boton-ingresar {
+            width: 100%;
+            padding: 13px;
+            margin-top: 8px;
+            background: #123b68;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .boton-ingresar:hover {
+            background: #1d548b;
+        }
+
+        /* ==========================================================
+           8. MENSAJES DE ERROR
+           ========================================================== */
+
+        .error {
+            padding: 11px;
+            margin-bottom: 18px;
+            border-radius: 7px;
+            background: #fff0f0;
+            color: #a52a2a;
+            font-size: 13px;
+        }
+
+        /* ==========================================================
+           9. PIE DE PÁGINA
+           ========================================================== */
+
+        .pie {
+            margin-top: 25px;
+            text-align: center;
+            color: #8995a5;
+            font-size: 12px;
+        }
+
+        /* ==========================================================
+           10. DISEÑO RESPONSIVE
+           ========================================================== */
+
+        @media (max-width: 480px) {
+            .contenedor {
+                padding: 27px 22px;
+            }
+
+            .logo-valky {
+                width: 185px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ==========================================================
+         11. CONTENEDOR DE ACCESO
+         ========================================================== -->
+
+    <main class="contenedor">
+
+        <!-- ======================================================
+             11.1. LOGO INSTITUCIONAL
+             ====================================================== -->
+
+        <div class="marca">
+
+            <img
+                src="{% static 'portal/img/logo_valky.png' %}"
+                alt="Valky Estudios en el Exterior"
+                class="logo-valky"
+            >
+
+        </div>
+
+        <!-- ======================================================
+             11.2. TÍTULO
+             ====================================================== -->
+
+        <h2>Acceso administrativo</h2>
+
+        <p class="descripcion">
+            Ingresa con tu cuenta de administrador o asesor.
+        </p>
+
+        <!-- ======================================================
+             11.3. ERRORES DE AUTENTICACIÓN
+             ====================================================== -->
+
+        {% if form.errors %}
+            <div class="error">
+                El usuario o la contraseña son incorrectos.
+                Verifica tus datos e inténtalo nuevamente.
+            </div>
+        {% endif %}
+
+        {% if form.non_field_errors %}
+            <div class="error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- ======================================================
+             11.4. FORMULARIO DE INGRESO
+             ====================================================== -->
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+
+            <div class="campo">
+
+                <label for="{{ form.username.id_for_label }}">
+                    Usuario
+                </label>
+
+                {{ form.username }}
+
+            </div>
+
+            <div class="campo">
+
+                <label for="{{ form.password.id_for_label }}">
+                    Contraseña
+                </label>
+
+                <div class="password-contenedor">
+
+                    {{ form.password }}
+
+                    <button
+                        type="button"
+                        class="boton-mostrar"
+                        id="mostrarPassword"
+                        onclick="alternarPassword()">
+                        Mostrar
+                    </button>
+
+                </div>
+
+            </div>
+
+            <button type="submit" class="boton-ingresar">
+                Iniciar sesión
+            </button>
+
+        </form>
+
+        <!-- ======================================================
+             11.5. PIE DE PÁGINA
+             ====================================================== -->
+
+        <div class="pie">
+            Valky Estudios en el Exterior
+        </div>
+
+    </main>
+
+    <!-- ==========================================================
+         12. MOSTRAR Y OCULTAR CONTRASEÑA
+         ========================================================== -->
+
+    <script>
+
+        function alternarPassword() {
+
+            const campo = document.getElementById("id_password");
+            const boton = document.getElementById("mostrarPassword");
+
+            if (campo.type === "password") {
+
+                campo.type = "text";
+                boton.textContent = "Ocultar";
+
+            } else {
+
+                campo.type = "password";
+                boton.textContent = "Mostrar";
+
+            }
+        }
+
+    </script>
+
+</body>
+</html>

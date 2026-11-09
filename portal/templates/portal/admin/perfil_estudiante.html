@@ -1,0 +1,2064 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil del estudiante | Valky</title>
+
+    <style>
+
+        /* ====================================================== */
+        /* 1. CONFIGURACIÓN GENERAL */
+        /* ====================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f5f9;
+            color: #243247;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ====================================================== */
+        /* 2. BARRA LATERAL DE NAVEGACIÓN */
+        /* ====================================================== */
+
+        .sidebar {
+            width: 245px;
+            flex-shrink: 0;
+            background: #142b49;
+            color: white;
+            padding: 30px 20px;
+        }
+
+        .brand {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 45px;
+        }
+
+        .brand span {
+            display: block;
+            font-size: 12px;
+            font-weight: normal;
+            color: #b9c9dc;
+            margin-top: 6px;
+        }
+
+        .menu a {
+            display: block;
+            color: #d9e3ef;
+            text-decoration: none;
+            padding: 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+        }
+
+        .menu a.active,
+        .menu a:hover {
+            background: #29496e;
+            color: white;
+        }
+
+        /* ====================================================== */
+        /* 3. CONTENIDO PRINCIPAL */
+        /* ====================================================== */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 35px 45px;
+        }
+
+        .back {
+            color: #245b91;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .page-title {
+            margin: 22px 0 8px;
+            font-size: 27px;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 25px;
+        }
+
+        .student-card,
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        }
+
+        .student-card h2 {
+            margin: 0 0 10px;
+            font-size: 22px;
+            color: #142b49;
+        }
+
+        .student-info {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        /* ====================================================== */
+        /* 4. PESTAÑAS DE NAVEGACIÓN */
+        /* ====================================================== */
+
+        .tabs {
+            display: flex;
+            gap: 25px;
+            border-bottom: 1px solid #dce3eb;
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            border: none;
+            background: transparent;
+            padding: 15px 5px;
+            color: #718096;
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: #142b49;
+            border-bottom-color: #142b49;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .panel h3 {
+            margin: 0 0 22px;
+            font-size: 18px;
+            color: #142b49;
+        }
+
+        /* ====================================================== */
+        /* 5. INFORMACIÓN GENERAL DEL ESTUDIANTE */
+        /* ====================================================== */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .info-item {
+            border-bottom: 1px solid #edf1f5;
+            padding-bottom: 13px;
+            min-width: 0;
+        }
+
+        .info-label {
+            display: block;
+            color: #718096;
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #243247;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        /* ====================================================== */
+        /* 6. RESTABLECIMIENTO DE CONTRASEÑA */
+        /* ====================================================== */
+
+        .password-panel {
+            background: #fff;
+            border: 1px solid #dce5ef;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .password-panel h3 {
+            margin: 0 0 12px;
+            color: #142b49;
+            font-size: 18px;
+        }
+
+        .password-description {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .password-button {
+            background: #245b91;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 7px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .password-button:hover {
+            background: #194675;
+        }
+
+        .password-result {
+            background: #f0f7ff;
+            border: 1px solid #b9d2ec;
+            border-radius: 9px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .password-result h4 {
+            color: #142b49;
+            margin: 0 0 10px;
+            font-size: 15px;
+        }
+
+        .password-warning {
+            color: #526174;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .password-display {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .password-display input {
+            flex: 1;
+            min-width: 180px;
+            padding: 12px;
+            border: 1px solid #cbd8e6;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #142b49;
+            background: white;
+        }
+
+        .copy-password-button {
+            background: #237343;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 7px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .copy-password-button:hover {
+            background: #195a33;
+        }
+
+        .password-copy-message {
+            color: #237343;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        /* ====================================================== */
+        /* 7. PREFERENCIAS ACADÉMICAS */
+        /* ====================================================== */
+
+        .preference-card {
+            border: 1px solid #e5eaf0;
+            border-radius: 9px;
+            padding: 22px;
+            margin-bottom: 18px;
+        }
+
+        .preference-title {
+            color: #245b91;
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .preference-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .field-group {
+            min-width: 0;
+        }
+
+        .field-group label {
+            display: block;
+            color: #526174;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .field-group input {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d8e0e9;
+            border-radius: 7px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            color: #243247;
+        }
+
+        .field-group input:focus {
+            outline: none;
+            border-color: #5280ae;
+            box-shadow: 0 0 0 2px rgba(82,128,174,.12);
+        }
+
+        .date-help {
+            color: #8995a5;
+            font-size: 11px;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .preference-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 22px;
+        }
+
+        .save-button {
+            background: #142b49;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .save-button:hover {
+            background: #29496e;
+        }
+
+        .section-description {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: -10px 0 22px;
+        }
+
+        /* ====================================================== */
+        /* 8. ASIGNACIÓN DE DOCUMENTOS */
+        /* ====================================================== */
+
+        .assignment-box {
+            background: #f8fafc;
+            border: 1px solid #e1e8f0;
+            border-radius: 9px;
+            padding: 22px;
+            margin-bottom: 28px;
+        }
+
+        .assignment-box h4 {
+            color: #142b49;
+            font-size: 15px;
+            margin: 0 0 8px;
+        }
+
+        .assignment-description {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 0 0 18px;
+        }
+
+        .document-options {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .document-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 1px solid #e1e8f0;
+            border-radius: 7px;
+            padding: 13px;
+            font-size: 13px;
+            color: #34445a;
+            cursor: pointer;
+        }
+
+        .document-option:hover {
+            border-color: #8da8c5;
+            background: #fafdff;
+        }
+
+        .document-option input {
+            width: 16px;
+            height: 16px;
+            accent-color: #142b49;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .assignment-button {
+            background: #142b49;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 7px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .assignment-button:hover {
+            background: #29496e;
+        }
+
+        .no-types {
+            color: #8995a5;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        /* ====================================================== */
+        /* 9. TABLA DE DOCUMENTOS */
+        /* ====================================================== */
+
+        .documents-table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .documents-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+            font-size: 13px;
+        }
+
+        .documents-table th {
+            background: #f2f5f9;
+            color: #526174;
+            text-align: left;
+            padding: 15px 12px;
+            font-size: 12px;
+            border-bottom: 1px solid #dce3eb;
+        }
+
+        .documents-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #edf1f5;
+            vertical-align: top;
+        }
+
+        .documents-table tr:hover {
+            background: #fafbfd;
+        }
+
+        .document-name {
+            font-weight: bold;
+            color: #142b49;
+        }
+
+        .document-status {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 9px;
+        }
+
+        .status-approved {
+            color: #237343;
+        }
+
+        .status-review {
+            color: #a66a13;
+        }
+
+        .status-correction {
+            color: #b23b3b;
+        }
+
+        .status-pending {
+            color: #718096;
+        }
+
+        .documents-table select,
+        .documents-table textarea {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #d8e0e9;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+
+        .documents-table textarea {
+            min-height: 65px;
+            resize: vertical;
+        }
+
+        .documents-table button {
+            background: #142b49;
+            color: white;
+            border: none;
+            padding: 9px 13px;
+            border-radius: 6px;
+            margin-top: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .documents-table button:hover {
+            background: #29496e;
+        }
+
+        .file-link {
+            color: #245b91;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .no-file {
+            color: #8995a5;
+            font-style: italic;
+        }
+
+        .document-observation {
+            display: block;
+            margin-bottom: 8px;
+            color: #526174;
+            line-height: 1.5;
+        }
+
+        /* ====================================================== */
+        /* 10. NOTAS DE SEGUIMIENTO */
+        /* ====================================================== */
+
+        .note-form textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 14px;
+            border: 1px solid #d8e0e9;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .note-form button {
+            background: #142b49;
+            color: white;
+            border: none;
+            padding: 11px 20px;
+            border-radius: 7px;
+            margin-top: 13px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .note-form button:hover {
+            background: #29496e;
+        }
+
+        .note-card {
+            border-left: 3px solid #245b91;
+            background: #f8fafc;
+            padding: 18px;
+            margin-bottom: 14px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .note-date,
+        .note-author {
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .note-date {
+            margin-bottom: 10px;
+        }
+
+        .note-content {
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .note-author {
+            margin-top: 12px;
+        }
+
+        .empty-text {
+            color: #8995a5;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        /* ====================================================== */
+        /* 11. MENSAJES DEL SISTEMA */
+        /* ====================================================== */
+
+        .message {
+            padding: 13px 16px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 14px;
+            background: #e2f5e9;
+            color: #237343;
+        }
+
+        .message.error {
+            background: #fde8e8;
+            color: #a33c3c;
+        }
+
+        /* ====================================================== */
+        /* 12. CIERRE Y ELIMINACIÓN DEL ESTUDIANTE */
+        /* ====================================================== */
+
+        .delete-panel {
+            margin-top: 35px;
+            background: #fff;
+            border: 1px solid #f0cccc;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .delete-panel h3 {
+            margin: 0 0 10px;
+            color: #a83232;
+            font-size: 18px;
+        }
+
+        .delete-description {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .delete-details {
+            border: 1px solid #efcccc;
+            border-radius: 8px;
+            padding: 17px;
+            background: #fffafa;
+        }
+
+        .delete-details summary {
+            color: #a83232;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .delete-form {
+            margin-top: 20px;
+        }
+
+        .delete-form label {
+            display: block;
+            color: #34445a;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .delete-form select,
+        .delete-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d8e0e9;
+            border-radius: 7px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .delete-form textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .delete-warning {
+            background: #fff0f0;
+            border: 1px solid #f0cccc;
+            color: #963535;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+
+        .delete-confirmation {
+            display: flex !important;
+            align-items: flex-start;
+            gap: 10px;
+            font-weight: normal !important;
+            line-height: 1.5;
+            margin-bottom: 20px !important;
+        }
+
+        .delete-confirmation input {
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .delete-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .delete-button {
+            background: #b83232;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 7px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background: #922626;
+        }
+
+        .cancel-button {
+            display: inline-block;
+            background: #e8eef6;
+            color: #294765;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* ====================================================== */
+        /* 13. DISEÑO RESPONSIVE */
+        /* ====================================================== */
+
+        @media (max-width: 850px) {
+
+            .sidebar {
+                width: 190px;
+            }
+
+            .main {
+                padding: 25px 18px;
+            }
+
+            .info-grid,
+            .preference-grid,
+            .document-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 20px;
+            }
+
+            .brand {
+                margin-bottom: 20px;
+            }
+
+            .main {
+                padding: 22px 15px;
+            }
+
+            .delete-actions {
+                flex-direction: column;
+            }
+
+            .delete-button,
+            .cancel-button {
+                text-align: center;
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- ====================================================== -->
+    <!-- 14. BARRA LATERAL DE NAVEGACIÓN -->
+    <!-- ====================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            VALKY
+            <span>Estudios en el Exterior</span>
+        </div>
+
+        <nav class="menu">
+
+            <a href="{% url 'admin_inicio' %}">
+                Inicio
+            </a>
+
+            <a href="#" class="active">
+                Perfil del estudiante
+            </a>
+
+            <a href="{% url 'admin_tipos_documentos' %}">
+                Tipos de documentos
+            </a>
+
+            <a href="{% url 'admin_historial_estudiantes' %}">
+                Historial de estudiantes
+            </a>
+
+            <a href="{% url 'cerrar_sesion' %}">
+                Cerrar sesión
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- ====================================================== -->
+    <!-- 15. CONTENIDO PRINCIPAL DEL PERFIL -->
+    <!-- ====================================================== -->
+
+    <main class="main">
+
+        <!-- ENCABEZADO DEL PERFIL -->
+
+        <a class="back" href="{% url 'admin_inicio' %}">
+            ← Volver a estudiantes
+        </a>
+
+        <h1 class="page-title">
+            Perfil del estudiante
+        </h1>
+
+        <p class="subtitle">
+            Información y seguimiento del proceso académico.
+        </p>
+
+        <!-- TARJETA DE IDENTIFICACIÓN DEL ESTUDIANTE -->
+
+        <section class="student-card">
+
+            <h2>
+                {% if perfil.nombres or perfil.apellidos %}
+                    {{ perfil.nombres }} {{ perfil.apellidos }}
+                {% else %}
+                    {{ estudiante.username }}
+                {% endif %}
+            </h2>
+
+            <div class="student-info">
+
+                Usuario: {{ estudiante.username }}
+
+                &nbsp; | &nbsp;
+
+                Correo: {{ estudiante.email|default:"No registrado" }}
+
+            </div>
+
+        </section>
+
+        <!-- MENSAJES DEL SISTEMA -->
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="message {% if message.tags == 'error' %}error{% endif %}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+        <!-- ================================================== -->
+        <!-- 16. PESTAÑAS DEL PERFIL -->
+        <!-- ================================================== -->
+
+        <div class="tabs">
+
+            <button class="tab active" type="button" data-tab="informacion">
+                Información general
+            </button>
+
+            <button class="tab" type="button" data-tab="preferencias">
+                Preferencias académicas
+            </button>
+
+            <button class="tab" type="button" data-tab="documentos">
+                Documentos
+            </button>
+
+            <button class="tab" type="button" data-tab="notas">
+                Notas
+            </button>
+
+        </div>
+
+        <!-- ================================================== -->
+        <!-- 17. PESTAÑA: INFORMACIÓN GENERAL -->
+        <!-- ================================================== -->
+
+        <section id="informacion" class="tab-content active">
+
+            <!-- INFORMACIÓN PERSONAL -->
+
+<div class="panel">
+
+    <h3>Información personal</h3>
+
+    <p class="section-description">
+        Desde aquí puedes consultar y actualizar los datos personales
+        y de contacto del estudiante.
+    </p>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="accion"
+            value="guardar_informacion_personal"
+        >
+
+        <div class="preference-grid">
+
+            <div class="field-group">
+                <label for="nombres">Nombres</label>
+                <input
+                    type="text"
+                    id="nombres"
+                    name="nombres"
+                    value="{{ perfil.nombres|default_if_none:'' }}"
+                >
+            </div>
+
+            <div class="field-group">
+                <label for="apellidos">Apellidos</label>
+                <input
+                    type="text"
+                    id="apellidos"
+                    name="apellidos"
+                    value="{{ perfil.apellidos|default_if_none:'' }}"
+                >
+            </div>
+
+            <div class="field-group">
+                <label for="edad">Edad</label>
+                <input
+                    type="number"
+                    id="edad"
+                    name="edad"
+                    min="0"
+                    value="{{ perfil.edad|default_if_none:'' }}"
+                >
+            </div>
+
+            <div class="field-group">
+                <label for="telefono">Teléfono</label>
+                <input
+                    type="text"
+                    id="telefono"
+                    name="telefono"
+                    value="{{ perfil.telefono|default_if_none:'' }}"
+                >
+            </div>
+
+            <div class="field-group">
+                <label for="correo">Correo electrónico / Usuario</label>
+                <input
+                    type="email"
+                    id="correo"
+                    name="correo"
+                    value="{{ estudiante.email|default_if_none:'' }}"
+                    required
+                >
+                <div class="date-help">
+                    Este correo también será el nombre de usuario del estudiante.
+                </div>
+            </div>
+
+        </div>
+
+        <div class="preference-actions">
+
+            <button type="submit" class="save-button">
+                Guardar información personal
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+            
+<!-- RESTABLECIMIENTO DE CONTRASEÑA -->
+
+<div class="password-panel">
+
+    <h3>Acceso y contraseña del estudiante</h3>
+
+    <p class="password-description">
+        Desde aquí puedes generar una nueva contraseña temporal
+        para el estudiante si ha olvidado sus datos de acceso
+        o necesita recuperar el ingreso al portal.
+    </p>
+
+    <!-- FORMULARIO PARA GENERAR CONTRASEÑA -->
+
+    <form
+        method="POST"
+        onsubmit="return confirm('¿Estás seguro de que deseas generar una nueva contraseña? La contraseña anterior dejará de funcionar inmediatamente.');"
+    >
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="accion"
+            value="restablecer_contrasena"
+        >
+
+        <button type="submit" class="password-button">
+            Generar nueva contraseña temporal
+        </button>
+
+    </form>
+
+    <!-- RESULTADO DEL RESTABLECIMIENTO -->
+
+    {% if contraseña_temporal %}
+
+        <div class="password-result">
+
+            <h4>Nueva contraseña generada</h4>
+
+            <p class="password-warning">
+                La contraseña anterior ya no funciona.
+                Copia esta nueva contraseña y entrégasela
+                al estudiante de manera segura.
+            </p>
+
+            <div class="password-display">
+
+                <input
+                    type="text"
+                    id="contraseña-temporal"
+                    value="{{ contraseña_temporal }}"
+                    readonly
+                >
+
+                <button
+                    type="button"
+                    class="copy-password-button"
+                    onclick="copiarContraseña()"
+                >
+                    Copiar contraseña
+                </button>
+
+            </div>
+
+            <p
+                id="mensaje-copia"
+                class="password-copy-message"
+                style="display: none;"
+            >
+                Contraseña copiada correctamente.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+        </section>
+
+
+        <!-- ================================================== -->
+        <!-- 18. PESTAÑA: PREFERENCIAS ACADÉMICAS -->
+        <!-- ================================================== -->
+
+        <section id="preferencias" class="tab-content">
+
+            <div class="panel">
+
+                <h3>Preferencias académicas</h3>
+
+                <p class="section-description">
+                    Registra las universidades a las que aplica el estudiante.
+                    Cada opción tiene su propio Intake (fecha de ingreso al programa)
+                    y Deadline (fecha límite para presentar la aplicación).
+                </p>
+
+                <form method="POST">
+
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="accion"
+                        value="guardar_preferencias"
+                    >
+
+                    <!-- OPCIÓN 1 -->
+
+                    <div class="preference-card">
+
+                        <div class="preference-title">
+                            Opción 1
+                        </div>
+
+                        <div class="preference-grid">
+
+                            <div class="field-group">
+                                <label for="carrera_1">Carrera o programa</label>
+                                <input
+                                    type="text"
+                                    id="carrera_1"
+                                    name="carrera_1"
+                                    value="{{ perfil.carrera_1|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="universidad_1">Universidad</label>
+                                <input
+                                    type="text"
+                                    id="universidad_1"
+                                    name="universidad_1"
+                                    value="{{ perfil.universidad_1|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="pais_1">País</label>
+                                <input
+                                    type="text"
+                                    id="pais_1"
+                                    name="pais_1"
+                                    value="{{ perfil.pais_1|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="intake_1">Intake – Fecha de ingreso</label>
+                                <input
+                                    type="date"
+                                    id="intake_1"
+                                    name="intake_1"
+                                    value="{{ perfil.intake_1|date:'Y-m-d' }}"
+                                >
+                                <div class="date-help">
+                                    Fecha en la que comienza el programa.
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="deadline_1">Deadline – Fecha límite</label>
+                                <input
+                                    type="date"
+                                    id="deadline_1"
+                                    name="deadline_1"
+                                    value="{{ perfil.deadline_1|date:'Y-m-d' }}"
+                                >
+                                <div class="date-help">
+                                    Último día para presentar la aplicación.
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- OPCIÓN 2 -->
+
+                    <div class="preference-card">
+
+                        <div class="preference-title">
+                            Opción 2
+                        </div>
+
+                        <div class="preference-grid">
+
+                            <div class="field-group">
+                                <label for="carrera_2">Carrera o programa</label>
+                                <input
+                                    type="text"
+                                    id="carrera_2"
+                                    name="carrera_2"
+                                    value="{{ perfil.carrera_2|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="universidad_2">Universidad</label>
+                                <input
+                                    type="text"
+                                    id="universidad_2"
+                                    name="universidad_2"
+                                    value="{{ perfil.universidad_2|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="pais_2">País</label>
+                                <input
+                                    type="text"
+                                    id="pais_2"
+                                    name="pais_2"
+                                    value="{{ perfil.pais_2|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="intake_2">Intake – Fecha de ingreso</label>
+                                <input
+                                    type="date"
+                                    id="intake_2"
+                                    name="intake_2"
+                                    value="{{ perfil.intake_2|date:'Y-m-d' }}"
+                                >
+                                <div class="date-help">
+                                    Fecha en la que comienza el programa.
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="deadline_2">Deadline – Fecha límite</label>
+                                <input
+                                    type="date"
+                                    id="deadline_2"
+                                    name="deadline_2"
+                                    value="{{ perfil.deadline_2|date:'Y-m-d' }}"
+                                >
+                                <div class="date-help">
+                                    Último día para presentar la aplicación.
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- OPCIÓN 3 -->
+
+                    <div class="preference-card">
+
+                        <div class="preference-title">
+                            Opción 3
+                        </div>
+
+                        <div class="preference-grid">
+
+                            <div class="field-group">
+                                <label for="carrera_3">Carrera o programa</label>
+                                <input
+                                    type="text"
+                                    id="carrera_3"
+                                    name="carrera_3"
+                                    value="{{ perfil.carrera_3|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="universidad_3">Universidad</label>
+                                <input
+                                    type="text"
+                                    id="universidad_3"
+                                    name="universidad_3"
+                                    value="{{ perfil.universidad_3|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="pais_3">País</label>
+                                <input
+                                    type="text"
+                                    id="pais_3"
+                                    name="pais_3"
+                                    value="{{ perfil.pais_3|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="intake_3">Intake – Fecha de ingreso</label>
+                                <input
+                                    type="date"
+                                    id="intake_3"
+                                    name="intake_3"
+                                    value="{{ perfil.intake_3|date:'Y-m-d' }}"
+                                >
+                                <div class="date-help">
+                                    Fecha en la que comienza el programa.
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="deadline_3">Deadline – Fecha límite</label>
+                                <input
+                                    type="date"
+                                    id="deadline_3"
+                                    name="deadline_3"
+                                    value="{{ perfil.deadline_3|date:'Y-m-d' }}"
+                                >
+                                <div class="date-help">
+                                    Último día para presentar la aplicación.
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- OPCIÓN 4 -->
+
+                    <div class="preference-card">
+
+                        <div class="preference-title">
+                            Opción 4
+                        </div>
+
+                        <div class="preference-grid">
+
+                            <div class="field-group">
+                                <label for="carrera_4">Carrera o programa</label>
+                                <input
+                                    type="text"
+                                    id="carrera_4"
+                                    name="carrera_4"
+                                    value="{{ perfil.carrera_4|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="universidad_4">Universidad</label>
+                                <input
+                                    type="text"
+                                    id="universidad_4"
+                                    name="universidad_4"
+                                    value="{{ perfil.universidad_4|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="pais_4">País</label>
+                                <input
+                                    type="text"
+                                    id="pais_4"
+                                    name="pais_4"
+                                    value="{{ perfil.pais_4|default_if_none:'' }}"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="intake_4">Intake – Fecha de ingreso</label>
+                                <input
+                                    type="date"
+                                    id="intake_4"
+                                    name="intake_4"
+                                    value="{{ perfil.intake_4|date:'Y-m-d' }}"
+                                >
+                                <div class="date-help">
+                                    Fecha en la que comienza el programa.
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="deadline_4">Deadline – Fecha límite</label>
+                                <input
+                                    type="date"
+                                    id="deadline_4"
+                                    name="deadline_4"
+                                    value="{{ perfil.deadline_4|date:'Y-m-d' }}"
+                                >
+                                <div class="date-help">
+                                    Último día para presentar la aplicación.
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- GUARDAR PREFERENCIAS -->
+
+                    <div class="preference-actions">
+
+                        <button type="submit" class="save-button">
+                            Guardar preferencias académicas
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+        <!-- ================================================== -->
+        <!-- 19. PESTAÑA: DOCUMENTOS -->
+        <!-- ================================================== -->
+
+        <section id="documentos" class="tab-content">
+
+            <div class="panel">
+
+                <!-- ASIGNACIÓN DE DOCUMENTOS -->
+
+                <h3>Documentos del estudiante</h3>
+
+                <div class="assignment-box">
+
+                    <h4>Asignar documentos al estudiante</h4>
+
+                    <p class="assignment-description">
+                        Selecciona los documentos que este estudiante debe entregar.
+                        Solo aparecerán los tipos de documentos activos del catálogo.
+                    </p>
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="accion"
+                            value="guardar_requisitos"
+                        >
+
+                        {% if tipos_documentos_disponibles %}
+
+                            <div class="document-options">
+
+                                {% for tipo in tipos_documentos_disponibles %}
+
+                                    <label class="document-option">
+
+                                        <input
+                                            type="checkbox"
+                                            name="tipos_documentos"
+                                            value="{{ tipo.id }}"
+                                            {% if tipo.id in requisitos_seleccionados %}checked{% endif %}
+                                        >
+
+                                        <span>{{ tipo.nombre }}</span>
+
+                                    </label>
+
+                                {% endfor %}
+
+                            </div>
+
+                            <button type="submit" class="assignment-button">
+                                Guardar requisitos
+                            </button>
+
+                        {% else %}
+
+                            <p class="no-types">
+                                No hay tipos de documentos activos en el catálogo.
+                                Primero debes crear o activar documentos en la sección
+                                Tipos de documentos.
+                            </p>
+
+                        {% endif %}
+
+                    </form>
+
+                </div>
+
+                <!-- SEGUIMIENTO DE DOCUMENTOS -->
+
+                <h3>Seguimiento de documentos</h3>
+
+                <div class="documents-table-container">
+
+                    <table class="documents-table">
+
+                        <thead>
+                            <tr>
+                                <th>Tipo de documento</th>
+                                <th>Estado</th>
+                                <th>Observaciones</th>
+                                <th>Archivo</th>
+                                <th>Fecha de carga</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for item in documentos_unificados %}
+
+                                <tr>
+
+                                    <!-- TIPO DE DOCUMENTO -->
+
+                                    <td>
+
+                                        <span class="document-name">
+                                            {{ item.tipo.nombre }}
+                                        </span>
+
+                                        {% if item.documento %}
+
+                                            <form
+                                                id="documento-form-{{ item.documento.id }}"
+                                                method="POST"
+                                            >
+
+                                                {% csrf_token %}
+
+                                                <input
+                                                    type="hidden"
+                                                    name="accion"
+                                                    value="actualizar_documento"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="documento_id"
+                                                    value="{{ item.documento.id }}"
+                                                >
+
+                                            </form>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <!-- ESTADO DEL DOCUMENTO -->
+
+                                    <td>
+
+                                        {% if item.documento %}
+
+                                            {% if item.documento.estado == "aprobado" %}
+
+                                                <span class="document-status status-approved">
+                                                    Aprobado
+                                                </span>
+
+                                            {% elif item.documento.estado == "corregir" %}
+
+                                                <span class="document-status status-correction">
+                                                    Requiere corrección
+                                                </span>
+
+                                            {% else %}
+
+                                                <span class="document-status status-review">
+                                                    En revisión
+                                                </span>
+
+                                            {% endif %}
+
+                                            <select
+                                                name="estado"
+                                                form="documento-form-{{ item.documento.id }}"
+                                                required
+                                            >
+
+                                                <option
+                                                    value="pendiente"
+                                                    {% if item.documento.estado == "pendiente" %}selected{% endif %}
+                                                >
+                                                    En revisión
+                                                </option>
+
+                                                <option
+                                                    value="aprobado"
+                                                    {% if item.documento.estado == "aprobado" %}selected{% endif %}
+                                                >
+                                                    Aprobado
+                                                </option>
+
+                                                <option
+                                                    value="corregir"
+                                                    {% if item.documento.estado == "corregir" %}selected{% endif %}
+                                                >
+                                                    Requiere corrección
+                                                </option>
+
+                                            </select>
+
+                                        {% else %}
+
+                                            <span class="document-status status-pending">
+                                                Pendiente
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <!-- OBSERVACIONES -->
+
+                                    <td>
+
+                                        {% if item.documento %}
+
+                                            <span class="document-observation">
+
+                                                {% if item.documento.observaciones %}
+                                                    {{ item.documento.observaciones }}
+                                                {% else %}
+                                                    Sin observaciones
+                                                {% endif %}
+
+                                            </span>
+
+                                            <textarea
+                                                name="observaciones"
+                                                form="documento-form-{{ item.documento.id }}"
+                                                placeholder="Escribe una observación..."
+                                            >{{ item.documento.observaciones }}</textarea>
+
+                                            <button
+                                                type="submit"
+                                                form="documento-form-{{ item.documento.id }}"
+                                            >
+                                                Guardar cambios
+                                            </button>
+
+                                        {% else %}
+
+                                            <span class="no-file">
+                                                Pendiente de cargar
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <!-- ARCHIVO DEL ESTUDIANTE -->
+
+                                    <td>
+
+                                        {% if item.documento %}
+
+                                            {% if item.documento.archivo %}
+
+                                                <a
+                                                    class="file-link"
+                                                    href="{{ item.documento.archivo.url }}"
+                                                    target="_blank"
+                                                >
+                                                    Ver documento
+                                                </a>
+
+                                            {% else %}
+
+                                                <span class="no-file">
+                                                    Sin archivo
+                                                </span>
+
+                                            {% endif %}
+
+                                        {% else %}
+
+                                            <span class="no-file">
+                                                Sin archivo
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <!-- FECHA DE CARGA -->
+
+                                    <td>
+
+                                        {% if item.documento %}
+
+                                            {{ item.documento.fecha_carga|date:"d/m/Y" }}
+
+                                        {% else %}
+
+                                            —
+
+                                        {% endif %}
+
+                                    </td>
+
+                                </tr>
+
+                            {% empty %}
+
+                                <tr>
+
+                                    <td colspan="5">
+
+                                        <p class="empty-text">
+                                            Todavía no se han asignado documentos a este estudiante.
+                                            Selecciona los documentos que debe entregar y guarda los requisitos.
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ================================================== -->
+        <!-- 20. PESTAÑA: NOTAS DE SEGUIMIENTO -->
+        <!-- ================================================== -->
+
+        <section id="notas" class="tab-content">
+
+            <!-- REGISTRAR NOTA -->
+
+            <div class="panel">
+
+                <h3>Registrar nota de seguimiento</h3>
+
+                <form method="POST" class="note-form">
+
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="accion"
+                        value="guardar_nota"
+                    >
+
+                    <textarea
+                        name="contenido"
+                        placeholder="Escribe aquí una observación sobre el proceso del estudiante..."
+                        required
+                    ></textarea>
+
+                    <button type="submit">
+                        Guardar nota
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- HISTORIAL DE NOTAS -->
+
+            <div class="panel">
+
+                <h3>Historial de seguimiento</h3>
+
+                {% for nota in notas %}
+
+                    <div class="note-card">
+
+                        <div class="note-date">
+                            {{ nota.fecha_creacion|date:"d/m/Y - H:i" }}
+                        </div>
+
+                        <div class="note-content">
+                            {{ nota.contenido }}
+                        </div>
+
+                        <div class="note-author">
+
+                            Registrado por:
+
+                            {% if nota.administrador %}
+
+                                {{ nota.administrador.username }}
+
+                            {% else %}
+
+                                Administrador no disponible
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <p class="empty-text">
+                        Todavía no hay notas de seguimiento para este estudiante.
+                    </p>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        <!-- ================================================== -->
+        <!-- 21. CIERRE DEL PROCESO Y ELIMINACIÓN DEL ESTUDIANTE -->
+        <!-- ================================================== -->
+
+        <section class="delete-panel">
+
+            <h3>Cerrar proceso y eliminar estudiante</h3>
+
+            <p class="delete-description">
+                Utiliza esta opción cuando el proceso del estudiante haya finalizado
+                o cuando ya no continúe con Valky. Se conservará un registro básico
+                en el historial de estudiantes.
+            </p>
+
+            <details class="delete-details">
+
+                <summary>
+                    Mostrar opciones de cierre y eliminación
+                </summary>
+
+                <form method="POST" class="delete-form">
+
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="accion"
+                        value="eliminar_estudiante"
+                    >
+
+                    <!-- ADVERTENCIA -->
+
+                    <div class="delete-warning">
+
+                        <strong>Atención:</strong> esta operación eliminará la cuenta
+                        del estudiante, su perfil, sus documentos cargados, los requisitos
+                        asignados y las notas de seguimiento. La información personal
+                        no se conservará en el historial.
+
+                    </div>
+
+                    <!-- RESULTADO DEL CIERRE -->
+
+                    <label for="resultado-cierre">
+                        Resultado del proceso
+                    </label>
+
+                    <select
+                        id="resultado-cierre"
+                        name="resultado"
+                        required
+                    >
+
+                        <option value="">
+                            Selecciona un resultado
+                        </option>
+
+                        <option value="completado">
+                            Completado
+                        </option>
+
+                        <option value="desistio">
+                            Desistió del proceso
+                        </option>
+
+                        <option value="otra_agencia">
+                            Se fue con otra agencia
+                        </option>
+
+                        <option value="otro">
+                            Otro motivo
+                        </option>
+
+                    </select>
+
+                    <!-- OBSERVACIÓN DEL CIERRE -->
+
+                    <label for="observacion-cierre">
+                        Observación (opcional)
+                    </label>
+
+                    <textarea
+                        id="observacion-cierre"
+                        name="observacion"
+                        placeholder="Puedes agregar una explicación breve del cierre del proceso..."
+                    ></textarea>
+
+                    <!-- CONFIRMACIÓN DE ELIMINACIÓN -->
+
+                    <label class="delete-confirmation">
+
+                        <input
+                            type="checkbox"
+                            name="confirmar_eliminacion"
+                            value="si"
+                            required
+                        >
+
+                        <span>
+                            Confirmo que deseo cerrar el proceso y eliminar
+                            permanentemente la cuenta y los datos del estudiante.
+                        </span>
+
+                    </label>
+
+                    <!-- BOTONES DE ACCIÓN -->
+
+                    <div class="delete-actions">
+
+                        <button type="submit" class="delete-button">
+                            Confirmar cierre y eliminación
+                        </button>
+
+                        <a
+                            href="{% url 'admin_perfil_estudiante' estudiante.id %}"
+                            class="cancel-button"
+                        >
+                            Cancelar
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </details>
+
+        </section>
+
+    </main>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- 22. FUNCIONES JAVASCRIPT -->
+<!-- ====================================================== -->
+
+<script>
+
+    /* ====================================================== */
+    /* NAVEGACIÓN ENTRE PESTAÑAS */
+    /* ====================================================== */
+
+    const botones = document.querySelectorAll(".tab");
+    const secciones = document.querySelectorAll(".tab-content");
+
+    botones.forEach(boton => {
+
+        boton.addEventListener("click", function () {
+
+            botones.forEach(item => {
+                item.classList.remove("active");
+            });
+
+            secciones.forEach(item => {
+                item.classList.remove("active");
+            });
+
+            this.classList.add("active");
+
+            const destino = this.dataset.tab;
+
+            document.getElementById(destino).classList.add("active");
+
+        });
+
+    });
+
+
+    /* ====================================================== */
+    /* COPIAR CONTRASEÑA TEMPORAL */
+    /* ====================================================== */
+
+    function copiarContraseña() {
+
+        const campo = document.getElementById("contraseña-temporal");
+        const mensaje = document.getElementById("mensaje-copia");
+
+        if (!campo || !mensaje) {
+            return;
+        }
+
+        campo.select();
+        campo.setSelectionRange(0, 99999);
+
+        navigator.clipboard.writeText(campo.value)
+
+            .then(function () {
+
+                mensaje.style.display = "block";
+
+            })
+
+            .catch(function () {
+
+                campo.focus();
+                campo.select();
+
+                const copiado = document.execCommand("copy");
+
+                if (copiado) {
+                    mensaje.style.display = "block";
+                }
+
+            });
+
+    }
+
+</script>
+
+</body>
+</html>

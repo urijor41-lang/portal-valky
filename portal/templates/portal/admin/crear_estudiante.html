@@ -1,0 +1,295 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear estudiante | Valky</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f5f9;
+            color: #1d2939;
+        }
+
+        .contenedor {
+            max-width: 720px;
+            margin: 45px auto;
+            padding: 0 20px;
+        }
+
+        .tarjeta {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(0,0,0,.07);
+        }
+
+        h1 {
+            color: #102b50;
+            margin-top: 0;
+        }
+
+        .descripcion {
+            color: #667085;
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 18px 0 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #174a7e;
+        }
+
+        .boton {
+            display: inline-block;
+            border: none;
+            border-radius: 7px;
+            padding: 12px 20px;
+            background: #12345a;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 24px;
+        }
+
+        .boton:hover {
+            background: #1b4d80;
+        }
+
+        .secundario {
+            background: #e8edf3;
+            color: #12345a;
+            margin-left: 8px;
+        }
+
+        .error {
+            background: #feecec;
+            color: #a12626;
+            padding: 12px;
+            border-radius: 7px;
+            margin-bottom: 12px;
+        }
+
+        .exito {
+            background: #e9f7ef;
+            border: 1px solid #b7e4c7;
+            padding: 22px;
+            border-radius: 9px;
+            margin-top: 20px;
+        }
+
+        .contrasena {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .contrasena input {
+            flex: 1;
+        }
+
+        .ojo {
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            border-radius: 7px;
+            padding: 10px 13px;
+            cursor: pointer;
+            font-size: 19px;
+        }
+
+        .aviso {
+            color: #8a5a00;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        .acciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+    <div class="tarjeta">
+
+        <h1>Crear estudiante</h1>
+        <p class="descripcion">
+            Registra una nueva cuenta para un estudiante de Valky.
+        </p>
+
+        {% if errores %}
+            {% for error in errores %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% if estudiante_creado %}
+
+            <div class="exito">
+                <h2>¡Estudiante creado correctamente!</h2>
+
+                <p>
+                    <strong>Nombre:</strong>
+                    {{ estudiante_creado.first_name }}
+                    {{ estudiante_creado.last_name }}
+                </p>
+
+                <p>
+                    <strong>Usuario:</strong>
+                    {{ estudiante_creado.username }}
+                </p>
+
+                <p><strong>Contraseña temporal:</strong></p>
+
+                <div class="contrasena">
+                    <input
+                        type="password"
+                        id="claveTemporal"
+                        value="{{ contraseña_temporal }}"
+                        readonly
+                    >
+
+                    <button
+                        type="button"
+                        class="ojo"
+                        id="botonOjo"
+                        onclick="mostrarContrasena()"
+                        aria-label="Mostrar contraseña"
+                        title="Mostrar contraseña"
+                    >
+                        👁
+                    </button>
+                </div>
+
+                <p class="aviso">
+                    Guarda y entrega esta contraseña al estudiante.
+                    No volverá a mostrarse cuando salgas de esta pantalla.
+                </p>
+
+                <div class="acciones">
+                    <button
+                        type="button"
+                        class="boton"
+                        onclick="copiarContrasena()"
+                    >
+                        Copiar contraseña
+                    </button>
+
+                    <a href="{% url 'admin_crear_estudiante' %}" class="boton">
+                        Crear otro estudiante
+                    </a>
+
+                    <a href="{% url 'admin_inicio' %}" class="boton secundario">
+                        Volver al inicio
+                    </a>
+                </div>
+            </div>
+
+        {% else %}
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <label for="nombres">Nombres</label>
+                <input
+                    type="text"
+                    id="nombres"
+                    name="nombres"
+                    value="{{ nombres }}"
+                    required
+                >
+
+                <label for="apellidos">Apellidos</label>
+                <input
+                    type="text"
+                    id="apellidos"
+                    name="apellidos"
+                    value="{{ apellidos }}"
+                    required
+                >
+
+                <label for="email">Correo electrónico</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value="{{ email }}"
+                    required
+                >
+
+                <p class="descripcion">
+                    El correo electrónico será también el nombre de usuario.
+                    El sistema generará la contraseña temporal automáticamente.
+                </p>
+
+                <button type="submit" class="boton">
+                    Crear cuenta de estudiante
+                </button>
+
+                <a href="{% url 'admin_inicio' %}" class="boton secundario">
+                    Cancelar
+                </a>
+            </form>
+
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+    function mostrarContrasena() {
+        const campo = document.getElementById("claveTemporal");
+        const boton = document.getElementById("botonOjo");
+
+        if (campo.type === "password") {
+            campo.type = "text";
+            boton.textContent = "🙈";
+            boton.title = "Ocultar contraseña";
+            boton.setAttribute("aria-label", "Ocultar contraseña");
+        } else {
+            campo.type = "password";
+            boton.textContent = "👁";
+            boton.title = "Mostrar contraseña";
+            boton.setAttribute("aria-label", "Mostrar contraseña");
+        }
+    }
+
+    function copiarContrasena() {
+        const campo = document.getElementById("claveTemporal");
+
+        campo.type = "text";
+        campo.select();
+        document.execCommand("copy");
+        campo.type = "password";
+
+        alert("Contraseña copiada.");
+    }
+</script>
+
+</body>
+</html>

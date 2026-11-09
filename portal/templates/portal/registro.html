@@ -1,0 +1,427 @@
+
+<!-- =====================================================
+     1. ESTRUCTURA PRINCIPAL DEL DOCUMENTO
+===================================================== -->
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <!-- 2. CONFIGURACIÓN DE LA PÁGINA -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Registro | Valky Estudios en el Exterior</title>
+
+
+    <!-- =================================================
+         3. ESTILOS GENERALES
+    ================================================== -->
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f5f9;
+            color: #243247;
+            margin: 0;
+        }
+
+
+        /* =================================================
+           4. ENCABEZADO
+        ================================================== */
+
+        header {
+            background: #17365d;
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+
+        /* =================================================
+           5. CONTENEDOR PRINCIPAL
+        ================================================== */
+
+        main {
+            width: calc(100% - 30px);
+            max-width: 480px;
+            margin: 40px auto;
+            padding: 28px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #172b4d10;
+        }
+
+
+        /* =================================================
+           6. CAMPOS DEL FORMULARIO
+        ================================================== */
+
+        .campo {
+            margin-bottom: 20px;
+        }
+
+        .campo label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #344b66;
+        }
+
+        .campo input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d5dfeb;
+            border-radius: 7px;
+            background: #f9fbfe;
+            font-size: 14px;
+            color: #263449;
+        }
+
+        .campo input:focus {
+            outline: none;
+            border-color: #3478c7;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 120, 199, 0.12);
+        }
+
+
+        /* =================================================
+           7. BOTONES PARA MOSTRAR Y OCULTAR CONTRASEÑAS
+        ================================================== */
+
+        .password-contenedor {
+            position: relative;
+        }
+
+        .password-contenedor input {
+            padding-right: 85px;
+        }
+
+        .boton-mostrar {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #174d83;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 7px;
+        }
+
+        .boton-mostrar:hover {
+            background: transparent;
+            color: #3478c7;
+        }
+
+
+        /* =================================================
+           8. TEXTOS DE AYUDA Y MENSAJES DE ERROR
+        ================================================== */
+
+        .ayuda {
+            display: block;
+            margin-top: 6px;
+            color: #718096;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .errorlist {
+            color: #b42318;
+            font-size: 13px;
+            padding-left: 18px;
+            margin: 8px 0 0;
+        }
+
+        .error-general {
+            padding: 12px;
+            margin-bottom: 18px;
+            border-radius: 7px;
+            background: #fff0ef;
+            color: #a93226;
+            border: 1px solid #f3cfca;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+
+        /* =================================================
+           9. BOTÓN DE CREACIÓN DE CUENTA
+        ================================================== */
+
+        .boton-crear {
+            width: 100%;
+            background: #17365d;
+            color: white;
+            border: 0;
+            border-radius: 6px;
+            padding: 13px 20px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .boton-crear:hover {
+            background: #245183;
+        }
+
+
+        /* =================================================
+           10. ENLACES DE NAVEGACIÓN
+        ================================================== */
+
+        a {
+            color: #17365d;
+        }
+
+        .enlaces {
+            margin-top: 24px;
+            font-size: 14px;
+            line-height: 1.9;
+        }
+
+
+        /* =================================================
+           11. ADAPTACIÓN PARA CELULARES
+        ================================================== */
+
+        @media (max-width: 550px) {
+
+            main {
+                margin: 20px auto;
+                padding: 24px 20px;
+            }
+
+            header h1 {
+                font-size: 21px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =================================================
+         12. ENCABEZADO VISIBLE DE VALKY
+    ================================================== -->
+
+    <header>
+
+        <h1>Valky Estudios en el Exterior</h1>
+
+        <p>Crear cuenta de estudiante</p>
+
+    </header>
+
+
+    <!-- =================================================
+         13. CONTENEDOR DEL REGISTRO
+    ================================================== -->
+
+    <main>
+
+        <h2>Regístrate</h2>
+
+        <p>
+            Crea tu cuenta para iniciar tu proceso con nosotros.
+        </p>
+
+
+        <!-- =============================================
+             14. FORMULARIO DE REGISTRO
+        ============================================== -->
+
+        <form method="post">
+
+            {% csrf_token %}
+
+
+            <!-- 15. ERRORES GENERALES DEL FORMULARIO -->
+
+            {% if formulario.non_field_errors %}
+
+                <div class="error-general">
+
+                    {% for error in formulario.non_field_errors %}
+
+                        {{ error }}
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =========================================
+                 16. CAMPO: CORREO ELECTRÓNICO
+            ========================================== -->
+
+            <div class="campo">
+
+                <label for="{{ formulario.username.id_for_label }}">
+                    Correo electrónico
+                </label>
+
+                {{ formulario.username }}
+
+                <small class="ayuda">
+                    Utiliza tu correo electrónico como nombre de usuario para ingresar al portal.
+                </small>
+
+                {{ formulario.username.errors }}
+
+            </div>
+
+
+            <!-- =========================================
+                 17. CAMPO: CONTRASEÑA
+            ========================================== -->
+
+            <div class="campo">
+
+                <label for="{{ formulario.password1.id_for_label }}">
+                    Contraseña
+                </label>
+
+                <div class="password-contenedor">
+
+                    {{ formulario.password1 }}
+
+                    <button
+                        type="button"
+                        class="boton-mostrar"
+                        onclick="alternarPassword('id_password1', this)"
+                    >
+                        Mostrar
+                    </button>
+
+                </div>
+
+                {{ formulario.password1.errors }}
+
+                {{ formulario.password1.help_text }}
+
+            </div>
+
+
+            <!-- =========================================
+                 18. CAMPO: CONFIRMAR CONTRASEÑA
+            ========================================== -->
+
+            <div class="campo">
+
+                <label for="{{ formulario.password2.id_for_label }}">
+                    Confirmar contraseña
+                </label>
+
+                <div class="password-contenedor">
+
+                    {{ formulario.password2 }}
+
+                    <button
+                        type="button"
+                        class="boton-mostrar"
+                        onclick="alternarPassword('id_password2', this)"
+                    >
+                        Mostrar
+                    </button>
+
+                </div>
+
+                {{ formulario.password2.errors }}
+
+            </div>
+
+
+            <!-- =========================================
+                 19. BOTÓN PARA CREAR LA CUENTA
+            ========================================== -->
+
+            <button type="submit" class="boton-crear">
+                Crear mi cuenta
+            </button>
+
+        </form>
+
+
+        <!-- =================================================
+             20. ENLACES PARA EL ESTUDIANTE
+        ================================================== -->
+
+        <div class="enlaces">
+
+            <p>
+                ¿Ya tienes una cuenta?
+
+                <a href="{% url 'iniciar_sesion' %}">
+                    Inicia sesión
+                </a>
+            </p>
+
+            <p>
+                <a href="/">
+                    Volver al inicio
+                </a>
+            </p>
+
+        </div>
+
+    </main>
+
+
+    <!-- =================================================
+         21. JAVASCRIPT: MOSTRAR Y OCULTAR CONTRASEÑAS
+    ================================================== -->
+
+    <script>
+
+        function alternarPassword(idCampo, boton) {
+
+            const campo = document.getElementById(idCampo);
+
+            if (campo.type === "password") {
+
+                campo.type = "text";
+
+                boton.textContent = "Ocultar";
+
+            } else {
+
+                campo.type = "password";
+
+                boton.textContent = "Mostrar";
+
+            }
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>

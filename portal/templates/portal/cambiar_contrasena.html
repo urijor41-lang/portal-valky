@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Cambiar contraseña | Valky</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 35px 15px;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f2f5f9;
+            color: #263449;
+        }
+
+        .contenedor {
+            max-width: 570px;
+            margin: 35px auto;
+        }
+
+        .tarjeta {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 5px 20px rgba(20, 45, 75, 0.07);
+        }
+
+        h1 {
+            color: #18375d;
+            font-size: 25px;
+            margin: 0 0 10px;
+        }
+
+        .descripcion {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .campo {
+            margin-bottom: 20px;
+        }
+
+        .campo label {
+            display: block;
+            margin-bottom: 8px;
+            color: #344b66;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .campo input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d5dfeb;
+            border-radius: 8px;
+            background: #f9fbfe;
+            font-size: 14px;
+        }
+
+        .campo input:focus {
+            outline: none;
+            border-color: #3478c7;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(52, 120, 199, 0.12);
+        }
+
+        .ayuda {
+            margin-top: 7px;
+            color: #718096;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .errores {
+            color: #bd4038;
+            font-size: 12px;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        .mensaje {
+            padding: 13px;
+            margin-bottom: 18px;
+            border-radius: 8px;
+            background: #fff0ef;
+            color: #a93226;
+            font-size: 13px;
+        }
+
+        .acciones {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .boton {
+            border: none;
+            border-radius: 8px;
+            padding: 13px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .guardar {
+            background: #18375d;
+            color: #ffffff;
+        }
+
+        .guardar:hover {
+            background: #245183;
+        }
+
+        .volver {
+            background: #e8eef6;
+            color: #294765;
+        }
+
+        @media (max-width: 500px) {
+            .tarjeta {
+                padding: 22px;
+            }
+
+            .acciones {
+                flex-direction: column-reverse;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <div class="tarjeta">
+
+        <h1>Cambiar contraseña</h1>
+
+        <p class="descripcion">
+            Actualiza la contraseña de tu cuenta para mantener
+            protegida tu información personal y académica.
+        </p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mensaje">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="campo">
+                <label for="{{ formulario.old_password.id_for_label }}">
+                    Contraseña actual
+                </label>
+
+                {{ formulario.old_password }}
+
+                {% for error in formulario.old_password.errors %}
+                    <div class="errores">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="campo">
+                <label for="{{ formulario.new_password1.id_for_label }}">
+                    Nueva contraseña
+                </label>
+
+                {{ formulario.new_password1 }}
+
+                {% if formulario.new_password1.help_text %}
+                    <div class="ayuda">
+                        {{ formulario.new_password1.help_text|safe }}
+                    </div>
+                {% endif %}
+
+                {% for error in formulario.new_password1.errors %}
+                    <div class="errores">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="campo">
+                <label for="{{ formulario.new_password2.id_for_label }}">
+                    Confirmar nueva contraseña
+                </label>
+
+                {{ formulario.new_password2 }}
+
+                {% for error in formulario.new_password2.errors %}
+                    <div class="errores">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            {% if formulario.non_field_errors %}
+                <div class="errores">
+                    {{ formulario.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="acciones">
+
+                <a href="{% url 'inicio' %}" class="boton volver">
+                    Volver al inicio
+                </a>
+
+                <button type="submit" class="boton guardar">
+                    Actualizar contraseña
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

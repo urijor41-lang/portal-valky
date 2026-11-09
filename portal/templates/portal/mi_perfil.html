@@ -1,0 +1,743 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi perfil | Valky Estudios en el Exterior</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f1f5fa;
+            color: #263449;
+        }
+
+        /* ==========================================================
+           1. BARRA SUPERIOR FIJA
+           ========================================================== */
+
+        .barra-superior {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+            min-height: 76px;
+            padding: 10px 5%;
+            background: #18375d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 3px 12px rgba(20, 45, 75, 0.18);
+        }
+
+        .logo-fondo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+
+        .logo-valky {
+            display: block;
+            width: 145px;
+            max-width: 100%;
+            max-height: 48px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .boton-volver-superior {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 11px 17px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 8px;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.10);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .boton-volver-superior:hover {
+            background: rgba(255, 255, 255, 0.20);
+        }
+
+        .flecha-volver {
+            font-size: 19px;
+            line-height: 1;
+        }
+
+
+        /* ==========================================================
+           2. CONTENEDOR PRINCIPAL
+           ========================================================== */
+
+        .contenedor {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 35px 20px;
+        }
+
+        .encabezado {
+            margin-bottom: 25px;
+        }
+
+        .encabezado h1 {
+            margin: 0 0 8px;
+            color: #12345b;
+            font-size: 29px;
+        }
+
+        .encabezado p {
+            margin: 0;
+            color: #718096;
+            font-size: 15px;
+        }
+
+
+        /* ==========================================================
+           3. TARJETAS Y TÍTULOS
+           ========================================================== */
+
+        .tarjeta {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(20, 45, 75, 0.07);
+            border: 1px solid #e5ebf3;
+        }
+
+        .titulo-seccion {
+            color: #153d68;
+            font-size: 19px;
+            font-weight: 700;
+            margin: 0 0 23px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #eaf0f7;
+        }
+
+
+        /* ==========================================================
+           4. CAMPOS DE INFORMACIÓN PERSONAL
+           ========================================================== */
+
+        .campos-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .campo label {
+            color: #344b66;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .campo input,
+        .campo select,
+        .campo textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d5dfeb;
+            border-radius: 8px;
+            background: #f9fbfe;
+            color: #263449;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .campo input:focus,
+        .campo select:focus,
+        .campo textarea:focus {
+            border-color: #3478c7;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(52, 120, 199, 0.12);
+        }
+
+        .campo-error {
+            color: #c0392b;
+            font-size: 12px;
+        }
+
+        .error-general {
+            padding: 14px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background: #fff0ef;
+            color: #a93226;
+            font-size: 14px;
+        }
+
+
+        /* ==========================================================
+           5. PREFERENCIAS UNIVERSITARIAS
+           ========================================================== */
+
+        .descripcion-preferencias {
+            color: #718096;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: -8px;
+            margin-bottom: 25px;
+        }
+
+        .preferencias-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .preferencia {
+            background: #ffffff;
+            border: 2px solid #8aadd3;
+            border-radius: 14px;
+            padding: 23px;
+            box-shadow: 0 3px 12px rgba(20, 45, 75, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .preferencia:hover {
+            border-color: #5686bb;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(20, 45, 75, 0.12);
+        }
+
+        .preferencia-cabecera {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 22px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #c1d5eb;
+        }
+
+        .numero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
+            background: #e5effb;
+            color: #174d83;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .preferencia-cabecera h3 {
+            margin: 0;
+            color: #174d83;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .preferencia .campo {
+            margin-bottom: 17px;
+        }
+
+        .preferencia .campo:last-child {
+            margin-bottom: 0;
+        }
+
+        .preferencia .campo label {
+            color: #344b66;
+        }
+
+        .preferencia .campo input {
+            background: #f8fafd;
+            border: 1px solid #d5e0ed;
+        }
+
+        .preferencia .campo input:focus {
+            background: #ffffff;
+            border-color: #3478c7;
+        }
+
+
+        /* ==========================================================
+           6. MENSAJES Y BOTONES
+           ========================================================== */
+
+        .acciones {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .boton {
+            display: inline-block;
+            border: none;
+            border-radius: 8px;
+            padding: 13px 23px;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .boton-guardar {
+            background: #174d83;
+            color: #ffffff;
+        }
+
+        .boton-guardar:hover {
+            background: #10385f;
+        }
+
+        .boton-volver {
+            background: #e8eef6;
+            color: #294765;
+        }
+
+        .boton-volver:hover {
+            background: #d9e4f1;
+        }
+
+        .mensaje-exito {
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            border-radius: 9px;
+            background: #e9f8ef;
+            color: #216b3a;
+            border: 1px solid #ccebd7;
+            font-size: 14px;
+        }
+
+        .nota {
+            margin-top: 18px;
+            color: #8290a3;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+
+        /* ==========================================================
+           7. DISEÑO RESPONSIVE
+           ========================================================== */
+
+        @media (max-width: 700px) {
+
+            .barra-superior {
+                min-height: 68px;
+                padding: 10px 14px;
+            }
+
+            .logo-valky {
+                width: 120px;
+            }
+
+            .boton-volver-superior {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .contenedor {
+                padding: 22px 12px;
+            }
+
+            .tarjeta {
+                padding: 20px;
+            }
+
+            .campos-grid,
+            .preferencias-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .acciones {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+
+            .boton {
+                text-align: center;
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- ==========================================================
+         1. BARRA SUPERIOR FIJA
+         ========================================================== -->
+
+    <header class="barra-superior">
+
+        <div class="logo-fondo">
+            <img
+                src="{% static 'portal/img/logo_valky.png' %}"
+                alt="Valky Estudios en el Exterior"
+                class="logo-valky"
+            >
+        </div>
+
+        <a href="{% url 'inicio' %}" class="boton-volver-superior">
+            <span class="flecha-volver">←</span>
+            Volver al inicio
+        </a>
+
+    </header>
+
+
+    <!-- ==========================================================
+         2. CONTENIDO DEL PERFIL
+         ========================================================== -->
+
+    <main class="contenedor">
+
+        <div class="encabezado">
+            <h1>Mi perfil</h1>
+            <p>Administra tu información personal y tus preferencias académicas.</p>
+        </div>
+
+
+        <!-- MENSAJES DEL SISTEMA -->
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mensaje-exito">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% if formulario.non_field_errors %}
+                <div class="error-general">
+                    {{ formulario.non_field_errors }}
+                </div>
+            {% endif %}
+
+
+            <!-- ==================================================
+                 3. INFORMACIÓN PERSONAL
+                 ================================================== -->
+
+            <div class="tarjeta">
+
+                <h2 class="titulo-seccion">
+                    Información personal y de acceso
+                </h2>
+
+                <div class="campos-grid">
+
+                    <div class="campo">
+                        <label for="{{ formulario.username.id_for_label }}">
+                            Nombre de usuario
+                        </label>
+                        {{ formulario.username }}
+                        {% for error in formulario.username.errors %}
+                            <span class="campo-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="campo">
+                        <label for="{{ formulario.email.id_for_label }}">
+                            Correo electrónico
+                        </label>
+                        {{ formulario.email }}
+                        {% for error in formulario.email.errors %}
+                            <span class="campo-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="campo">
+                        <label for="{{ formulario.nombres.id_for_label }}">
+                            Nombres
+                        </label>
+                        {{ formulario.nombres }}
+                        {% for error in formulario.nombres.errors %}
+                            <span class="campo-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="campo">
+                        <label for="{{ formulario.apellidos.id_for_label }}">
+                            Apellidos
+                        </label>
+                        {{ formulario.apellidos }}
+                        {% for error in formulario.apellidos.errors %}
+                            <span class="campo-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="campo">
+                        <label for="{{ formulario.edad.id_for_label }}">
+                            Edad
+                        </label>
+                        {{ formulario.edad }}
+                        {% for error in formulario.edad.errors %}
+                            <span class="campo-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="campo">
+                        <label for="{{ formulario.telefono.id_for_label }}">
+                            Teléfono de contacto
+                        </label>
+                        {{ formulario.telefono }}
+                        {% for error in formulario.telefono.errors %}
+                            <span class="campo-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+                <p class="nota">
+                    Tu nombre de usuario y correo electrónico se utilizan para acceder a tu cuenta.
+                </p>
+
+            </div>
+
+
+            <!-- ==================================================
+                 4. PREFERENCIAS UNIVERSITARIAS
+                 ================================================== -->
+
+            <div class="tarjeta">
+
+                <h2
+                    class="titulo-seccion"
+                    id="preferencias-universitarias"
+                >
+                    Preferencias universitarias
+                </h2>
+
+                <p class="descripcion-preferencias">
+                    Registra hasta cuatro opciones de programas y universidades de tu interés.
+                </p>
+
+                <div class="preferencias-grid">
+
+
+                    <!-- PRIMERA OPCIÓN -->
+
+                    <div class="preferencia">
+
+                        <div class="preferencia-cabecera">
+                            <span class="numero">01</span>
+                            <h3>Primera opción</h3>
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.carrera_1.id_for_label }}">
+                                Carrera o programa
+                            </label>
+                            {{ formulario.carrera_1 }}
+                            {% for error in formulario.carrera_1.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.universidad_1.id_for_label }}">
+                                Universidad
+                            </label>
+                            {{ formulario.universidad_1 }}
+                            {% for error in formulario.universidad_1.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.pais_1.id_for_label }}">
+                                País
+                            </label>
+                            {{ formulario.pais_1 }}
+                            {% for error in formulario.pais_1.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+
+                    <!-- SEGUNDA OPCIÓN -->
+
+                    <div class="preferencia">
+
+                        <div class="preferencia-cabecera">
+                            <span class="numero">02</span>
+                            <h3>Segunda opción</h3>
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.carrera_2.id_for_label }}">
+                                Carrera o programa
+                            </label>
+                            {{ formulario.carrera_2 }}
+                            {% for error in formulario.carrera_2.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.universidad_2.id_for_label }}">
+                                Universidad
+                            </label>
+                            {{ formulario.universidad_2 }}
+                            {% for error in formulario.universidad_2.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.pais_2.id_for_label }}">
+                                País
+                            </label>
+                            {{ formulario.pais_2 }}
+                            {% for error in formulario.pais_2.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+
+                    <!-- TERCERA OPCIÓN -->
+
+                    <div class="preferencia">
+
+                        <div class="preferencia-cabecera">
+                            <span class="numero">03</span>
+                            <h3>Tercera opción</h3>
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.carrera_3.id_for_label }}">
+                                Carrera o programa
+                            </label>
+                            {{ formulario.carrera_3 }}
+                            {% for error in formulario.carrera_3.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.universidad_3.id_for_label }}">
+                                Universidad
+                            </label>
+                            {{ formulario.universidad_3 }}
+                            {% for error in formulario.universidad_3.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.pais_3.id_for_label }}">
+                                País
+                            </label>
+                            {{ formulario.pais_3 }}
+                            {% for error in formulario.pais_3.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+
+                    <!-- CUARTA OPCIÓN -->
+
+                    <div class="preferencia">
+
+                        <div class="preferencia-cabecera">
+                            <span class="numero">04</span>
+                            <h3>Cuarta opción</h3>
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.carrera_4.id_for_label }}">
+                                Carrera o programa
+                            </label>
+                            {{ formulario.carrera_4 }}
+                            {% for error in formulario.carrera_4.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.universidad_4.id_for_label }}">
+                                Universidad
+                            </label>
+                            {{ formulario.universidad_4 }}
+                            {% for error in formulario.universidad_4.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="campo">
+                            <label for="{{ formulario.pais_4.id_for_label }}">
+                                País
+                            </label>
+                            {{ formulario.pais_4 }}
+                            {% for error in formulario.pais_4.errors %}
+                                <span class="campo-error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==================================================
+                 5. BOTONES INFERIORES
+                 ================================================== -->
+
+            <div class="acciones">
+
+                <a href="{% url 'inicio' %}" class="boton boton-volver">
+                    Volver al inicio
+                </a>
+
+                <button type="submit" class="boton boton-guardar">
+                    Guardar cambios
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+</body>
+</html>
