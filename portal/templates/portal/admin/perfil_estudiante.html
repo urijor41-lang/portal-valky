@@ -2018,6 +2018,38 @@
 
     });
 
+    /* ====================================================== */
+    /* ABRIR UNA PESTAÑA INDICADA DESDE LA URL */
+    /* ====================================================== */
+
+    const parametros = new URLSearchParams(window.location.search);
+    const pestanaInicial = parametros.get("tab");
+
+    if (pestanaInicial) {
+
+        const botonInicial = document.querySelector(
+            `.tab[data-tab="${pestanaInicial}"]`
+        );
+
+        const seccionInicial = document.getElementById(pestanaInicial);
+
+        if (botonInicial && seccionInicial) {
+
+            botones.forEach(item => {
+                item.classList.remove("active");
+            });
+
+            secciones.forEach(item => {
+                item.classList.remove("active");
+            });
+
+            botonInicial.classList.add("active");
+            seccionInicial.classList.add("active");
+
+        }
+
+    }
+
 
     /* ====================================================== */
     /* COPIAR CONTRASEÑA TEMPORAL */

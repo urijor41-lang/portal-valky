@@ -1425,10 +1425,18 @@ def admin_perfil_estudiante(request, estudiante_id):
             and contraseña_temporal
         ):
 
-            return redirect(
+            respuesta = redirect(
                 "admin_perfil_estudiante",
                 estudiante_id=estudiante.id
             )
+
+            # Después de revisar un documento,
+            # permanecer en la pestaña Documentos.
+
+            if accion == "actualizar_documento":
+                respuesta["Location"] += "?tab=documentos"
+
+            return respuesta
 
     # ------------------------------------------------------
     # 12. INFORMACIÓN PARA MOSTRAR EN EL PERFIL
