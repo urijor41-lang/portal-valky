@@ -603,6 +603,8 @@ def admin_inicio(request):
 
 
 # ==========================================================
+
+
 # TIPOS DE DOCUMENTOS
 # ==========================================================
 
@@ -618,7 +620,6 @@ def admin_tipos_documentos(request):
 
     if request.method == "POST":
 
-        # Verificar permiso antes de ejecutar cualquier modificación.
         if not asesor_tiene_permiso(
             request.user,
             "gestionar_tipos_documentales"
@@ -680,13 +681,16 @@ def admin_tipos_documentos(request):
             elif TipoDocumento.objects.filter(
                 nombre__iexact=nombre
             ).exclude(id=tipo.id).exists():
+
                 messages.error(
                     request,
                     "Ya existe otro tipo de documento con ese nombre."
                 )
 
             else:
+
                 archivo_anterior = tipo.archivo_ejemplo
+
                 tipo.nombre = nombre
 
                 if archivo:
@@ -694,6 +698,8 @@ def admin_tipos_documentos(request):
 
                 tipo.save()
 
+                # Eliminar el archivo anterior solamente
+                # después de guardar correctamente el nuevo.
                 if archivo and archivo_anterior:
                     archivo_anterior.delete(save=False)
 
@@ -735,13 +741,16 @@ def admin_tipos_documentos(request):
             )
 
             if tipo.archivo_ejemplo:
+
                 tipo.archivo_ejemplo.delete(save=True)
 
                 messages.success(
                     request,
                     "El archivo de ejemplo fue retirado."
                 )
+
             else:
+
                 messages.info(
                     request,
                     "Este tipo de documento no tiene un ejemplo cargado."
@@ -765,11 +774,14 @@ def admin_tipos_documentos(request):
             ).exists()
 
             if tiene_requisitos or tiene_documentos:
+
                 messages.error(
                     request,
                     "No se puede eliminar este tipo porque está asociado a estudiantes o tiene documentos registrados. Puedes desactivarlo para conservar su historial."
                 )
+
             else:
+
                 if tipo.archivo_ejemplo:
                     tipo.archivo_ejemplo.delete(save=False)
 
@@ -783,6 +795,7 @@ def admin_tipos_documentos(request):
         # 8. RECHAZAR ACCIONES NO RECONOCIDAS
 
         else:
+
             messages.error(
                 request,
                 "La acción solicitada no es válida."

@@ -1,3 +1,7 @@
+
+import os
+import zipfile
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import (
@@ -9,9 +13,136 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.utils import timezone
+from django.http import FileResponse, HttpResponseForbidden, Http404
 
-from .models import RequisitoDocumento, Documento, PerfilEstudiante
+
+from .models import (
+    RequisitoDocumento,
+    Documento,
+    PerfilEstudiante,
+    TipoDocumento
+
+)
 from .forms import PerfilEstudianteForm
+
+
+# ==========================================================
+# CONFIGURACIÓN Y VALIDACIÓN DE ARCHIVOS
+# ==========================================================
+
+TAMANO_MAXIMO_ARCHIVO = 10 * 1024 * 1024
+
+FORMATOS_PERMITIDOS = {
+    ".pdf",
+    ".doc",
+    ".docx",
+}
+
+
+def validar_archivo_documento(archivo):
+
+    """
+    Comprueba el tamaño, extensión y contenido real
+    de los documentos cargados por los estudiantes.
+
+    Devuelve None si el archivo es válido.
+    Devuelve un mensaje si no cumple los requisitos.
+    """
+
+    if not archivo:
+        return "Selecciona un archivo para continuar."
+
+    # ------------------------------------------------------
+    # 1. VALIDAR TAMAÑO
+    # ------------------------------------------------------
+
+    if archivo.size > TAMANO_MAXIMO_ARCHIVO:
+
+        return (
+            "El archivo supera el tamaño máximo permitido "
+            "de 10 MB."
+        )
+
+    # ------------------------------------------------------
+    # 2. VALIDAR EXTENSIÓN
+    # ------------------------------------------------------
+
+    extension = os.path.splitext(
+        archivo.name
+    )[1].lower()
+
+    if extension not in FORMATOS_PERMITIDOS:
+
+        return (
+            "Formato no permitido. "
+            "Solo puedes cargar archivos PDF, DOC o DOCX."
+        )
+
+    # ------------------------------------------------------
+    # 3. VALIDAR CONTENIDO REAL
+    # ------------------------------------------------------
+
+    try:
+
+        archivo.seek(0)
+
+        if extension == ".pdf":
+
+            contenido = archivo.read(1024)
+
+            if b"%PDF-" not in contenido:
+
+                return (
+                    "El archivo no parece ser un documento PDF válido."
+                )
+
+        elif extension == ".doc":
+
+            contenido = archivo.read(8)
+
+            firma_doc = bytes.fromhex(
+                "D0 CF 11 E0 A1 B1 1A E1"
+            )
+
+            if contenido != firma_doc:
+
+                return (
+                    "El archivo no parece ser un documento DOC válido."
+                )
+
+        elif extension == ".docx":
+
+            archivo.seek(0)
+
+            with zipfile.ZipFile(archivo, "r") as documento_zip:
+
+                archivos_internos = documento_zip.namelist()
+
+                if (
+                    "[Content_Types].xml" not in archivos_internos
+                    or "word/document.xml" not in archivos_internos
+                ):
+
+                    return (
+                        "El archivo no parece ser un documento DOCX válido."
+                    )
+
+    except (
+        zipfile.BadZipFile,
+        OSError,
+        ValueError
+    ):
+
+        return (
+            "No fue posible reconocer el contenido del archivo. "
+            "Comprueba que el documento no esté dañado."
+        )
+
+    finally:
+
+        archivo.seek(0)
+
+    return None
 
 
 # ==========================================================
@@ -58,6 +189,7 @@ def inicio(request):
     documentos_por_tipo = {}
 
     for documento in documentos:
+
         if documento.tipo_documento_id not in documentos_por_tipo:
             documentos_por_tipo[documento.tipo_documento_id] = documento
 
@@ -96,9 +228,11 @@ def inicio(request):
 def registro(request):
 
     if request.method == "POST":
+
         formulario = UserCreationForm(request.POST)
 
         if formulario.is_valid():
+
             usuario = formulario.save()
 
             PerfilEstudiante.objects.create(
@@ -110,6 +244,7 @@ def registro(request):
             return redirect("inicio")
 
     else:
+
         formulario = UserCreationForm()
 
     return render(request, "portal/registro.html", {
@@ -124,17 +259,20 @@ def registro(request):
 def iniciar_sesion(request):
 
     if request.method == "POST":
+
         formulario = AuthenticationForm(
             request,
             data=request.POST
         )
 
         if formulario.is_valid():
+
             login(request, formulario.get_user())
 
             return redirect("inicio")
 
     else:
+
         formulario = AuthenticationForm(request)
 
     return render(request, "portal/iniciar_sesion.html", {
@@ -183,7 +321,6 @@ def cambiar_contrasena(request):
 
             usuario = formulario.save()
 
-            # Mantener la sesión abierta después del cambio.
             update_session_auth_hash(request, usuario)
 
             messages.success(
@@ -255,7 +392,162 @@ def mi_perfil(request):
 
 
 # ==========================================================
-# 7. DOCUMENTOS DEL ESTUDIANTE
+# 7.5. DESCARGA PROTEGIDA DE DOCUMENTOS DEL ESTUDIANTE
+# ==========================================================
+
+@login_required(login_url="/iniciar-sesion/")
+def descargar_documento(request, documento_id):
+
+    documento = get_object_or_404(
+        Documento,
+        id=documento_id
+    )
+
+    # Verificar permisos del personal administrativo
+    if request.user.is_staff:
+
+        if request.user.is_superuser:
+            autorizado = True
+        else:
+            from .admin_views import asesor_tiene_permiso
+
+            autorizado = asesor_tiene_permiso(
+                request.user,
+                "ver_estudiantes"
+            )
+
+        if not autorizado:
+            return HttpResponseForbidden(
+                "No tienes permiso para consultar este documento."
+            )
+
+    # El estudiante solo puede consultar sus propios documentos
+    else:
+
+        if documento.estudiante_id != request.user.id:
+            raise Http404(
+                "El documento solicitado no existe."
+            )
+
+    if not documento.archivo:
+        raise Http404("El documento no tiene un archivo disponible.")
+
+    try:
+        archivo_abierto = documento.archivo.open("rb")
+    except (FileNotFoundError, OSError):
+        raise Http404("El archivo no está disponible.")
+
+    nombre_archivo = os.path.basename(
+        documento.archivo.name
+    )
+
+    extension = os.path.splitext(
+        nombre_archivo
+    )[1].lower()
+
+    tipos_mime = {
+        ".pdf": "application/pdf",
+        ".doc": "application/msword",
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    }
+
+    tipo_contenido = tipos_mime.get(
+        extension,
+        "application/octet-stream"
+    )
+
+    respuesta = FileResponse(
+        archivo_abierto,
+        as_attachment=False,
+        filename=nombre_archivo,
+        content_type=tipo_contenido
+    )
+
+    respuesta["X-Content-Type-Options"] = "nosniff"
+    respuesta["Cache-Control"] = "private, no-store"
+
+    return respuesta
+
+# ==========================================================
+# 7.6. DESCARGA PROTEGIDA DE ARCHIVOS DE EJEMPLO
+# ==========================================================
+
+@login_required(login_url="/iniciar-sesion/")
+def descargar_ejemplo_documento(request, tipo_id):
+
+    tipo = get_object_or_404(
+        TipoDocumento,
+        id=tipo_id
+    )
+
+    # ------------------------------------------------------
+    # 7.6.1 VERIFICAR QUE EXISTA UN ARCHIVO DE EJEMPLO
+    # ------------------------------------------------------
+
+    if not tipo.archivo_ejemplo:
+
+        raise Http404(
+            "Este tipo de documento no tiene un ejemplo disponible."
+        )
+
+    try:
+
+        archivo_abierto = tipo.archivo_ejemplo.open("rb")
+
+    except (FileNotFoundError, OSError):
+
+        raise Http404(
+            "El archivo de ejemplo no está disponible."
+        )
+
+    # ------------------------------------------------------
+    # 7.6.2 IDENTIFICAR EL FORMATO DEL ARCHIVO
+    # ------------------------------------------------------
+
+    nombre_archivo = os.path.basename(
+        tipo.archivo_ejemplo.name
+    )
+
+    extension = os.path.splitext(
+        nombre_archivo
+    )[1].lower()
+
+    tipos_mime = {
+        ".pdf": "application/pdf",
+        ".doc": "application/msword",
+        ".docx": (
+            "application/vnd.openxmlformats-officedocument."
+            "wordprocessingml.document"
+        ),
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+    }
+
+    tipo_contenido = tipos_mime.get(
+        extension,
+        "application/octet-stream"
+    )
+
+    # ------------------------------------------------------
+    # 7.6.3 ENTREGAR EL ARCHIVO
+    # ------------------------------------------------------
+
+    respuesta = FileResponse(
+        archivo_abierto,
+        as_attachment=False,
+        filename=nombre_archivo,
+        content_type=tipo_contenido
+    )
+
+    respuesta["X-Content-Type-Options"] = "nosniff"
+    respuesta["Cache-Control"] = "private, no-store"
+
+    return respuesta
+
+
+# ==========================================================
+# 8. DOCUMENTOS DEL ESTUDIANTE
 # ==========================================================
 
 @login_required
@@ -273,7 +565,7 @@ def mis_documentos(request):
     )
 
     # ------------------------------------------------------
-    # 7.1 PROCESAR CARGA DE DOCUMENTOS
+    # 8.1 PROCESAR CARGA DE DOCUMENTOS
     # ------------------------------------------------------
 
     if request.method == "POST":
@@ -297,6 +589,23 @@ def mis_documentos(request):
             habilitado=True
         )
 
+        # --------------------------------------------------
+        # 8.1.1 VALIDAR ARCHIVO
+        # --------------------------------------------------
+
+        error_archivo = validar_archivo_documento(
+            archivo
+        )
+
+        if error_archivo:
+
+            messages.error(
+                request,
+                error_archivo
+            )
+
+            return redirect("mis_documentos")
+
         documento = Documento.objects.filter(
             estudiante=request.user,
             tipo_documento=requisito.tipo_documento
@@ -306,7 +615,7 @@ def mis_documentos(request):
         ).first()
 
         # --------------------------------------------------
-        # 7.1.1 CREAR PRIMER DOCUMENTO
+        # 8.1.2 CREAR PRIMER DOCUMENTO
         # --------------------------------------------------
 
         if documento is None:
@@ -325,7 +634,7 @@ def mis_documentos(request):
             return redirect("mis_documentos")
 
         # --------------------------------------------------
-        # 7.1.2 REEMPLAZAR DOCUMENTO POR CORREGIR
+        # 8.1.3 REEMPLAZAR DOCUMENTO POR CORREGIR
         # --------------------------------------------------
 
         if documento.estado == "corregir":
@@ -352,6 +661,7 @@ def mis_documentos(request):
                 archivo_anterior
                 and archivo_anterior != documento.archivo.name
             ):
+
                 documento.archivo.storage.delete(
                     archivo_anterior
                 )
@@ -364,7 +674,7 @@ def mis_documentos(request):
             return redirect("mis_documentos")
 
         # --------------------------------------------------
-        # 7.1.3 DOCUMENTO EN REVISIÓN
+        # 8.1.4 DOCUMENTO EN REVISIÓN
         # --------------------------------------------------
 
         if documento.estado == "pendiente":
@@ -377,7 +687,7 @@ def mis_documentos(request):
             return redirect("mis_documentos")
 
         # --------------------------------------------------
-        # 7.1.4 DOCUMENTO APROBADO
+        # 8.1.5 DOCUMENTO APROBADO
         # --------------------------------------------------
 
         if documento.estado == "aprobado":
@@ -397,7 +707,7 @@ def mis_documentos(request):
         return redirect("mis_documentos")
 
     # ------------------------------------------------------
-    # 7.2 CONSULTAR DOCUMENTOS HABILITADOS
+    # 8.2 CONSULTAR DOCUMENTOS HABILITADOS
     # ------------------------------------------------------
 
     tipos_habilitados = [
@@ -416,7 +726,7 @@ def mis_documentos(request):
     )
 
     # ------------------------------------------------------
-    # 7.3 ASOCIAR DOCUMENTO MÁS RECIENTE A CADA REQUISITO
+    # 8.3 ASOCIAR DOCUMENTO MÁS RECIENTE A CADA REQUISITO
     # ------------------------------------------------------
 
     documentos_por_tipo = {}
@@ -433,6 +743,10 @@ def mis_documentos(request):
 
         requisito.documento_actual = documentos_por_tipo.get(
             requisito.tipo_documento_id
+        )
+        
+        requisito.archivo_ejemplo = (
+            requisito.tipo_documento.archivo_ejemplo
         )
 
     return render(request, "portal/mis_documentos.html", {

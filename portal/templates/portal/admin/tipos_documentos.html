@@ -386,7 +386,7 @@
                                 <td>
                                     {% if tipo.archivo_ejemplo %}
                                         <a
-                                            href="{{ tipo.archivo_ejemplo.url }}"
+                                            href="{% url 'descargar_ejemplo_documento' tipo.id %}"
                                             target="_blank"
                                             rel="noopener"
                                         >

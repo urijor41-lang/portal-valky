@@ -1,3 +1,4 @@
+
 # ==========================================================
 # 1. IMPORTACIONES
 # ==========================================================
@@ -9,7 +10,6 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from django.urls import path, include, reverse
 from django.conf import settings
-from django.conf.urls.static import static
 
 
 # ==========================================================
@@ -90,9 +90,6 @@ if settings.DEBUG:
 # DOCUMENTOS CARGADOS POR LOS ESTUDIANTES
 # ==========================================================
 
-if settings.DEBUG:
-
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT
-    )
+# Los archivos multimedia no se exponen directamente.
+# El acceso a los documentos debe realizarse mediante
+# las vistas protegidas de la aplicación Valky.

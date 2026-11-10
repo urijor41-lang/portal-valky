@@ -1698,7 +1698,7 @@
 
                                                 <a
                                                     class="file-link"
-                                                    href="{{ item.documento.archivo.url }}"
+                                                    href="{% url 'descargar_documento' item.documento.id %}"
                                                     target="_blank"
                                                 >
                                                     Ver documento

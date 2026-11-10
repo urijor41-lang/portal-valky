@@ -437,9 +437,26 @@
 
             <div class="fila-documento">
 
+                <!-- NOMBRE Y EJEMPLO DEL DOCUMENTO -->
+
                 <div class="nombre-documento">
                     {{ requisito.tipo_documento.nombre }}
+
+                    {% if requisito.archivo_ejemplo %}
+                        <div style="margin-top: 8px; font-weight: normal; font-size: 12px;">
+                            <a
+                                href="{% url 'descargar_ejemplo_documento' requisito.tipo_documento.id %}"
+                                target="_blank"
+                                rel="noopener"
+                                style="color: #174477; text-decoration: none;"
+                            >
+                                Consultar documento de ejemplo
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
+
+                <!-- FORMULARIO DE CARGA -->
 
                 {% if not requisito.documento_actual %}
 
@@ -460,9 +477,13 @@
                             type="file"
                             name="archivo"
                             class="selector-archivo"
-                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            accept=".pdf,.doc,.docx"
                             required
                         >
+
+                        <small>
+                            Formatos permitidos: PDF, DOC y DOCX. Tamaño máximo: 10 MB.
+                        </small>
 
                         <p class="ayuda-carga">
                             Selecciona el archivo que deseas cargar.
@@ -496,9 +517,13 @@
                             type="file"
                             name="archivo"
                             class="selector-archivo"
-                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            accept=".pdf,.doc,.docx"
                             required
                         >
+
+                        <small>
+                            Formatos permitidos: PDF, DOC y DOCX. Tamaño máximo: 10 MB.
+                        </small>
 
                         <p class="ayuda-carga">
                             Selecciona el archivo corregido para reemplazar el anterior.
@@ -535,6 +560,8 @@
 
                 {% endif %}
 
+                <!-- ESTADO DEL DOCUMENTO -->
+
                 <div class="estado-contenedor">
 
                     {% if requisito.documento_actual %}
@@ -569,6 +596,8 @@
 
                 </div>
 
+                <!-- ARCHIVO CARGADO Y FECHA -->
+
                 {% if requisito.documento_actual %}
 
                     {% if requisito.documento_actual.archivo %}
@@ -578,7 +607,7 @@
                             Archivo cargado:
 
                             <a
-                                href="{{ requisito.documento_actual.archivo.url }}"
+                                href="{% url 'descargar_documento' requisito.documento_actual.id %}"
                                 target="_blank"
                                 rel="noopener"
                             >
@@ -593,6 +622,8 @@
                         </div>
 
                     {% endif %}
+
+                    <!-- OBSERVACIONES DEL ADMINISTRADOR -->
 
                     {% if requisito.documento_actual.observaciones %}
 

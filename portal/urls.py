@@ -9,6 +9,9 @@ urlpatterns = [
     path("cerrar-sesion/", views.cerrar_sesion, name="cerrar_sesion"),
     path("mi-perfil/", views.mi_perfil, name="mi_perfil"),
     path("mis-documentos/", views.mis_documentos, name="mis_documentos"),
+    path("documento/<int:documento_id>/descargar/",views.descargar_documento,name="descargar_documento"),
+    
+    path("ejemplo-documento/<int:tipo_id>/descargar/",views.descargar_ejemplo_documento,name="descargar_ejemplo_documento"),
 
     # Cambio de contraseña
     path(
