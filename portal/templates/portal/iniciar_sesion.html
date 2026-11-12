@@ -15,6 +15,7 @@
 
     <title>Iniciar sesión | Valky Estudios en el Exterior</title>
 
+
     <!-- ==========================================================
          2. ESTILOS GENERALES
          ========================================================== -->
@@ -38,6 +39,7 @@
             background: #dceeff;
         }
 
+
         /* ==========================================================
            3. FONDO PRINCIPAL DE VALKY
            ========================================================== */
@@ -50,35 +52,54 @@
             overflow: hidden;
 
             background-image: url("{% static 'portal/img/fondo_login_valky.png' %}");
-            background-size: 100% 100%;
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 35px 4%;
         }
+
 
         /* ==========================================================
            4. TARJETA DE INICIO DE SESIÓN
            ========================================================== */
 
         .login-card {
-            position: absolute;
-            top: 23%;
-            right: 3.5%;
-
-            width: 34%;
+            width: 38%;
             max-width: 520px;
-            min-width: 280px;
+            min-width: 320px;
 
-            padding: 25px 27px;
+            padding: 25px 28px;
 
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(255, 255, 255, 0.97);
             border: 1px solid #e5edf6;
-            border-radius: 13px;
+            border-radius: 16px;
 
-            box-shadow: 0 5px 20px rgba(20, 45, 75, 0.12);
+            box-shadow: 0 8px 28px rgba(20, 45, 75, 0.18);
         }
 
+
         /* ==========================================================
-           5. TÍTULO Y DESCRIPCIÓN
+           5. LOGO INDEPENDIENTE DE VALKY
+           ========================================================== */
+
+        .logo-login {
+            display: block;
+            width: 220px;
+            max-width: 75%;
+            max-height: 105px;
+
+            object-fit: contain;
+
+            margin: 0 auto 15px;
+        }
+
+
+        /* ==========================================================
+           6. TÍTULO Y DESCRIPCIÓN
            ========================================================== */
 
         .login-card h1 {
@@ -87,42 +108,60 @@
             text-align: center;
             color: #142f59;
 
-            font-size: clamp(22px, 2.1vw, 30px);
+            font-size: clamp(23px, 2.1vw, 30px);
             font-weight: 700;
         }
 
         .descripcion {
-            margin: 0 0 20px;
+            margin: 0 0 22px;
 
             text-align: center;
             color: #526174;
 
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.5;
         }
 
+
         /* ==========================================================
-           6. CAMPOS DEL FORMULARIO
+           7. CAMPOS DEL FORMULARIO
            ========================================================== */
 
         .campo {
-            margin-bottom: 13px;
+            margin-bottom: 14px;
+        }
+
+        .campo-con-icono {
+            position: relative;
+        }
+
+        .icono-campo {
+            position: absolute;
+            top: 50%;
+            left: 13px;
+
+            transform: translateY(-50%);
+
+            color: #315b89;
+            font-size: 16px;
+
+            pointer-events: none;
         }
 
         .campo input {
             display: block;
             width: 100%;
-            height: 42px;
+            height: 46px;
 
-            padding: 10px 13px;
+            padding: 10px 13px 10px 40px;
 
             background: #ffffff;
             border: 1px solid #cbd8e8;
-            border-radius: 8px;
+            border-radius: 9px;
 
             color: #243247;
             font-family: inherit;
-            font-size: 13px;
+            font-size: 14px;
 
             outline: none;
         }
@@ -136,47 +175,19 @@
             box-shadow: 0 0 0 3px rgba(52, 120, 199, 0.12);
         }
 
-        /* ==========================================================
-           7. ICONOS DE LOS CAMPOS
-           ========================================================== */
-
-        .campo-con-icono {
-            position: relative;
+        .password-contenedor input {
+            padding-right: 45px;
         }
 
-        .campo-con-icono .icono-campo {
-            position: absolute;
-            top: 50%;
-            left: 12px;
-
-            transform: translateY(-50%);
-
-            color: #315b89;
-            font-size: 15px;
-
-            pointer-events: none;
-        }
-
-        .campo-con-icono input {
-            padding-left: 37px;
-        }
 
         /* ==========================================================
            8. MOSTRAR Y OCULTAR CONTRASEÑA
            ========================================================== */
 
-        .password-contenedor {
-            position: relative;
-        }
-
-        .password-contenedor input {
-            padding-right: 42px;
-        }
-
         .boton-ojo {
             position: absolute;
             top: 50%;
-            right: 11px;
+            right: 12px;
 
             transform: translateY(-50%);
 
@@ -185,8 +196,8 @@
             color: #174d83;
 
             cursor: pointer;
-            font-size: 17px;
-            padding: 4px;
+            font-size: 19px;
+            padding: 5px;
         }
 
         .boton-ojo:hover {
@@ -196,20 +207,21 @@
         .opcion-password {
             display: flex;
             align-items: center;
-            gap: 7px;
+            gap: 8px;
 
-            margin: 4px 0 15px;
+            margin: 4px 0 17px;
 
             color: #344b66;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .opcion-password input {
-            width: 14px;
-            height: 14px;
+            width: 15px;
+            height: 15px;
             margin: 0;
             cursor: pointer;
         }
+
 
         /* ==========================================================
            9. BOTÓN INGRESAR
@@ -218,16 +230,16 @@
         .boton-ingresar {
             display: block;
             width: 100%;
-            min-height: 43px;
+            min-height: 48px;
 
             border: none;
-            border-radius: 8px;
+            border-radius: 9px;
 
             background: #06336d;
             color: #ffffff;
 
             font-family: inherit;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
 
             cursor: pointer;
@@ -238,6 +250,7 @@
             background: #0b2850;
         }
 
+
         /* ==========================================================
            10. ENLACES INFERIORES
            ========================================================== */
@@ -246,8 +259,8 @@
             margin-top: 17px;
 
             text-align: center;
-            font-size: 11px;
-            line-height: 1.6;
+            font-size: 12px;
+            line-height: 1.7;
         }
 
         .enlaces p {
@@ -269,6 +282,7 @@
             border-top: 1px solid #dce4ef;
             margin: 13px 0;
         }
+
 
         /* ==========================================================
            11. MENSAJES Y ERRORES
@@ -294,8 +308,9 @@
             margin: 5px 0;
         }
 
+
         /* ==========================================================
-           12. DISEÑO RESPONSIVE
+           12. DISEÑO RESPONSIVE PARA TABLET Y CELULAR
            ========================================================== */
 
         @media (max-width: 760px) {
@@ -304,36 +319,34 @@
                 min-height: 100vh;
                 min-height: 100dvh;
 
-                display: flex;
-                align-items: center;
                 justify-content: center;
-
                 padding: 25px 15px;
 
-                background-size: auto 100%;
-                background-position: 35% center;
+                background-position: 30% center;
             }
 
             .login-card {
-                position: relative;
-                top: auto;
-                right: auto;
-
                 width: 100%;
-                max-width: 390px;
+                max-width: 420px;
                 min-width: 0;
 
                 padding: 25px 22px;
             }
 
+            .logo-login {
+                width: 190px;
+                max-height: 90px;
+            }
+
             .login-card h1 {
                 font-size: 25px;
             }
-
-            .descripcion {
-                font-size: 13px;
-            }
         }
+
+
+        /* ==========================================================
+           13. AJUSTES PARA CELULARES PEQUEÑOS
+           ========================================================== */
 
         @media (max-width: 380px) {
 
@@ -341,12 +354,12 @@
                 padding: 21px 17px;
             }
 
-            .login-card h1 {
-                font-size: 22px;
+            .logo-login {
+                width: 165px;
             }
 
-            .campo input {
-                height: 40px;
+            .login-card h1 {
+                font-size: 22px;
             }
         }
 
@@ -354,19 +367,38 @@
 
 </head>
 
+
 <body>
 
+
     <!-- ==========================================================
-         13. CONTENEDOR PRINCIPAL
+         14. CONTENEDOR PRINCIPAL
          ========================================================== -->
 
     <div class="pagina-login">
 
+
         <!-- ==========================================================
-             14. TARJETA DE AUTENTICACIÓN
+             15. TARJETA DE AUTENTICACIÓN
              ========================================================== -->
 
         <main class="login-card">
+
+
+            <!-- ======================================================
+                 15.1. LOGO DE VALKY
+                 ====================================================== -->
+
+            <img
+                src="{% static 'portal/img/logo_valky.png' %}"
+                alt="Valky Estudios en el Exterior"
+                class="logo-login"
+            >
+
+
+            <!-- ======================================================
+                 15.2. TÍTULO Y DESCRIPCIÓN
+                 ====================================================== -->
 
             <h1>Iniciar Sesión</h1>
 
@@ -375,17 +407,19 @@
                 para acceder a tu portal.
             </p>
 
-            <!-- ==========================================================
-                 15. FORMULARIO DE ACCESO
-                 ========================================================== -->
+
+            <!-- ======================================================
+                 15.3. FORMULARIO DE ACCESO
+                 ====================================================== -->
 
             <form method="POST">
 
                 {% csrf_token %}
 
-                <!-- ======================================================
-                     15.1. ERRORES GENERALES
-                     ====================================================== -->
+
+                <!-- ==================================================
+                     15.3.1. ERRORES GENERALES
+                     ================================================== -->
 
                 {% if formulario.non_field_errors %}
 
@@ -399,9 +433,10 @@
 
                 {% endif %}
 
-                <!-- ======================================================
-                     15.2. NOMBRE DE USUARIO
-                     ====================================================== -->
+
+                <!-- ==================================================
+                     15.3.2. NOMBRE DE USUARIO
+                     ================================================== -->
 
                 <div class="campo campo-con-icono">
 
@@ -427,9 +462,10 @@
 
                 </div>
 
-                <!-- ======================================================
-                     15.3. CONTRASEÑA
-                     ====================================================== -->
+
+                <!-- ==================================================
+                     15.3.3. CONTRASEÑA
+                     ================================================== -->
 
                 <div class="campo campo-con-icono password-contenedor">
 
@@ -464,9 +500,10 @@
 
                 </div>
 
-                <!-- ======================================================
-                     15.4. OPCIÓN MOSTRAR CONTRASEÑA
-                     ====================================================== -->
+
+                <!-- ==================================================
+                     15.3.4. OPCIÓN MOSTRAR CONTRASEÑA
+                     ================================================== -->
 
                 <label class="opcion-password">
 
@@ -480,9 +517,10 @@
 
                 </label>
 
-                <!-- ======================================================
-                     15.5. BOTÓN DE INGRESO
-                     ====================================================== -->
+
+                <!-- ==================================================
+                     15.3.5. BOTÓN DE INGRESO
+                     ================================================== -->
 
                 <button type="submit" class="boton-ingresar">
                     Ingresar&nbsp; →
@@ -490,9 +528,10 @@
 
             </form>
 
-            <!-- ==========================================================
-                 16. ENLACES DE NAVEGACIÓN
-                 ========================================================== -->
+
+            <!-- ======================================================
+                 15.4. ENLACES DE NAVEGACIÓN
+                 ====================================================== -->
 
             <div class="enlaces">
 
@@ -518,8 +557,9 @@
 
     </div>
 
+
     <!-- ==========================================================
-         17. FUNCIONES JAVASCRIPT DE CONTRASEÑA
+         16. FUNCIONES JAVASCRIPT DE CONTRASEÑA
          ========================================================== -->
 
     <script>
