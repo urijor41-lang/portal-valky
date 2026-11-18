@@ -1,13 +1,15 @@
 
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Historial de estudiantes | Valky</title>
 
     <style>
-
         /* ====================================================== */
         /* 1. CONFIGURACIÓN GENERAL */
         /* ====================================================== */
@@ -29,7 +31,7 @@
         }
 
         /* ====================================================== */
-        /* 2. BARRA LATERAL DE NAVEGACIÓN */
+        /* 2. BARRA LATERAL */
         /* ====================================================== */
 
         .sidebar {
@@ -92,148 +94,11 @@
             margin: 0;
             color: #738092;
             font-size: 14px;
-        }
-
-        /* ====================================================== */
-        /* 4. RESUMEN DEL HISTORIAL */
-        /* ====================================================== */
-
-        .summary {
-            background: white;
-            padding: 22px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-
-        .summary-label {
-            color: #738092;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-
-        .summary-number {
-            color: #102b4e;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        /* ====================================================== */
-        /* 5. TABLA DEL HISTORIAL DE ESTUDIANTES */
-        /* ====================================================== */
-
-        .table-container {
-            background: white;
-            border-radius: 10px;
-            padding: 22px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            overflow-x: auto;
-        }
-
-        .table-container h2 {
-            color: #102b4e;
-            font-size: 18px;
-            margin: 0 0 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 850px;
-        }
-
-        th {
-            text-align: left;
-            background: #f5f7fa;
-            color: #566579;
-            font-size: 12px;
-            padding: 14px 12px;
-            border-bottom: 1px solid #e5eaf0;
-        }
-
-        td {
-            padding: 15px 12px;
-            border-bottom: 1px solid #edf0f4;
-            font-size: 13px;
-            vertical-align: top;
-        }
-
-        /* ====================================================== */
-        /* 6. RESULTADOS DE LOS PROCESOS */
-        /* ====================================================== */
-
-        .result {
-            display: inline-block;
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .completado {
-            background: #e1f4e9;
-            color: #237647;
-        }
-
-        .desistio {
-            background: #fff1d9;
-            color: #94620a;
-        }
-
-        .otra_agencia {
-            background: #e5edfa;
-            color: #315c98;
-        }
-
-        .otro {
-            background: #eceff3;
-            color: #586575;
-        }
-
-        .observation {
-            max-width: 260px;
-            white-space: normal;
             line-height: 1.5;
-            color: #667386;
         }
 
         /* ====================================================== */
-        /* 7. ACCIONES DEL HISTORIAL */
-        /* ====================================================== */
-
-        .delete-button {
-            background: #fff0f0;
-            color: #b42323;
-            border: 1px solid #f2caca;
-            border-radius: 6px;
-            padding: 8px 11px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .delete-button:hover {
-            background: #fbdede;
-        }
-
-        /* ====================================================== */
-        /* 8. ESTADO VACÍO */
-        /* ====================================================== */
-
-        .empty {
-            text-align: center;
-            padding: 45px 20px;
-            color: #8290a1;
-        }
-
-        .empty strong {
-            display: block;
-            color: #526174;
-            margin-bottom: 8px;
-        }
-
-        /* ====================================================== */
-        /* 9. MENSAJES DEL SISTEMA */
+        /* 4. MENSAJES */
         /* ====================================================== */
 
         .messages {
@@ -268,8 +133,616 @@
         }
 
         /* ====================================================== */
-        /* 10. DISEÑO RESPONSIVE */
+        /* 5. TÍTULOS Y CONTENEDORES */
         /* ====================================================== */
+
+        .section-title {
+            color: #102b4e;
+            font-size: 19px;
+            margin: 0 0 15px;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 10px;
+            padding: 21px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid #edf0f4;
+            min-width: 0;
+        }
+
+        .content-card h2 {
+            color: #102b4e;
+            font-size: 17px;
+            margin: 0 0 7px;
+        }
+
+        .section-description {
+            color: #8290a1;
+            font-size: 12px;
+            line-height: 1.6;
+            margin: 0 0 16px;
+        }
+
+        /* ====================================================== */
+        /* 6. DISTRIBUCIÓN SUPERIOR */
+        /* TARJETAS A LA IZQUIERDA Y GRÁFICO A LA DERECHA */
+        /* ====================================================== */
+
+        .top-dashboard {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: stretch;
+            width: 100%;
+        }
+
+        .indicators-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 0;
+        }
+
+        .indicators-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 13px;
+        }
+
+        .indicator-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #edf0f4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .indicator-card.completed {
+            border-top: 4px solid #36a269;
+        }
+
+        .indicator-card.abandoned {
+            border-top: 4px solid #d6a13d;
+        }
+
+        .indicator-label {
+            color: #738092;
+            font-size: 12px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .indicator-number {
+            color: #102b4e;
+            font-size: 29px;
+            font-weight: bold;
+        }
+
+        /* ====================================================== */
+        /* 7. TARJETAS INTERACTIVAS */
+        /* ====================================================== */
+
+        .indicator-card-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .indicator-card-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 14px rgba(16, 43, 78, 0.12);
+        }
+
+        .indicator-card-link:focus-visible {
+            outline: 3px solid #3d83b8;
+            outline-offset: 3px;
+        }
+
+        .indicator-card-link.active {
+            background: #f1f7fc;
+            box-shadow: 0 0 0 2px #3d83b8;
+        }
+
+        .indicator-card-link .indicator-number,
+        .indicator-card-link .indicator-label {
+            display: block;
+        }
+
+        /* ====================================================== */
+        /* 8. GRÁFICO CIRCULAR DE PAÍSES */
+        /* ====================================================== */
+
+        .countries-panel {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            width: 100%;
+        }
+
+        .countries-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 22px;
+            flex: 1;
+            min-height: 210px;
+        }
+
+        .pie-chart {
+            width: 175px;
+            height: 175px;
+            min-width: 175px;
+            border-radius: 50%;
+            background: #e9edf2;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .pie-chart::after {
+            content: "";
+            position: absolute;
+            width: 82px;
+            height: 82px;
+            background: white;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .countries-legend {
+            flex: 1;
+            min-width: 0;
+            max-height: 190px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 11px;
+            color: #566579;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .legend-name {
+            flex: 1;
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .legend-value {
+            color: #102b4e;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .countries-total {
+            text-align: center;
+            color: #738092;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        /* ====================================================== */
+        /* 9. DISTRIBUCIÓN DE TABLAS */
+        /* ====================================================== */
+
+        .statistics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 20px;
+            align-items: stretch;
+        }
+
+        /* ====================================================== */
+        /* 10. TABLAS DESPLAZABLES */
+        /* ====================================================== */
+
+        .scroll-table {
+            width: 100%;
+            max-height: 270px;
+            overflow-y: auto;
+            overflow-x: auto;
+            border: 1px solid #e8edf2;
+            border-radius: 7px;
+        }
+
+        .statistics-table,
+        .institution-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 330px;
+        }
+
+        .statistics-table th,
+        .institution-table th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: #f3f6fa;
+            color: #566579;
+            text-align: left;
+            font-size: 11px;
+            padding: 12px 11px;
+            border-bottom: 1px solid #e5eaf0;
+            white-space: nowrap;
+        }
+
+        .statistics-table td,
+        .institution-table td {
+            padding: 11px;
+            border-bottom: 1px solid #edf0f4;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .statistics-table tbody tr:hover,
+        .institution-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .statistics-table tbody tr:last-child td,
+        .institution-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .statistics-name {
+            color: #102b4e;
+            font-weight: bold;
+        }
+
+        .statistics-count {
+            color: #102b4e;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* ====================================================== */
+        /* 11. CANTIDADES INTERACTIVAS */
+        /* ====================================================== */
+
+        .university-count {
+            display: inline-block;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            min-width: 34px;
+            text-align: center;
+        }
+
+        .university-count.applied {
+            background: #e1f4e9;
+            color: #237647;
+        }
+
+        .university-count.not-applied {
+            background: #fff1d9;
+            color: #94620a;
+        }
+
+        .university-count:hover {
+            filter: brightness(0.94);
+            text-decoration: underline;
+        }
+
+        /* ====================================================== */
+        /* 12. PROCEDENCIA INSTITUCIÓN EDUCATIVA */
+        /* ====================================================== */
+
+        .institution-panel {
+            margin-bottom: 25px;
+        }
+
+        /* ====================================================== */
+        /* 13. FILTROS */
+        /* ====================================================== */
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 13px;
+            align-items: end;
+            margin-top: 18px;
+        }
+
+        .filter-group label {
+            display: block;
+            color: #566579;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #dce3eb;
+            border-radius: 7px;
+            background: white;
+            color: #263445;
+            font-size: 12px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-button,
+        .clear-button {
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+            border: none;
+            border-radius: 7px;
+            padding: 11px 15px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .filter-button {
+            background: #102b4e;
+            color: white;
+        }
+
+        .filter-button:hover {
+            background: #1e4774;
+        }
+
+        .clear-button {
+            background: #edf1f6;
+            color: #526174;
+        }
+
+        /* ====================================================== */
+        /* 14. FILTRO ACTIVO */
+        /* ====================================================== */
+
+        .active-filter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            background: #edf4fc;
+            border: 1px solid #d8e6f5;
+            color: #315c87;
+            padding: 12px 15px;
+            border-radius: 7px;
+            font-size: 12px;
+            margin-bottom: 18px;
+        }
+
+        .active-filter a {
+            color: #102b4e;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        /* ====================================================== */
+        /* 15. LISTADO DE ESTUDIANTES */
+        /* ====================================================== */
+
+        .table-wrapper {
+            width: 100%;
+            max-height: 620px;
+            overflow: auto;
+            border: 1px solid #e8edf2;
+            border-radius: 7px;
+            position: relative;
+        }
+
+        /* ENCABEZADOS FIJOS AL DESPLAZARSE */
+
+        .students-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: #f5f7fa;
+        }
+
+        .students-table th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            text-align: left;
+            background: #f5f7fa;
+            color: #566579;
+            font-size: 12px;
+            padding: 14px 12px;
+            border-bottom: 1px solid #e5eaf0;
+        }
+
+        .students-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #edf0f4;
+            font-size: 12px;
+            vertical-align: top;
+            line-height: 1.6;
+        }
+
+        .student-name {
+            color: #102b4e;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .student-email {
+            color: #8290a1;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .student-details {
+            color: #667386;
+            max-width: 210px;
+        }
+
+        .preference-item {
+            padding: 7px 0;
+            border-bottom: 1px solid #edf0f4;
+        }
+
+        .preference-item:last-child {
+            border-bottom: none;
+        }
+
+        .preference-name {
+            color: #102b4e;
+            font-weight: bold;
+        }
+
+        .preference-details {
+            color: #8290a1;
+            font-size: 11px;
+        }
+
+        .application-status {
+            display: inline-block;
+            padding: 4px 7px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .application-status.aplicado {
+            background: #e1f4e9;
+            color: #237647;
+        }
+
+        .application-status.no_aplicado {
+            background: #fff1d9;
+            color: #94620a;
+        }
+
+        /* ====================================================== */
+        /* 16. RESULTADOS DEL PROCESO */
+        /* ====================================================== */
+
+        .result {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .completado {
+            background: #e1f4e9;
+            color: #237647;
+        }
+
+        .desistio {
+            background: #fff1d9;
+            color: #94620a;
+        }
+
+        /* Compatibilidad visual con registros históricos antiguos */
+        .otra_agencia {
+            background: #e5edfa;
+            color: #315c98;
+        }
+
+        .otro {
+            background: #eceff3;
+            color: #586575;
+        }
+
+        .observation {
+            max-width: 220px;
+            white-space: normal;
+            color: #667386;
+        }
+
+        /* ====================================================== */
+        /* 17. ACCIONES Y ESTADOS VACÍOS */
+        /* ====================================================== */
+
+        .delete-button {
+            background: #fff0f0;
+            color: #b42323;
+            border: 1px solid #f2caca;
+            border-radius: 6px;
+            padding: 8px 11px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .delete-button:hover {
+            background: #fbdede;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 28px 18px;
+            color: #8290a1;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .empty strong {
+            display: block;
+            color: #526174;
+            margin-bottom: 7px;
+        }
+
+        /* ====================================================== */
+        /* 18. RESPONSIVE */
+        /* ====================================================== */
+
+        @media (max-width: 1100px) {
+
+            .top-dashboard {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: 14px;
+            }
+
+            .countries-content {
+                gap: 12px;
+            }
+
+            .pie-chart {
+                width: 145px;
+                height: 145px;
+                min-width: 145px;
+            }
+
+            .filters {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 850px) {
+
+            .top-dashboard,
+            .statistics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .countries-content {
+                min-height: 190px;
+            }
+        }
 
         @media (max-width: 750px) {
 
@@ -285,8 +758,36 @@
                 padding: 22px 15px;
             }
 
+            .countries-content {
+                flex-wrap: wrap;
+            }
         }
 
+        @media (max-width: 480px) {
+
+            .indicators-grid,
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .countries-content {
+                flex-direction: column;
+            }
+
+            .active-filter {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .filter-actions {
+                width: 100%;
+            }
+
+            .filter-button,
+            .clear-button {
+                flex: 1;
+            }
+        }
     </style>
 </head>
 
@@ -295,7 +796,7 @@
 <div class="layout">
 
     <!-- ====================================================== -->
-    <!-- 11. BARRA LATERAL DE NAVEGACIÓN -->
+    <!-- 19. BARRA LATERAL -->
     <!-- ====================================================== -->
 
     <aside class="sidebar">
@@ -331,12 +832,10 @@
     </aside>
 
     <!-- ====================================================== -->
-    <!-- 12. CONTENIDO PRINCIPAL -->
+    <!-- 20. CONTENIDO PRINCIPAL -->
     <!-- ====================================================== -->
 
     <main class="main">
-
-        <!-- ENCABEZADO -->
 
         <div class="header">
 
@@ -345,13 +844,14 @@
             </h1>
 
             <p>
-                Consulta los procesos de estudiantes que han sido cerrados.
+                Consulta los resultados de los procesos finalizados
+                y las estadísticas de aplicación académica.
             </p>
 
         </div>
 
         <!-- ================================================== -->
-        <!-- 13. MENSAJES DEL SISTEMA -->
+        <!-- 21. MENSAJES DEL SISTEMA -->
         <!-- ================================================== -->
 
         {% if messages %}
@@ -371,165 +871,757 @@
         {% endif %}
 
         <!-- ================================================== -->
-        <!-- 14. RESUMEN DEL HISTORIAL -->
+        <!-- 22. INDICADORES Y GRÁFICO DE PAÍSES -->
         <!-- ================================================== -->
 
-        <section class="summary">
+        <section class="top-dashboard">
 
-            <div class="summary-label">
-                Total de procesos registrados
-            </div>
+            <!-- COLUMNA IZQUIERDA: INDICADORES -->
 
-            <div class="summary-number">
-                {{ historial_estudiantes|length }}
+            <div class="indicators-panel">
+
+                <h2 class="section-title">
+                    Resumen de procesos
+                </h2>
+
+                <div class="indicators-grid">
+
+                    <!-- PROCESOS COMPLETADOS -->
+
+                    <a
+                        href="?resultado=completado#listado-estudiantes"
+                        class="indicator-card indicator-card-link completed
+                        {% if filtro_resultado == 'completado' %}active{% endif %}"
+                        title="Ver estudiantes con procesos completados"
+                    >
+
+                        <span class="indicator-label">
+                            Procesos completados
+                        </span>
+
+                        <span class="indicator-number">
+                            {{ total_completados }}
+                        </span>
+
+                    </a>
+
+                    <!-- PROCESOS DESISTIDOS -->
+
+                    <a
+                        href="?resultado=desistio#listado-estudiantes"
+                        class="indicator-card indicator-card-link abandoned
+                        {% if filtro_resultado == 'desistio' %}active{% endif %}"
+                        title="Ver estudiantes que desistieron del proceso"
+                    >
+
+                        <span class="indicator-label">
+                            Desistieron del proceso
+                        </span>
+
+                        <span class="indicator-number">
+                            {{ total_desistidos }}
+                        </span>
+
+                    </a>
+
+                </div>
+
             </div>
+            <!-- FIN DE LA COLUMNA IZQUIERDA -->
+
+            <!-- COLUMNA DERECHA: GRÁFICO DE PAÍSES -->
+
+            <section class="content-card countries-panel">
+
+                <h2>
+                    Países de aplicación
+                </h2>
+
+                <p class="section-description">
+                    Distribución de las aplicaciones realizadas por país.
+                </p>
+
+                {% if resultados_paises %}
+
+                    <div class="countries-content">
+
+                        <div
+                            class="pie-chart"
+                            style="background: conic-gradient({{ grafico_paises_gradient }});"
+                            title="Distribución de aplicaciones por país"
+                        ></div>
+
+                        <div class="countries-legend">
+
+                            {% for pais in resultados_paises %}
+
+                                <div class="legend-item">
+
+                                    <span
+                                        class="legend-color"
+                                        style="background: {{ pais.color }};"
+                                    ></span>
+
+                                    <span class="legend-name">
+                                        {{ pais.pais }}
+                                    </span>
+
+                                    <span class="legend-value">
+                                        {{ pais.cantidad }}
+                                        ({{ pais.porcentaje }}%)
+                                    </span>
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                    <div class="countries-total">
+                        Total de aplicaciones contabilizadas:
+                        <strong>{{ total_aplicaciones_paises }}</strong>
+                    </div>
+
+                {% else %}
+
+                    <div class="empty">
+
+                        <strong>
+                            Todavía no hay aplicaciones registradas.
+                        </strong>
+
+                        El gráfico aparecerá cuando existan universidades
+                        clasificadas como aplicadas.
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+            <!-- FIN DE LA COLUMNA DERECHA -->
 
         </section>
 
         <!-- ================================================== -->
-        <!-- 15. TABLA DE PROCESOS FINALIZADOS -->
+        <!-- 23. CARRERAS Y PREFERENCIAS UNIVERSITARIAS -->
         <!-- ================================================== -->
 
-        <section class="table-container">
+        <section class="statistics-grid">
+
+            <!-- CARRERAS O PROGRAMAS APLICADOS -->
+
+            <section class="content-card">
+
+                <h2>
+                    Carreras o programas aplicados
+                </h2>
+
+                <p class="section-description">
+                    Cantidad de aplicaciones registradas por carrera
+                    o programa académico.
+                </p>
+
+                {% if resultados_carreras %}
+
+                    <div class="scroll-table">
+
+                        <table class="statistics-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Carrera o programa</th>
+                                    <th style="text-align:center;">
+                                        Aplicaciones
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for item in resultados_carreras %}
+
+                                    <tr>
+
+                                        <td class="statistics-name">
+                                            {{ item.carrera }}
+                                        </td>
+
+                                        <td class="statistics-count">
+                                            {{ item.cantidad }}
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty">
+                        <strong>
+                            No hay carreras o programas aplicados.
+                        </strong>
+                        Los datos aparecerán cuando se registren aplicaciones.
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+            <!-- PREFERENCIAS UNIVERSITARIAS -->
+
+            <section class="content-card">
+
+                <h2>
+                    Preferencias Universitarias
+                </h2>
+
+                <p class="section-description">
+                    Consulta las cantidades de estudiantes aplicados
+                    y no aplicados en cada universidad.
+                </p>
+
+                {% if resultados_universidad %}
+
+                    <div class="scroll-table">
+
+                        <table class="statistics-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Universidad</th>
+                                    <th style="text-align:center;">
+                                        Aplicados
+                                    </th>
+                                    <th style="text-align:center;">
+                                        No aplicados
+                                    </th>
+                                    <th style="text-align:center;">
+                                        Total
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for item in resultados_universidad %}
+
+                                    <tr>
+
+                                        <td class="statistics-name">
+                                            {{ item.universidad }}
+                                        </td>
+
+                                        <td style="text-align:center;">
+
+                                            <a
+                                                class="university-count applied"
+                                                href="?universidad={{ item.universidad|urlencode }}&estado_aplicacion=aplicado#listado-estudiantes"
+                                                title="Consultar estudiantes aplicados"
+                                            >
+                                                {{ item.aplicados }}
+                                            </a>
+
+                                        </td>
+
+                                        <td style="text-align:center;">
+
+                                            <a
+                                                class="university-count not-applied"
+                                                href="?universidad={{ item.universidad|urlencode }}&estado_aplicacion=no_aplicado#listado-estudiantes"
+                                                title="Consultar estudiantes no aplicados"
+                                            >
+                                                {{ item.no_aplicados }}
+                                            </a>
+
+                                        </td>
+
+                                        <td class="statistics-count">
+                                            {{ item.total }}
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty">
+
+                        <strong>
+                            Todavía no hay preferencias universitarias registradas.
+                        </strong>
+
+                        Los resultados aparecerán cuando se cierre un proceso
+                        como completado.
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+        </section>
+
+        <!-- ================================================== -->
+        <!-- 24. PROCEDENCIA INSTITUCIÓN EDUCATIVA -->
+        <!-- ================================================== -->
+
+        <section class="content-card institution-panel">
 
             <h2>
-                Registro de procesos finalizados
+                Procedente Institución Educativa
             </h2>
 
-            {% if historial_estudiantes %}
+            <p class="section-description">
+                Instituciones educativas de procedencia de los estudiantes
+                registrados en el historial.
+            </p>
 
-                <table>
+            {% if resultados_instituciones %}
 
-                    <thead>
+                <div class="scroll-table">
 
-                        <tr>
+                    <table class="institution-table">
 
-                            <th>Estudiante</th>
-
-                            <th>Resultado</th>
-
-                            <th>Fecha de cierre</th>
-
-                            <th>Responsable</th>
-
-                            <th>Observación</th>
-
-                            {% if es_administrador_principal %}
-                                <th>Acciones</th>
-                            {% endif %}
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        {% for registro in historial_estudiantes %}
-
+                        <thead>
                             <tr>
+                                <th>Institución educativa</th>
+                                <th style="text-align:center;">
+                                    Estudiantes
+                                </th>
+                            </tr>
+                        </thead>
 
-                                <!-- ESTUDIANTE -->
+                        <tbody>
 
-                                <td>
-                                    <strong>
-                                        {{ registro.nombre_estudiante }}
-                                    </strong>
-                                </td>
+                            {% for item in resultados_instituciones %}
 
-                                <!-- RESULTADO DEL PROCESO -->
+                                <tr>
 
-                                <td>
-
-                                    <span class="result {{ registro.resultado }}">
-                                        {{ registro.get_resultado_display }}
-                                    </span>
-
-                                </td>
-
-                                <!-- FECHA DE CIERRE -->
-
-                                <td>
-                                    {{ registro.fecha_finalizacion|date:"d/m/Y H:i" }}
-                                </td>
-
-                                <!-- RESPONSABLE -->
-
-                                <td>
-                                    {{ registro.responsable_nombre }}
-                                </td>
-
-                                <!-- OBSERVACIÓN -->
-
-                                <td class="observation">
-
-                                    {% if registro.observacion %}
-
-                                        {{ registro.observacion }}
-
-                                    {% else %}
-
-                                        Sin observaciones
-
-                                    {% endif %}
-
-                                </td>
-
-                                <!-- ELIMINAR REGISTRO -->
-                                <!-- EXCLUSIVO DEL ADMINISTRADOR PRINCIPAL -->
-
-                                {% if es_administrador_principal %}
-
-                                    <td>
-
-                                        <form
-                                            method="POST"
-                                            onsubmit="return confirm('¿Estás seguro de eliminar definitivamente este registro del historial?');"
-                                        >
-
-                                            {% csrf_token %}
-
-                                            <input
-                                                type="hidden"
-                                                name="accion"
-                                                value="eliminar_historial"
-                                            >
-
-                                            <input
-                                                type="hidden"
-                                                name="historial_id"
-                                                value="{{ registro.id }}"
-                                            >
-
-                                            <button
-                                                type="submit"
-                                                class="delete-button"
-                                            >
-                                                Eliminar
-                                            </button>
-
-                                        </form>
-
+                                    <td class="statistics-name">
+                                        {{ item.institucion }}
                                     </td>
 
-                                {% endif %}
+                                    <td class="statistics-count">
+                                        {{ item.cantidad }}
+                                    </td>
 
-                            </tr>
+                                </tr>
 
-                        {% endfor %}
+                            {% endfor %}
 
-                    </tbody>
+                        </tbody>
 
-                </table>
+                    </table>
+
+                </div>
 
             {% else %}
 
                 <div class="empty">
 
                     <strong>
-                        Todavía no hay estudiantes en el historial.
+                        No hay instituciones educativas registradas.
                     </strong>
 
-                    Los procesos finalizados aparecerán aquí cuando se cierre y elimine un estudiante.
+                    Las instituciones aparecerán cuando existan estudiantes
+                    en el historial con esta información.
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+        <!-- ================================================== -->
+        <!-- 25. FILTROS DEL HISTORIAL -->
+        <!-- ================================================== -->
+
+        <section class="content-card">
+
+            <h2>
+                Consultar estudiantes
+            </h2>
+
+            <p class="section-description">
+                Filtra los procesos finalizados para consultar la información
+                de los estudiantes y sus preferencias académicas.
+            </p>
+
+            {% if filtro_universidad or filtro_estado %}
+
+                <div class="active-filter">
+
+                    <span>
+
+                        Filtro universitario:
+
+                        <strong>
+                            {{ filtro_universidad|default:"Todas las universidades" }}
+                        </strong>
+
+                        {% if filtro_estado == "aplicado" %}
+                            — Aplicados
+                        {% elif filtro_estado == "no_aplicado" %}
+                            — No aplicados
+                        {% endif %}
+
+                    </span>
+
+                    <a href="{% url 'admin_historial_estudiantes' %}">
+                        Quitar filtro
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+            <form method="GET" class="filters">
+
+                <div class="filter-group">
+
+                    <label for="filtro-resultado">
+                        Resultado del proceso
+                    </label>
+
+                    <select id="filtro-resultado" name="resultado">
+
+                        <option value="">
+                            Todos los resultados
+                        </option>
+
+                        <option value="completado"
+                            {% if filtro_resultado == "completado" %}selected{% endif %}>
+                            Completado
+                        </option>
+
+                        <option value="desistio"
+                            {% if filtro_resultado == "desistio" %}selected{% endif %}>
+                            Desistió del proceso
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="filter-group">
+
+                    <label for="filtro-anio">
+                        Año de cierre
+                    </label>
+
+                    <select id="filtro-anio" name="anio">
+
+                        <option value="">
+                            Todos los años
+                        </option>
+
+                        {% for anio in anios_disponibles %}
+
+                            <option value="{{ anio }}"
+                                {% if filtro_anio == anio|stringformat:"s" %}selected{% endif %}>
+                                {{ anio }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="filter-group">
+
+                    <label for="filtro-asesor">
+                        Responsable
+                    </label>
+
+                    <select id="filtro-asesor" name="asesor">
+
+                        <option value="">
+                            Todos los responsables
+                        </option>
+
+                        {% for asesor in asesores_disponibles %}
+
+                            <option value="{{ asesor }}"
+                                {% if filtro_asesor == asesor %}selected{% endif %}>
+                                {{ asesor }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="filter-actions">
+
+                    <button type="submit" class="filter-button">
+                        Filtrar
+                    </button>
+
+                    <a
+                        href="{% url 'admin_historial_estudiantes' %}"
+                        class="clear-button"
+                    >
+                        Limpiar
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+        <!-- ================================================== -->
+        <!-- 26. LISTADO GENERAL DE ESTUDIANTES -->
+        <!-- ================================================== -->
+
+        <section class="content-card" id="listado-estudiantes">
+
+            <h2>
+                Registro de procesos finalizados
+            </h2>
+
+            <p class="section-description">
+                Información personal y preferencias académicas conservadas
+                en el historial.
+            </p>
+
+            {% if historial_estudiantes %}
+
+                <div class="table-wrapper">
+
+                    <table class="students-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Estudiante</th>
+                                <th>Información personal</th>
+                                <th>Preferencias universitarias</th>
+                                <th>Resultado</th>
+                                <th>Fecha de cierre</th>
+                                <th>Responsable</th>
+                                <th>Observación</th>
+
+                                {% if es_administrador_principal %}
+                                    <th>Acciones</th>
+                                {% endif %}
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for registro in historial_estudiantes %}
+
+                                <tr>
+
+                                    <!-- ESTUDIANTE -->
+
+                                    <td>
+
+                                        <span class="student-name">
+                                            {{ registro.nombre_estudiante }}
+                                        </span>
+
+                                        {% if registro.correo_estudiante %}
+
+                                            <span class="student-email">
+                                                {{ registro.correo_estudiante }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <!-- INFORMACIÓN PERSONAL -->
+
+                                    <td class="student-details">
+
+                                        {% if registro.edad %}
+                                            Edad: {{ registro.edad }} años<br>
+                                        {% endif %}
+
+                                        {% if registro.telefono %}
+                                            Teléfono: {{ registro.telefono }}<br>
+                                        {% endif %}
+
+                                        {% if registro.institucion_educativa %}
+                                            Institución: {{ registro.institucion_educativa }}
+                                        {% endif %}
+
+                                        {% if not registro.edad and not registro.telefono and not registro.institucion_educativa %}
+                                            <span>Información no disponible</span>
+                                        {% endif %}
+
+                                    </td>
+
+                                    <!-- PREFERENCIAS UNIVERSITARIAS -->
+
+                                    <td class="student-details">
+
+                                        {% for universidad in registro.universidades.all %}
+
+                                            <div class="preference-item">
+
+                                                <div class="preference-name">
+                                                    {{ universidad.universidad }}
+                                                </div>
+
+                                                <div class="preference-details">
+
+                                                    {% if universidad.carrera %}
+                                                        Carrera: {{ universidad.carrera }}<br>
+                                                    {% endif %}
+
+                                                    {% if universidad.pais %}
+                                                        País: {{ universidad.pais }}<br>
+                                                    {% endif %}
+
+                                                    {% if universidad.intake %}
+                                                        Intake: {{ universidad.intake|date:"d/m/Y" }}<br>
+                                                    {% endif %}
+
+                                                    {% if universidad.deadline %}
+                                                        Deadline: {{ universidad.deadline|date:"d/m/Y" }}
+                                                    {% endif %}
+
+                                                </div>
+
+                                                <span class="application-status {{ universidad.estado_aplicacion }}">
+                                                    {{ universidad.get_estado_aplicacion_display }}
+                                                </span>
+
+                                            </div>
+
+                                        {% empty %}
+
+                                            <span>
+                                                Sin resultados universitarios registrados
+                                            </span>
+
+                                        {% endfor %}
+
+                                    </td>
+
+                                    <!-- RESULTADO DEL PROCESO -->
+
+                                    <td>
+
+                                        <span class="result {{ registro.resultado }}">
+                                            {{ registro.get_resultado_display }}
+                                        </span>
+
+                                    </td>
+
+                                    <!-- FECHA -->
+
+                                    <td>
+                                        {{ registro.fecha_finalizacion|date:"d/m/Y H:i" }}
+                                    </td>
+
+                                    <!-- RESPONSABLE -->
+
+                                    <td>
+                                        {{ registro.responsable_nombre|default:"No registrado" }}
+                                    </td>
+
+                                    <!-- OBSERVACIÓN -->
+
+                                    <td class="observation">
+
+                                        {% if registro.observacion %}
+                                            {{ registro.observacion }}
+                                        {% else %}
+                                            Sin observaciones
+                                        {% endif %}
+
+                                    </td>
+
+                                    <!-- ELIMINAR REGISTRO -->
+
+                                    {% if es_administrador_principal %}
+
+                                        <td>
+
+                                            <form
+                                                method="POST"
+                                                onsubmit="return confirm('¿Estás seguro de eliminar definitivamente este registro del historial?');"
+                                            >
+
+                                                {% csrf_token %}
+
+                                                <input
+                                                    type="hidden"
+                                                    name="accion"
+                                                    value="eliminar_historial"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="historial_id"
+                                                    value="{{ registro.id }}"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    class="delete-button"
+                                                >
+                                                    Eliminar
+                                                </button>
+
+                                            </form>
+
+                                        </td>
+
+                                    {% endif %}
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty">
+
+                    <strong>
+                        No se encontraron estudiantes.
+                    </strong>
+
+                    {% if filtro_universidad or filtro_estado or filtro_resultado or filtro_anio or filtro_asesor %}
+
+                        Prueba cambiando o quitando los filtros seleccionados.
+
+                    {% else %}
+
+                        Los procesos finalizados aparecerán aquí cuando
+                        se cierre y elimine un estudiante.
+
+                    {% endif %}
 
                 </div>
 

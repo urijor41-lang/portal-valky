@@ -146,6 +146,8 @@ def validar_archivo_documento(archivo):
 
 
 # ==========================================================
+
+# ==========================================================
 # 1. INICIO DEL PORTAL DE ESTUDIANTES
 # ==========================================================
 
@@ -158,11 +160,57 @@ def inicio(request):
         estudiante=request.user
     )
 
+    # ======================================================
+    # 2. NOMBRE DEL ESTUDIANTE
+    # ======================================================
+
     nombre_estudiante = (
         perfil.nombres.strip()
         if perfil.nombres and perfil.nombres.strip()
         else request.user.username
     )
+
+    # ======================================================
+    # 3. ESTADO DE INFORMACIÓN PERSONAL
+    # ======================================================
+
+    datos_personales = [
+        perfil.nombres,
+        perfil.apellidos,
+        perfil.edad,
+        perfil.telefono,
+        perfil.institucion_educativa,
+        request.user.email,
+        request.user.username,
+    ]
+
+    perfil_completo = all(
+        dato is not None and str(dato).strip() != ""
+        for dato in datos_personales
+    )
+
+    # ======================================================
+    # 4. ESTADO DE PREFERENCIAS UNIVERSITARIAS
+    # ======================================================
+
+    grupos_preferencias = [
+        (perfil.carrera_1, perfil.universidad_1, perfil.pais_1),
+        (perfil.carrera_2, perfil.universidad_2, perfil.pais_2),
+        (perfil.carrera_3, perfil.universidad_3, perfil.pais_3),
+        (perfil.carrera_4, perfil.universidad_4, perfil.pais_4),
+    ]
+
+    preferencias_completas = any(
+        all(
+            dato is not None and str(dato).strip() != ""
+            for dato in grupo
+        )
+        for grupo in grupos_preferencias
+    )
+
+    # ======================================================
+    # 5. REQUISITOS DOCUMENTALES HABILITADOS
+    # ======================================================
 
     requisitos = list(
         RequisitoDocumento.objects.filter(
@@ -178,6 +226,10 @@ def inicio(request):
         for requisito in requisitos
     }
 
+    # ======================================================
+    # 6. DOCUMENTOS DEL ESTUDIANTE
+    # ======================================================
+
     documentos = Documento.objects.filter(
         estudiante=request.user,
         tipo_documento_id__in=tipos_habilitados
@@ -192,6 +244,10 @@ def inicio(request):
 
         if documento.tipo_documento_id not in documentos_por_tipo:
             documentos_por_tipo[documento.tipo_documento_id] = documento
+
+    # ======================================================
+    # 7. CONTADORES DE DOCUMENTOS
+    # ======================================================
 
     documentos_pendientes = 0
     documentos_aprobados = 0
@@ -213,13 +269,26 @@ def inicio(request):
         elif documento.estado == "corregir":
             documentos_corregir += 1
 
-    return render(request, "portal/inicio.html", {
+    # ======================================================
+    # 8. INFORMACIÓN QUE SE ENVÍA A LA PLANTILLA
+    # ======================================================
+
+    contexto = {
         "nombre_estudiante": nombre_estudiante,
+
+        "perfil_completo": perfil_completo,
+        "preferencias_completas": preferencias_completas,
+
         "documentos_pendientes": documentos_pendientes,
         "documentos_aprobados": documentos_aprobados,
         "documentos_corregir": documentos_corregir,
-    })
+    }
 
+    return render(
+        request,
+        "portal/inicio.html",
+        contexto
+    )
 
 # ==========================================================
 # 2. REGISTRO DE ESTUDIANTES
@@ -350,7 +419,9 @@ def cambiar_contrasena(request):
 
 
 # ==========================================================
-# 6. PERFIL DEL ESTUDIANTE
+
+# ==========================================================
+# VISTA: PERFIL DEL ESTUDIANTE
 # ==========================================================
 
 @login_required
@@ -359,6 +430,10 @@ def mi_perfil(request):
     perfil, creado = PerfilEstudiante.objects.get_or_create(
         estudiante=request.user
     )
+
+    # ======================================================
+    # 1. PROCESAR EL FORMULARIO
+    # ======================================================
 
     if request.method == "POST":
 
@@ -384,11 +459,84 @@ def mi_perfil(request):
             instance=perfil
         )
 
-    formulario.fields["email"].initial = request.user.email
+    # ======================================================
+    # 2. ESTADO DE INFORMACIÓN PERSONAL
+    # ======================================================
 
-    return render(request, "portal/mi_perfil.html", {
-        "formulario": formulario
-    })
+    datos_personales = [
+        perfil.nombres,
+        perfil.apellidos,
+        perfil.edad,
+        perfil.telefono,
+        perfil.institucion_educativa,
+        request.user.email,
+        request.user.username,
+    ]
+
+    perfil_completo = all(
+        str(dato).strip()
+        for dato in datos_personales
+        if dato is not None
+    ) and all(
+        dato is not None
+        for dato in datos_personales
+    )
+
+    # ======================================================
+    # 3. ESTADO DE PREFERENCIAS UNIVERSITARIAS
+    # ======================================================
+
+    grupos_preferencias = [
+        (
+            perfil.carrera_1,
+            perfil.universidad_1,
+            perfil.pais_1
+        ),
+        (
+            perfil.carrera_2,
+            perfil.universidad_2,
+            perfil.pais_2
+        ),
+        (
+            perfil.carrera_3,
+            perfil.universidad_3,
+            perfil.pais_3
+        ),
+        (
+            perfil.carrera_4,
+            perfil.universidad_4,
+            perfil.pais_4
+        ),
+    ]
+
+    preferencias_completas = any(
+        all(
+            str(dato).strip()
+            for dato in grupo
+            if dato is not None
+        ) and all(
+            dato is not None
+            for dato in grupo
+        )
+        for grupo in grupos_preferencias
+    )
+
+    # ======================================================
+    # 4. ENVIAR INFORMACIÓN A LA PLANTILLA
+    # ======================================================
+
+    contexto = {
+        "formulario": formulario,
+        "username": request.user.username,
+        "perfil_completo": perfil_completo,
+        "preferencias_completas": preferencias_completas,
+    }
+
+    return render(
+        request,
+        "portal/mi_perfil.html",
+        contexto
+    )
 
 
 # ==========================================================

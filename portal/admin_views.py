@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
@@ -18,9 +19,27 @@ from .models import (
     TipoDocumento,
     NotaSeguimiento,
     HistorialEstudiante,
+    ResultadoUniversidad,
     PermisosAsesor,
 )
+from io import BytesIO
+from django.http import HttpResponse
 
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+    Paragraph,
+    Spacer,
+)
 
 # ==========================================================
 # COMPROBACIÓN DE PERMISOS
@@ -38,6 +57,7 @@ PERMISOS_VALIDOS = {
     "ver_historial",
     "restablecer_contrasenas",
 }
+
 
 
 def asesor_tiene_permiso(usuario, nombre_permiso):
@@ -70,10 +90,6 @@ def denegar_permiso(request, nombre_permiso, destino="admin_inicio", **kwargs):
 
     return redirect(destino, **kwargs)
 
-
-# ==========================================================
-# FUNCIONES AUXILIARES
-# ==========================================================
 
 def eliminar_archivos_estudiante(archivos):
 
@@ -156,7 +172,15 @@ def obtener_estado_semaforo(estudiante):
                 ).date()
             ).days
 
-            if dias_solicitado >= 15:
+            # Amarillo únicamente si el documento
+            # todavía no ha sido cargado.
+            if (
+                dias_solicitado >= 15
+                and (
+                    documento is None
+                    or not documento.archivo
+                )
+            ):
                 hay_documento_antiguo_sin_aprobar = True
 
         documentos_pendientes.append({
@@ -164,7 +188,8 @@ def obtener_estado_semaforo(estudiante):
             "fecha_solicitud": requisito.fecha_solicitud,
             "dias_solicitado": dias_solicitado,
             "estado_documento": (
-                documento.estado if documento else "sin_cargar"
+                documento.estado
+                if documento is not None and documento.archivo else "sin_cargar"
             ),
         })
 
@@ -280,8 +305,9 @@ def obtener_resumen_semaforo(estudiantes):
 
             for documento in resultado["documentos_pendientes"]:
                 if (
-                    documento["dias_solicitado"] is not None
-                    and documento["dias_solicitado"] >= 15
+            documento["estado_documento"] == "sin_cargar"
+            and documento["dias_solicitado"] is not None
+            and documento["dias_solicitado"] >= 15
                 ):
                     alertas_documentos.append({
                         "estudiante": estudiante,
@@ -432,13 +458,266 @@ def obtener_estadisticas_documentos(estudiantes):
     }
 
 
-
 # ==========================================================
-# ==========================================================
-# INICIO DEL PANEL DE GESTIÓN
+# DATOS Y ESTADÍSTICAS DE ESTUDIANTES REGISTRADOS
 # ==========================================================
 
-@staff_member_required(login_url="/admin/login/")
+def obtener_datos_reporte_estudiantes(request=None, aplicar_filtros=False):
+
+    estudiantes_base = list(
+        User.objects.filter(
+            is_staff=False,
+            is_superuser=False
+        ).select_related("perfil").order_by("-date_joined")
+    )
+
+    # ------------------------------------------------------
+    # RESUMEN GENERAL DEL SEMÁFORO
+    # ------------------------------------------------------
+
+    resumen_general = obtener_resumen_semaforo(estudiantes_base)
+
+    # ------------------------------------------------------
+    # CONTAR PREFERENCIAS UNIVERSITARIAS
+    # Cada estudiante cuenta una sola vez por valor.
+    # ------------------------------------------------------
+
+    def contar_preferencias(estudiantes, campo):
+
+        conteo = {}
+
+        for estudiante in estudiantes:
+
+            perfil = getattr(estudiante, "perfil", None)
+
+            if not perfil:
+                continue
+
+            valores_estudiante = set()
+
+            for numero in range(1, 5):
+
+                valor = (
+                    getattr(perfil, f"{campo}_{numero}", "") or ""
+                ).strip()
+
+                if not valor:
+                    continue
+
+                clave = valor.casefold()
+
+                if clave in valores_estudiante:
+                    continue
+
+                valores_estudiante.add(clave)
+
+                if clave not in conteo:
+                    conteo[clave] = {
+                        "nombre": valor,
+                        "cantidad": 0,
+                    }
+
+                conteo[clave]["cantidad"] += 1
+
+        return sorted(
+            conteo.values(),
+            key=lambda fila: (
+                -fila["cantidad"],
+                fila["nombre"].casefold()
+            )
+        )
+
+    paises = contar_preferencias(estudiantes_base, "pais")
+    universidades = contar_preferencias(estudiantes_base, "universidad")
+    carreras = contar_preferencias(estudiantes_base, "carrera")
+
+    # ------------------------------------------------------
+    # CONTAR INSTITUCIONES EDUCATIVAS DE PROCEDENCIA
+    # ------------------------------------------------------
+
+    conteo_instituciones = {}
+
+    for estudiante in estudiantes_base:
+
+        perfil = getattr(estudiante, "perfil", None)
+
+        if not perfil:
+            continue
+
+        institucion = (
+            getattr(perfil, "institucion_educativa", "") or ""
+        ).strip()
+
+        if not institucion:
+            continue
+
+        clave = institucion.casefold()
+
+        if clave not in conteo_instituciones:
+            conteo_instituciones[clave] = {
+                "nombre": institucion,
+                "cantidad": 0,
+            }
+
+        conteo_instituciones[clave]["cantidad"] += 1
+
+    instituciones = sorted(
+        conteo_instituciones.values(),
+        key=lambda fila: (
+            -fila["cantidad"],
+            fila["nombre"].casefold()
+        )
+    )
+
+    # ------------------------------------------------------
+    # APLICAR FILTROS AL LISTADO DE ESTUDIANTES
+    # Las estadísticas generales no se modifican.
+    # ------------------------------------------------------
+
+    estudiantes_filtrados = list(estudiantes_base)
+
+    if aplicar_filtros and request is not None:
+
+        busqueda = request.GET.get("buscar", "").strip().casefold()
+        estado = request.GET.get("estado", "").strip().casefold()
+        pais = request.GET.get("pais", "").strip().casefold()
+        universidad = request.GET.get("universidad", "").strip().casefold()
+        carrera = request.GET.get("carrera", "").strip().casefold()
+        institucion = request.GET.get("institucion", "").strip().casefold()
+
+        # Búsqueda por nombre, apellido, usuario o correo.
+        if busqueda:
+
+            resultado_busqueda = []
+
+            for estudiante in estudiantes_filtrados:
+
+                perfil = getattr(estudiante, "perfil", None)
+
+                nombre = ""
+                apellidos = ""
+
+                if perfil:
+                    nombre = getattr(perfil, "nombres", "") or ""
+                    apellidos = getattr(perfil, "apellidos", "") or ""
+
+                texto = " ".join([
+                    estudiante.username or "",
+                    estudiante.email or "",
+                    nombre,
+                    apellidos,
+                    estudiante.get_full_name() or "",
+                ]).casefold()
+
+                if busqueda in texto:
+                    resultado_busqueda.append(estudiante)
+
+            estudiantes_filtrados = resultado_busqueda
+
+        # Filtrar por estado del semáforo.
+        if estado in ("verde", "amarillo", "rojo", "neutro"):
+
+            clave_estado = {
+                "verde": "estudiantes_verdes",
+                "amarillo": "estudiantes_amarillos",
+                "rojo": "estudiantes_rojos",
+                "neutro": "estudiantes_neutros",
+            }[estado]
+
+            ids_estado = {
+                fila["estudiante"].id
+                for fila in resumen_general[clave_estado]
+            }
+
+            estudiantes_filtrados = [
+                estudiante
+                for estudiante in estudiantes_filtrados
+                if estudiante.id in ids_estado
+            ]
+
+        # Filtrar por país, universidad o carrera.
+        for campo, valor_filtro in (
+            ("pais", pais),
+            ("universidad", universidad),
+            ("carrera", carrera),
+        ):
+
+            if not valor_filtro:
+                continue
+
+            resultado_filtro = []
+
+            for estudiante in estudiantes_filtrados:
+
+                perfil = getattr(estudiante, "perfil", None)
+
+                if not perfil:
+                    continue
+
+                coincide = False
+
+                for numero in range(1, 5):
+
+                    valor = (
+                        getattr(perfil, f"{campo}_{numero}", "") or ""
+                    ).strip().casefold()
+
+                    if valor == valor_filtro:
+                        coincide = True
+                        break
+
+                if coincide:
+                    resultado_filtro.append(estudiante)
+
+            estudiantes_filtrados = resultado_filtro
+
+        # Filtrar por institución educativa.
+        if institucion:
+
+            estudiantes_filtrados = [
+                estudiante
+                for estudiante in estudiantes_filtrados
+                if (
+                    getattr(
+                        getattr(estudiante, "perfil", None),
+                        "institucion_educativa",
+                        ""
+                    ) or ""
+                ).strip().casefold() == institucion
+            ]
+
+    # ------------------------------------------------------
+    # SEMÁFORO DEL LISTADO FILTRADO
+    # ------------------------------------------------------
+
+    resumen_filtrado = obtener_resumen_semaforo(
+        estudiantes_filtrados
+    )
+
+    # ------------------------------------------------------
+    # RESULTADO
+    # ------------------------------------------------------
+
+    return {
+        "estudiantes": estudiantes_filtrados,
+        "total_estudiantes": len(estudiantes_base),
+        "total_estudiantes_filtrados": len(estudiantes_filtrados),
+
+        "paises": paises,
+        "universidades": universidades,
+        "carreras": carreras,
+        "instituciones": instituciones,
+
+        "resumen_semaforo": resumen_general,
+
+        "total_verdes": len(resumen_general["estudiantes_verdes"]),
+        "total_amarillos": len(resumen_general["estudiantes_amarillos"]),
+        "total_rojos": len(resumen_general["estudiantes_rojos"]),
+        "total_neutros": len(resumen_general["estudiantes_neutros"]),
+
+        "resumen_semaforo_filtrado": resumen_filtrado,
+    }
+
 def admin_inicio(request):
 
     if not asesor_tiene_permiso(
@@ -474,6 +753,12 @@ def admin_inicio(request):
         )
 
     total_estudiantes = len(estudiantes_base)
+
+    total_documentos_pendientes_revision = Documento.objects.filter(
+    estudiante__in=estudiantes_base,
+    estado="pendiente",
+    archivo__gt=""
+).count()
 
     resumen = obtener_resumen_semaforo(estudiantes_base)
 
@@ -521,7 +806,10 @@ def admin_inicio(request):
 
         # ESTADÍSTICAS GENERALES
 
+        # ESTADÍSTICAS GENERALES
+
         "total_estudiantes": total_estudiantes,
+        "total_documentos_pendientes_revision": total_documentos_pendientes_revision,
         "total_documentos": Documento.objects.count(),
         "total_tipos": TipoDocumento.objects.count(),
 
@@ -602,9 +890,518 @@ def admin_inicio(request):
 
 
 
+
+# ==========================================================
+# ESTUDIANTES REGISTRADOS
 # ==========================================================
 
+@staff_member_required(login_url="/admin/login/")
+def admin_estudiantes_registrados(request):
+    """Página independiente de estudiantes activos y sus estadísticas."""
 
+    if not asesor_tiene_permiso(request.user, "ver_estudiantes"):
+        messages.error(
+            request,
+            "Permiso deshabilitado. Habla con el administrador."
+        )
+        return redirect("/admin/login/")
+
+    # Obtener estadísticas generales y listado filtrado.
+    datos = obtener_datos_reporte_estudiantes(
+        request=request,
+        aplicar_filtros=True
+    )
+
+    resumen = datos["resumen_semaforo"]
+    resumen_filtrado = datos["resumen_semaforo_filtrado"]
+
+    contexto = {
+        # ==================================================
+        # LISTADO DE ESTUDIANTES
+        # ==================================================
+
+        "estudiantes": datos["estudiantes"],
+        "total_estudiantes_filtrados": datos["total_estudiantes_filtrados"],
+
+        # ==================================================
+        # ESTADÍSTICAS GENERALES
+        # No cambian al aplicar filtros.
+        # ==================================================
+
+        "total_estudiantes": datos["total_estudiantes"],
+
+        "paises": datos["paises"],
+        "universidades": datos["universidades"],
+        "carreras": datos["carreras"],
+        "instituciones": datos["instituciones"],
+
+        # Nombres que utiliza la plantilla HTML.
+        "paises_preferencia": datos["paises"],
+        "universidades_preferencia": datos["universidades"],
+        "carreras_preferencia": datos["carreras"],
+        "instituciones_educativas": datos["instituciones"],
+
+        # ==================================================
+        # SEMÁFORO GENERAL
+        # ==================================================
+
+        "resumen_semaforo": resumen,
+
+        "total_verdes": datos["total_verdes"],
+        "total_amarillos": datos["total_amarillos"],
+        "total_rojos": datos["total_rojos"],
+        "total_neutros": datos["total_neutros"],
+
+        "alertas_deadline": resumen["alertas_deadline"],
+        "alertas_documentos": resumen["alertas_documentos"],
+
+        # ==================================================
+        # SEMÁFORO DEL LISTADO FILTRADO
+        # ==================================================
+
+        "resumen_semaforo_filtrado": resumen_filtrado,
+
+        "total_verdes_filtrados": len(
+            resumen_filtrado["estudiantes_verdes"]
+        ),
+        "total_amarillos_filtrados": len(
+            resumen_filtrado["estudiantes_amarillos"]
+        ),
+        "total_rojos_filtrados": len(
+            resumen_filtrado["estudiantes_rojos"]
+        ),
+        "total_neutros_filtrados": len(
+            resumen_filtrado["estudiantes_neutros"]
+        ),
+
+        # Listas utilizadas por la plantilla para identificar
+        # el estado de cada estudiante del listado filtrado.
+        "estudiantes_verdes": resumen_filtrado["estudiantes_verdes"],
+        "estudiantes_amarillos": resumen_filtrado["estudiantes_amarillos"],
+        "estudiantes_rojos": resumen_filtrado["estudiantes_rojos"],
+        "estudiantes_neutros": resumen_filtrado["estudiantes_neutros"],
+
+        # ==================================================
+        # FILTROS ACTUALES
+        # ==================================================
+
+        "busqueda": request.GET.get("buscar", "").strip(),
+
+        "filtro_estado": request.GET.get("estado", "").strip(),
+        "filtro_pais": request.GET.get("pais", "").strip(),
+        "filtro_universidad": request.GET.get("universidad", "").strip(),
+        "filtro_carrera": request.GET.get("carrera", "").strip(),
+        "filtro_institucion": request.GET.get("institucion", "").strip(),
+
+        # Nombres alternativos utilizados por la plantilla.
+        "estado_actual": request.GET.get("estado", "").strip(),
+        "pais_actual": request.GET.get("pais", "").strip(),
+        "universidad_actual": request.GET.get("universidad", "").strip(),
+        "carrera_actual": request.GET.get("carrera", "").strip(),
+        "institucion_actual": request.GET.get("institucion", "").strip(),
+
+        "estado_seleccionado": request.GET.get("estado", "").strip(),
+        "pais_seleccionado": request.GET.get("pais", "").strip(),
+        "universidad_seleccionada": request.GET.get("universidad", "").strip(),
+        "carrera_seleccionada": request.GET.get("carrera", "").strip(),
+        "institucion_seleccionada": request.GET.get("institucion", "").strip(),
+
+        # ==================================================
+        # PERMISOS Y DATOS DEL PANEL
+        # ==================================================
+
+        "puede_crear_estudiantes": asesor_tiene_permiso(
+            request.user, "crear_estudiantes"
+        ),
+        "puede_ver_historial": asesor_tiene_permiso(
+            request.user, "ver_historial"
+        ),
+        "puede_gestionar_documentos": asesor_tiene_permiso(
+            request.user, "gestionar_documentos"
+        ),
+        "puede_revisar_documentos": asesor_tiene_permiso(
+            request.user, "revisar_documentos"
+        ),
+        "puede_registrar_notas": asesor_tiene_permiso(
+            request.user, "registrar_notas"
+        ),
+        "puede_gestionar_tipos_documentales": asesor_tiene_permiso(
+            request.user, "gestionar_tipos_documentales"
+        ),
+        "es_administrador_principal": request.user.is_superuser,
+    }
+
+    return render(
+        request,
+        "portal/admin/estudiantes_registrados.html",
+        contexto
+    )
+
+# ==========================================================
+# EXPORTAR ESTUDIANTES A EXCEL Y PDF
+# ==========================================================
+
+def obtener_filas_exportacion_estudiantes(request):
+
+    datos = obtener_datos_reporte_estudiantes(
+        request=request,
+        aplicar_filtros=True
+    )
+
+    filas = []
+
+    for estudiante in datos["estudiantes"]:
+
+        perfil = getattr(estudiante, "perfil", None)
+
+        if perfil:
+            nombres = getattr(perfil, "nombres", "") or ""
+            apellidos = getattr(perfil, "apellidos", "") or ""
+            nombre_completo = f"{nombres} {apellidos}".strip()
+
+            if not nombre_completo:
+                nombre_completo = (
+                    estudiante.get_full_name() or estudiante.username
+                )
+        else:
+            nombres = ""
+            apellidos = ""
+            nombre_completo = (
+                estudiante.get_full_name() or estudiante.username
+            )
+
+        resultado = obtener_estado_semaforo(estudiante)
+        estado = resultado.get("estado", "neutro")
+
+        estado_texto = {
+            "verde": "Al día",
+            "amarillo": "Documentos pendientes",
+            "rojo": "Deadline próximo",
+            "neutro": "Sin alertas",
+        }.get(estado, "Sin alertas")
+
+        preferencias = []
+
+        for numero in range(1, 5):
+
+            carrera = (
+                getattr(perfil, f"carrera_{numero}", "") or ""
+            ).strip() if perfil else ""
+
+            universidad = (
+                getattr(perfil, f"universidad_{numero}", "") or ""
+            ).strip() if perfil else ""
+
+            pais = (
+                getattr(perfil, f"pais_{numero}", "") or ""
+            ).strip() if perfil else ""
+
+            deadline = (
+                getattr(perfil, f"deadline_{numero}", "") or ""
+            ) if perfil else ""
+
+            preferencias.append({
+                "carrera": carrera,
+                "universidad": universidad,
+                "pais": pais,
+                "deadline": str(deadline),
+            })
+
+        filas.append({
+            "nombre": nombre_completo,
+            "nombres": nombres,
+            "apellidos": apellidos,
+            "usuario": estudiante.username,
+            "correo": estudiante.email,
+            "edad": getattr(perfil, "edad", "") if perfil else "",
+            "telefono": getattr(perfil, "telefono", "") if perfil else "",
+            "institucion": (
+                getattr(perfil, "institucion_educativa", "") or ""
+            ) if perfil else "",
+            "intake": getattr(perfil, "intake", "") if perfil else "",
+            "estado": estado_texto,
+            "fecha_registro": estudiante.date_joined.strftime("%d/%m/%Y"),
+            "preferencias": preferencias,
+        })
+
+    return filas
+
+
+# ----------------------------------------------------------
+# EXPORTACIÓN A EXCEL
+# ----------------------------------------------------------
+
+@staff_member_required(login_url="/admin/login/")
+def exportar_estudiantes_excel(request):
+
+    if not asesor_tiene_permiso(request.user, "ver_estudiantes"):
+        messages.error(
+            request,
+            "Permiso deshabilitado. Habla con el administrador."
+        )
+        return redirect("/admin/login/")
+
+    filas = obtener_filas_exportacion_estudiantes(request)
+
+    libro = Workbook()
+    hoja = libro.active
+    hoja.title = "Estudiantes registrados"
+
+    encabezados = [
+        "Nombres",
+        "Apellidos",
+        "Usuario",
+        "Correo electrónico",
+        "Edad",
+        "Teléfono",
+        "Institución educativa",
+        "Intake",
+        "Estado",
+        "Fecha de registro",
+    ]
+
+    for numero in range(1, 5):
+        encabezados.extend([
+            f"Carrera {numero}",
+            f"Universidad {numero}",
+            f"País {numero}",
+            f"Deadline {numero}",
+        ])
+
+    hoja.append(encabezados)
+
+    for fila in filas:
+
+        valores = [
+            fila["nombres"],
+            fila["apellidos"],
+            fila["usuario"],
+            fila["correo"],
+            fila["edad"],
+            fila["telefono"],
+            fila["institucion"],
+            fila["intake"],
+            fila["estado"],
+            fila["fecha_registro"],
+        ]
+
+        for preferencia in fila["preferencias"]:
+            valores.extend([
+                preferencia["carrera"],
+                preferencia["universidad"],
+                preferencia["pais"],
+                preferencia["deadline"],
+            ])
+
+        hoja.append(valores)
+
+    # Diseño de encabezados.
+    for celda in hoja[1]:
+        celda.font = Font(
+            bold=True,
+            color="FFFFFF"
+        )
+        celda.fill = PatternFill(
+            fill_type="solid",
+            fgColor="18375D"
+        )
+        celda.alignment = Alignment(
+            horizontal="center",
+            vertical="center",
+            wrap_text=True
+        )
+
+    # Ajustar anchos de columnas.
+    for columna in hoja.columns:
+
+        letra = get_column_letter(columna[0].column)
+
+        ancho = max(
+            len(str(celda.value or ""))
+            for celda in columna
+        )
+
+        hoja.column_dimensions[letra].width = min(
+            max(ancho + 3, 14),
+            35
+        )
+
+    hoja.freeze_panes = "A2"
+    hoja.auto_filter.ref = hoja.dimensions
+
+    respuesta = HttpResponse(
+        content_type=(
+            "application/vnd.openxmlformats-officedocument."
+            "spreadsheetml.sheet"
+        )
+    )
+
+    respuesta["Content-Disposition"] = (
+        'attachment; filename="estudiantes_registrados.xlsx"'
+    )
+
+    libro.save(respuesta)
+
+    return respuesta
+
+
+# ----------------------------------------------------------
+# EXPORTACIÓN A PDF
+# ----------------------------------------------------------
+
+@staff_member_required(login_url="/admin/login/")
+def exportar_estudiantes_pdf(request):
+
+    if not asesor_tiene_permiso(request.user, "ver_estudiantes"):
+        messages.error(
+            request,
+            "Permiso deshabilitado. Habla con el administrador."
+        )
+        return redirect("/admin/login/")
+
+    filas = obtener_filas_exportacion_estudiantes(request)
+
+    buffer = BytesIO()
+
+    documento = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A4),
+        rightMargin=18,
+        leftMargin=18,
+        topMargin=25,
+        bottomMargin=25,
+    )
+
+    estilos = getSampleStyleSheet()
+
+    estilo_titulo = estilos["Title"]
+    estilo_titulo.textColor = colors.HexColor("#18375D")
+    estilo_titulo.alignment = TA_CENTER
+
+    estilo_celda = ParagraphStyle(
+        "Celda",
+        parent=estilos["Normal"],
+        fontName="Helvetica",
+        fontSize=6.5,
+        leading=8,
+        wordWrap="CJK",
+    )
+
+    estilo_encabezado = ParagraphStyle(
+        "Encabezado",
+        parent=estilo_celda,
+        fontName="Helvetica-Bold",
+        textColor=colors.white,
+        alignment=TA_CENTER,
+    )
+
+    contenido = [
+        Paragraph(
+            "Estudiantes registrados - Valky",
+            estilo_titulo
+        ),
+        Spacer(1, 8),
+        Paragraph(
+            f"Total de estudiantes exportados: {len(filas)}",
+            estilos["Normal"]
+        ),
+        Spacer(1, 12),
+    ]
+
+    encabezados = [
+        "Estudiante",
+        "Correo",
+        "Teléfono",
+        "Institución educativa",
+        "Estado",
+        "Preferencia 1",
+        "Preferencia 2",
+        "Preferencia 3",
+        "Preferencia 4",
+    ]
+
+    tabla_datos = [
+        [
+            Paragraph(texto, estilo_encabezado)
+            for texto in encabezados
+        ]
+    ]
+
+    for fila in filas:
+
+        valores_preferencias = []
+
+        for preferencia in fila["preferencias"]:
+
+            partes = [
+                preferencia["carrera"],
+                preferencia["universidad"],
+                preferencia["pais"],
+                preferencia["deadline"],
+            ]
+
+            texto_preferencia = "<br/>".join(
+                str(parte) for parte in partes if parte
+            )
+
+            valores_preferencias.append(
+                Paragraph(texto_preferencia or "-", estilo_celda)
+            )
+
+        tabla_datos.append([
+            Paragraph(fila["nombre"], estilo_celda),
+            Paragraph(fila["correo"], estilo_celda),
+            Paragraph(str(fila["telefono"]), estilo_celda),
+            Paragraph(str(fila["institucion"]), estilo_celda),
+            Paragraph(fila["estado"], estilo_celda),
+            *valores_preferencias,
+        ])
+
+    tabla = Table(
+        tabla_datos,
+        colWidths=[
+            90, 125, 65, 95, 65,
+            90, 90, 90, 90,
+        ],
+        repeatRows=1,
+    )
+
+    tabla.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#18375D")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#D5DCE5")),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [
+            colors.white,
+            colors.HexColor("#F1F5F9"),
+        ]),
+        ("LEFTPADDING", (0, 0), (-1, -1), 4),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+    ]))
+
+    contenido.append(tabla)
+
+    documento.build(contenido)
+
+    buffer.seek(0)
+
+    respuesta = HttpResponse(
+        buffer.getvalue(),
+        content_type="application/pdf"
+    )
+
+    respuesta["Content-Disposition"] = (
+        'attachment; filename="estudiantes_registrados.pdf"'
+    )
+
+    buffer.close()
+
+    return respuesta
+
+# ==========================================================
 # TIPOS DE DOCUMENTOS
 # ==========================================================
 
@@ -620,6 +1417,7 @@ def admin_tipos_documentos(request):
 
     if request.method == "POST":
 
+        # Verificar permiso antes de ejecutar cualquier modificación.
         if not asesor_tiene_permiso(
             request.user,
             "gestionar_tipos_documentales"
@@ -681,16 +1479,13 @@ def admin_tipos_documentos(request):
             elif TipoDocumento.objects.filter(
                 nombre__iexact=nombre
             ).exclude(id=tipo.id).exists():
-
                 messages.error(
                     request,
                     "Ya existe otro tipo de documento con ese nombre."
                 )
 
             else:
-
                 archivo_anterior = tipo.archivo_ejemplo
-
                 tipo.nombre = nombre
 
                 if archivo:
@@ -698,8 +1493,6 @@ def admin_tipos_documentos(request):
 
                 tipo.save()
 
-                # Eliminar el archivo anterior solamente
-                # después de guardar correctamente el nuevo.
                 if archivo and archivo_anterior:
                     archivo_anterior.delete(save=False)
 
@@ -741,16 +1534,13 @@ def admin_tipos_documentos(request):
             )
 
             if tipo.archivo_ejemplo:
-
                 tipo.archivo_ejemplo.delete(save=True)
 
                 messages.success(
                     request,
                     "El archivo de ejemplo fue retirado."
                 )
-
             else:
-
                 messages.info(
                     request,
                     "Este tipo de documento no tiene un ejemplo cargado."
@@ -774,14 +1564,11 @@ def admin_tipos_documentos(request):
             ).exists()
 
             if tiene_requisitos or tiene_documentos:
-
                 messages.error(
                     request,
                     "No se puede eliminar este tipo porque está asociado a estudiantes o tiene documentos registrados. Puedes desactivarlo para conservar su historial."
                 )
-
             else:
-
                 if tipo.archivo_ejemplo:
                     tipo.archivo_ejemplo.delete(save=False)
 
@@ -795,7 +1582,6 @@ def admin_tipos_documentos(request):
         # 8. RECHAZAR ACCIONES NO RECONOCIDAS
 
         else:
-
             messages.error(
                 request,
                 "La acción solicitada no es válida."
@@ -870,6 +1656,8 @@ def admin_perfil_estudiante(request, estudiante_id):
         accion = request.POST.get("accion", "")
 
         # --------------------------------------------------
+
+        # --------------------------------------------------
         # 3. ELIMINAR ESTUDIANTE
         # Permiso: eliminar_estudiantes
         # --------------------------------------------------
@@ -900,8 +1688,6 @@ def admin_perfil_estudiante(request, estudiante_id):
             resultados_validos = [
                 "completado",
                 "desistio",
-                "otra_agencia",
-                "otro",
             ]
 
             if resultado not in resultados_validos:
@@ -924,6 +1710,99 @@ def admin_perfil_estudiante(request, estudiante_id):
                     estudiante_id=estudiante.id
                 )
 
+            # --------------------------------------------------
+            # 3.1. IDENTIFICAR LAS UNIVERSIDADES DEL ESTUDIANTE
+            # --------------------------------------------------
+
+            universidades = []
+
+            for numero in range(1, 5):
+
+                universidad = (
+                    getattr(perfil, f"universidad_{numero}", "")
+                    or ""
+                ).strip()
+
+                if not universidad:
+                    continue
+
+                carrera = (
+                    getattr(perfil, f"carrera_{numero}", "")
+                    or ""
+                ).strip()
+
+                pais = (
+                    getattr(perfil, f"pais_{numero}", "")
+                    or ""
+                ).strip()
+
+                intake = getattr(
+                    perfil,
+                    f"intake_{numero}",
+                    None
+                )
+
+                deadline = getattr(
+                    perfil,
+                    f"deadline_{numero}",
+                    None
+                )
+
+                estado_aplicacion = request.POST.get(
+                    f"universidad_estado_{numero}",
+                    ""
+                )
+
+                universidades.append({
+                    "numero_preferencia": numero,
+                    "universidad": universidad,
+                    "carrera": carrera,
+                    "pais": pais,
+                    "intake": intake,
+                    "deadline": deadline,
+                    "estado_aplicacion": estado_aplicacion,
+                })
+
+            # --------------------------------------------------
+            # 3.2. VALIDAR LOS RESULTADOS POR UNIVERSIDAD
+            # Solamente cuando el proceso está completado.
+            # --------------------------------------------------
+
+            estados_validos = [
+                "aplicado",
+                "no_aplicado",
+            ]
+
+            if resultado == "completado":
+
+                universidades_sin_resultado = [
+                    universidad["universidad"]
+                    for universidad in universidades
+                    if universidad["estado_aplicacion"] not in estados_validos
+                ]
+
+                if universidades_sin_resultado:
+
+                    nombres_universidades = ", ".join(
+                        universidades_sin_resultado
+                    )
+
+                    messages.error(
+                        request,
+                        "Debes seleccionar Aplicado o No aplicado "
+                        "para cada universidad. Pendientes: "
+                        f"{nombres_universidades}."
+                    )
+
+                    return redirect(
+                        "admin_perfil_estudiante",
+                        estudiante_id=estudiante.id
+                    )
+
+            # --------------------------------------------------
+            # 3.3. PREPARAR LA INFORMACIÓN DEL ESTUDIANTE
+            # --------------------------------------------------
+
             nombre_estudiante = (
                 f"{perfil.nombres} {perfil.apellidos}".strip()
                 or estudiante.get_full_name().strip()
@@ -935,27 +1814,86 @@ def admin_perfil_estudiante(request, estudiante_id):
                 or request.user.username
             )
 
+            correo_estudiante = estudiante.email or ""
+
+            edad = perfil.edad
+
+            telefono = perfil.telefono or ""
+
+            institucion_educativa = (
+                perfil.institucion_educativa or ""
+            )
+
+            # --------------------------------------------------
+            # 3.4. IDENTIFICAR LOS ARCHIVOS DOCUMENTALES
+            # --------------------------------------------------
+
             archivos = []
 
             for documento in Documento.objects.filter(
                 estudiante=estudiante
             ):
+
                 if documento.archivo:
+
                     archivos.append((
                         documento.archivo.storage,
                         documento.archivo.name
                     ))
 
+            # --------------------------------------------------
+            # 3.5. GUARDAR HISTORIAL Y RESULTADOS
+            # Y ELIMINAR LA CUENTA EN UNA SOLA TRANSACCIÓN
+            # --------------------------------------------------
+
             with transaction.atomic():
 
-                HistorialEstudiante.objects.create(
+                historial = HistorialEstudiante.objects.create(
+
+                    # Información general
                     nombre_estudiante=nombre_estudiante,
+                    correo_estudiante=correo_estudiante,
+                    edad=edad,
+                    telefono=telefono,
+                    institucion_educativa=institucion_educativa,
+
+                    # Resultado del proceso
                     resultado=resultado,
                     observacion=observacion,
                     responsable_nombre=responsable,
                 )
 
+                # Guardar los resultados por universidad
+                # únicamente cuando el proceso fue completado.
+
+                if resultado == "completado":
+
+                    for universidad in universidades:
+
+                        ResultadoUniversidad.objects.create(
+                            historial=historial,
+                            numero_preferencia=universidad[
+                                "numero_preferencia"
+                            ],
+                            universidad=universidad["universidad"],
+                            carrera=universidad["carrera"],
+                            pais=universidad["pais"],
+                            intake=universidad["intake"],
+                            deadline=universidad["deadline"],
+                            estado_aplicacion=universidad[
+                                "estado_aplicacion"
+                            ],
+                        )
+
+                # Eliminar la cuenta del estudiante.
+                # Sus documentos, requisitos, perfil y notas
+                # relacionados se eliminan por las relaciones
+                # CASCADE de los modelos.
+
                 estudiante.delete()
+
+                # Eliminar los archivos físicos después de confirmar
+                # la transacción, sin afectar archivos compartidos.
 
                 transaction.on_commit(
                     lambda archivos=archivos: eliminar_archivos_estudiante(
@@ -963,9 +1901,15 @@ def admin_perfil_estudiante(request, estudiante_id):
                     )
                 )
 
+            # --------------------------------------------------
+            # 3.6. CONFIRMAR EL CIERRE
+            # --------------------------------------------------
+
             messages.success(
                 request,
-                "El estudiante fue eliminado y su historial quedó guardado."
+                "El proceso del estudiante fue cerrado correctamente. "
+                "Su información académica y los resultados universitarios "
+                "quedaron guardados en el historial."
             )
 
             return redirect("admin_inicio")
@@ -1136,6 +2080,9 @@ def admin_perfil_estudiante(request, estudiante_id):
             nombres = request.POST.get("nombres", "").strip()
             apellidos = request.POST.get("apellidos", "").strip()
             telefono = request.POST.get("telefono", "").strip()
+            institucion_educativa = request.POST.get(
+                "institucion_educativa", ""
+            ).strip()
             correo = request.POST.get("correo", "").strip().lower()
             edad_texto = request.POST.get("edad", "").strip()
 
@@ -1189,12 +2136,14 @@ def admin_perfil_estudiante(request, estudiante_id):
                                 perfil.apellidos = apellidos
                                 perfil.edad = edad
                                 perfil.telefono = telefono
+                                perfil.institucion_educativa = institucion_educativa
                                 perfil.save(
                                     update_fields=[
                                         "nombres",
                                         "apellidos",
                                         "edad",
                                         "telefono",
+                                        "institucion_educativa",
                                     ]
                                 )
 
@@ -1425,22 +2374,49 @@ def admin_perfil_estudiante(request, estudiante_id):
             and contraseña_temporal
         ):
 
-            respuesta = redirect(
+            return redirect(
                 "admin_perfil_estudiante",
                 estudiante_id=estudiante.id
             )
 
-            # Después de revisar un documento,
-            # permanecer en la pestaña Documentos.
-
-            if accion == "actualizar_documento":
-                respuesta["Location"] += "?tab=documentos"
-
-            return respuesta
-
     # ------------------------------------------------------
     # 12. INFORMACIÓN PARA MOSTRAR EN EL PERFIL
     # ------------------------------------------------------
+
+    # Estado de completitud de la información personal.
+    # Se utilizan las mismas reglas del portal del estudiante.
+
+    datos_personales = [
+        perfil.nombres,
+        perfil.apellidos,
+        perfil.edad,
+        perfil.telefono,
+        perfil.institucion_educativa,
+        estudiante.email,
+        estudiante.username,
+    ]
+
+    perfil_completo = all(
+        dato is not None and str(dato).strip() != ""
+        for dato in datos_personales
+    )
+
+    # Basta con que una de las cuatro preferencias esté completa.
+
+    grupos_preferencias = [
+        (perfil.carrera_1, perfil.universidad_1, perfil.pais_1),
+        (perfil.carrera_2, perfil.universidad_2, perfil.pais_2),
+        (perfil.carrera_3, perfil.universidad_3, perfil.pais_3),
+        (perfil.carrera_4, perfil.universidad_4, perfil.pais_4),
+    ]
+
+    preferencias_completas = any(
+        all(
+            dato is not None and str(dato).strip() != ""
+            for dato in grupo
+        )
+        for grupo in grupos_preferencias
+    )
 
     tipos_documentos_disponibles = TipoDocumento.objects.filter(
         activo=True
@@ -1503,6 +2479,8 @@ def admin_perfil_estudiante(request, estudiante_id):
         "tipos_documentos_disponibles": tipos_documentos_disponibles,
         "requisitos_seleccionados": requisitos_seleccionados,
         "contraseña_temporal": contraseña_temporal,
+        "perfil_completo": perfil_completo,
+        "preferencias_completas": preferencias_completas,
 
         # Permisos para mostrar u ocultar controles
         "puede_eliminar_estudiante": asesor_tiene_permiso(
@@ -1537,13 +2515,20 @@ def admin_perfil_estudiante(request, estudiante_id):
 
 
 # ==========================================================
-# HISTORIAL DE ESTUDIANTES
+
+
+
+# ==========================================================
+# HISTORIAL DE ESTUDIANTES Y ESTADÍSTICAS UNIVERSITARIAS
 # ==========================================================
 
 @staff_member_required(login_url="/admin/login/")
 def admin_historial_estudiantes(request):
 
-    # Verificar permiso para consultar el historial
+    # ------------------------------------------------------
+    # 1. VERIFICAR PERMISO
+    # ------------------------------------------------------
+
     if not asesor_tiene_permiso(
         request.user,
         "ver_historial"
@@ -1553,9 +2538,12 @@ def admin_historial_estudiantes(request):
             "ver_historial"
         )
 
+    # ------------------------------------------------------
+    # 2. ELIMINAR REGISTRO DEL HISTORIAL
+    # ------------------------------------------------------
+
     if request.method == "POST":
 
-        # Solamente el administrador principal puede eliminar
         if not request.user.is_superuser:
             messages.error(
                 request,
@@ -1587,12 +2575,409 @@ def admin_historial_estudiantes(request):
 
         return redirect("admin_historial_estudiantes")
 
-    historial_estudiantes = HistorialEstudiante.objects.all().order_by(
-        "-fecha_finalizacion"
+    # ------------------------------------------------------
+    # 3. CONSULTAR TODOS LOS PROCESOS
+    # ------------------------------------------------------
+
+    todos_los_registros = (
+        HistorialEstudiante.objects.all()
+        .order_by("-fecha_finalizacion")
     )
 
+    total_procesos = todos_los_registros.count()
+
+    # ------------------------------------------------------
+    # 4. INDICADORES PRINCIPALES
+    # ------------------------------------------------------
+
+    total_completados = todos_los_registros.filter(
+        resultado="completado"
+    ).count()
+
+    total_desistidos = todos_los_registros.filter(
+        resultado="desistio"
+    ).count()
+
+    # ------------------------------------------------------
+    # 5. LEER FILTROS
+    # ------------------------------------------------------
+
+    filtro_resultado = request.GET.get(
+        "resultado", ""
+    ).strip()
+
+    filtro_anio = request.GET.get(
+        "anio", ""
+    ).strip()
+
+    filtro_asesor = request.GET.get(
+        "asesor", ""
+    ).strip()
+
+    filtro_universidad = request.GET.get(
+        "universidad", ""
+    ).strip()
+
+    filtro_estado = request.GET.get(
+        "estado_aplicacion", ""
+    ).strip()
+
+    # ------------------------------------------------------
+    # 6. DETERMINAR LOS REGISTROS PARA LAS ESTADÍSTICAS
+    # ------------------------------------------------------
+
+    registros_estadisticas = todos_los_registros
+
+    # Al seleccionar una tarjeta, las estadísticas
+    # se calculan únicamente con ese resultado.
+
+    if filtro_resultado in ["completado", "desistio"]:
+
+        registros_estadisticas = (
+            registros_estadisticas.filter(
+                resultado=filtro_resultado
+            )
+        )
+
+    # ------------------------------------------------------
+    # 7. CONSULTAR RESULTADOS UNIVERSITARIOS
+    # ------------------------------------------------------
+
+    registros_universidades = (
+        ResultadoUniversidad.objects.filter(
+            historial__in=registros_estadisticas
+        )
+        .order_by("universidad")
+    )
+
+    universidades_dict = {}
+
+    paises_dict = {}
+    carreras_dict = {}
+
+    for resultado_universidad in registros_universidades:
+
+        nombre_universidad = (
+            resultado_universidad.universidad or ""
+        ).strip()
+
+        estado = resultado_universidad.estado_aplicacion
+
+        # ----------------------------------------------
+        # AGRUPAR UNIVERSIDADES
+        # ----------------------------------------------
+
+        if nombre_universidad:
+
+            clave_universidad = nombre_universidad.casefold()
+
+            if clave_universidad not in universidades_dict:
+
+                universidades_dict[clave_universidad] = {
+                    "universidad": nombre_universidad,
+                    "aplicados": 0,
+                    "no_aplicados": 0,
+                    "total": 0,
+                }
+
+            universidades_dict[clave_universidad]["total"] += 1
+
+            if estado == "aplicado":
+
+                universidades_dict[clave_universidad]["aplicados"] += 1
+
+            elif estado == "no_aplicado":
+
+                universidades_dict[clave_universidad]["no_aplicados"] += 1
+
+        # ----------------------------------------------
+        # SOLO CONTAR APLICACIONES EFECTIVAS
+        # PARA PAÍSES Y CARRERAS
+        # ----------------------------------------------
+
+        if estado != "aplicado":
+            continue
+
+        # ----------------------------------------------
+        # AGRUPAR PAÍSES
+        # ----------------------------------------------
+
+        nombre_pais = (
+            resultado_universidad.pais or ""
+        ).strip()
+
+        if nombre_pais:
+
+            clave_pais = nombre_pais.casefold()
+
+            if clave_pais not in paises_dict:
+
+                paises_dict[clave_pais] = {
+                    "pais": nombre_pais,
+                    "cantidad": 0,
+                }
+
+            paises_dict[clave_pais]["cantidad"] += 1
+
+        # ----------------------------------------------
+        # AGRUPAR CARRERAS O PROGRAMAS
+        # ----------------------------------------------
+
+        nombre_carrera = (
+            resultado_universidad.carrera or ""
+        ).strip()
+
+        if nombre_carrera:
+
+            clave_carrera = nombre_carrera.casefold()
+
+            if clave_carrera not in carreras_dict:
+
+                carreras_dict[clave_carrera] = {
+                    "carrera": nombre_carrera,
+                    "cantidad": 0,
+                }
+
+            carreras_dict[clave_carrera]["cantidad"] += 1
+
+    # ------------------------------------------------------
+    # 8. PREPARAR TABLA DE UNIVERSIDADES
+    # ------------------------------------------------------
+
+    resultados_universidad = sorted(
+        universidades_dict.values(),
+        key=lambda item: item["universidad"].casefold()
+    )
+
+    # ------------------------------------------------------
+    # 9. PREPARAR TABLA DE CARRERAS O PROGRAMAS
+    # ------------------------------------------------------
+
+    resultados_carreras = sorted(
+        carreras_dict.values(),
+        key=lambda item: (
+            -item["cantidad"],
+            item["carrera"].casefold()
+        )
+    )
+
+    # ------------------------------------------------------
+    # 10. PREPARAR GRÁFICO CIRCULAR DE PAÍSES
+    # ------------------------------------------------------
+
+    resultados_paises = sorted(
+        paises_dict.values(),
+        key=lambda item: (
+            -item["cantidad"],
+            item["pais"].casefold()
+        )
+    )
+
+    total_aplicaciones_paises = sum(
+        item["cantidad"]
+        for item in resultados_paises
+    )
+
+    colores_grafico = [
+        "#244d78",
+        "#3d83b8",
+        "#54a69b",
+        "#82b965",
+        "#e0b34f",
+        "#d77c58",
+        "#9475b8",
+        "#718096",
+        "#c46d91",
+        "#4c9aaf",
+    ]
+
+    acumulado = 0
+    segmentos_grafico = []
+
+    for indice, item in enumerate(resultados_paises):
+
+        porcentaje = 0
+
+        if total_aplicaciones_paises:
+
+            porcentaje = round(
+                item["cantidad"] * 100 / total_aplicaciones_paises,
+                1
+            )
+
+        color = colores_grafico[
+            indice % len(colores_grafico)
+        ]
+
+        item["porcentaje"] = porcentaje
+        item["color"] = color
+
+        inicio = acumulado
+        acumulado += porcentaje
+
+        segmentos_grafico.append(
+            f"{color} {inicio}% {acumulado}%"
+        )
+
+    grafico_paises_gradient = ", ".join(
+        segmentos_grafico
+    )
+
+    # ------------------------------------------------------
+    # 11. PREPARAR TABLA DE INSTITUCIONES EDUCATIVAS
+    # ------------------------------------------------------
+
+    instituciones_dict = {}
+
+    for registro in registros_estadisticas:
+
+        nombre_institucion = (
+            registro.institucion_educativa or ""
+        ).strip()
+
+        if not nombre_institucion:
+            continue
+
+        clave_institucion = nombre_institucion.casefold()
+
+        if clave_institucion not in instituciones_dict:
+
+            instituciones_dict[clave_institucion] = {
+                "institucion": nombre_institucion,
+                "cantidad": 0,
+            }
+
+        instituciones_dict[clave_institucion]["cantidad"] += 1
+
+    resultados_instituciones = sorted(
+        instituciones_dict.values(),
+        key=lambda item: (
+            -item["cantidad"],
+            item["institucion"].casefold()
+        )
+    )
+
+    # ------------------------------------------------------
+    # 12. FILTRAR LISTADO DE ESTUDIANTES
+    # ------------------------------------------------------
+
+    historial_estudiantes = todos_los_registros
+
+    if filtro_resultado:
+
+        historial_estudiantes = historial_estudiantes.filter(
+            resultado=filtro_resultado
+        )
+
+    if filtro_anio.isdigit():
+
+        historial_estudiantes = historial_estudiantes.filter(
+            fecha_finalizacion__year=int(filtro_anio)
+        )
+
+    if filtro_asesor:
+
+        historial_estudiantes = historial_estudiantes.filter(
+            responsable_nombre__iexact=filtro_asesor
+        )
+
+    # ----------------------------------------------
+    # FILTROS DE UNIVERSIDAD Y ESTADO
+    # ----------------------------------------------
+
+    if filtro_universidad and filtro_estado in [
+        "aplicado",
+        "no_aplicado"
+    ]:
+
+        historial_estudiantes = historial_estudiantes.filter(
+            universidades__universidad__iexact=filtro_universidad,
+            universidades__estado_aplicacion=filtro_estado
+        )
+
+    elif filtro_universidad:
+
+        historial_estudiantes = historial_estudiantes.filter(
+            universidades__universidad__iexact=filtro_universidad
+        )
+
+    elif filtro_estado in ["aplicado", "no_aplicado"]:
+
+        historial_estudiantes = historial_estudiantes.filter(
+            universidades__estado_aplicacion=filtro_estado
+        )
+
+    historial_estudiantes = (
+        historial_estudiantes
+        .distinct()
+        .order_by("-fecha_finalizacion")
+        .prefetch_related("universidades")
+    )
+
+    # ------------------------------------------------------
+    # 13. OPCIONES DISPONIBLES PARA LOS FILTROS
+    # ------------------------------------------------------
+
+    anios_disponibles = sorted(
+        [
+            anio
+            for anio in todos_los_registros.values_list(
+                "fecha_finalizacion__year",
+                flat=True
+            ).distinct()
+            if anio is not None
+        ],
+        reverse=True
+    )
+
+    asesores_disponibles = (
+        todos_los_registros
+        .exclude(responsable_nombre="")
+        .values_list("responsable_nombre", flat=True)
+        .distinct()
+        .order_by("responsable_nombre")
+    )
+
+    # ------------------------------------------------------
+    # 14. CONTEXTO PARA LA PLANTILLA
+    # ------------------------------------------------------
+
     contexto = {
+
+        # Registros generales
         "historial_estudiantes": historial_estudiantes,
+        "total_procesos": total_procesos,
+
+        # Indicadores generales
+        "total_completados": total_completados,
+        "total_desistidos": total_desistidos,
+
+        # Preferencias universitarias filtradas
+        "resultados_universidad": resultados_universidad,
+
+        # Carreras y programas filtrados
+        "resultados_carreras": resultados_carreras,
+
+        # Países filtrados
+        "resultados_paises": resultados_paises,
+        "total_aplicaciones_paises": total_aplicaciones_paises,
+        "grafico_paises_gradient": grafico_paises_gradient,
+
+        # Instituciones filtradas
+        "resultados_instituciones": resultados_instituciones,
+
+        # Opciones de filtros
+        "anios_disponibles": anios_disponibles,
+        "asesores_disponibles": asesores_disponibles,
+
+        # Filtros activos
+        "filtro_resultado": filtro_resultado,
+        "filtro_anio": filtro_anio,
+        "filtro_asesor": filtro_asesor,
+        "filtro_universidad": filtro_universidad,
+        "filtro_estado": filtro_estado,
+
+        # Permisos
         "es_administrador_principal": request.user.is_superuser,
     }
 
@@ -2030,5 +3415,95 @@ def admin_crear_estudiante(request):
     return render(
         request,
         "portal/admin/crear_estudiante.html",
+        contexto
+    )
+
+
+# ==========================================================
+# ESTUDIANTES REGISTRADOS
+# ==========================================================
+
+@staff_member_required(login_url="/admin/login/")
+def admin_estudiantes_registrados(request):
+    """Página independiente de estudiantes activos y sus estadísticas."""
+
+    if not asesor_tiene_permiso(request.user, "ver_estudiantes"):
+        messages.error(
+            request,
+            "Permiso deshabilitado. Habla con el administrador."
+        )
+        return redirect("/admin/login/")
+
+    datos = obtener_datos_reporte_estudiantes(
+        request=request,
+        aplicar_filtros=True
+    )
+
+    resumen = datos["resumen_semaforo"]
+    resumen_filtrado = datos["resumen_semaforo_filtrado"]
+
+    contexto = {
+        # Listado que responde a los filtros del formulario.
+        "estudiantes": datos["estudiantes"],
+        "total_estudiantes_filtrados": datos["total_estudiantes_filtrados"],
+
+        # Estadísticas globales: no cambian al aplicar filtros.
+        "total_estudiantes": datos["total_estudiantes"],
+        "paises": datos["paises"],
+        "universidades": datos["universidades"],
+        "carreras": datos["carreras"],
+        "instituciones": datos["instituciones"],
+        # Nombres utilizados por la plantilla de estadísticas.
+        "paises_preferencia": datos["paises"],
+        "universidades_preferencia": datos["universidades"],
+        "carreras_preferencia": datos["carreras"],
+        "instituciones_educativas": datos["instituciones"],
+
+        # Resumen general y semáforo global.
+        "resumen_semaforo": resumen,
+        "total_verdes": datos["total_verdes"],
+        "total_amarillos": datos["total_amarillos"],
+        "total_rojos": datos["total_rojos"],
+        "total_neutros": datos["total_neutros"],
+        "estudiantes_verdes": resumen["estudiantes_verdes"],
+        "estudiantes_amarillos": resumen["estudiantes_amarillos"],
+        "estudiantes_rojos": resumen["estudiantes_rojos"],
+        "estudiantes_neutros": resumen["estudiantes_neutros"],
+        "alertas_deadline": resumen["alertas_deadline"],
+        "alertas_documentos": resumen["alertas_documentos"],
+
+        # Semáforo del listado filtrado.
+        "resumen_semaforo_filtrado": resumen_filtrado,
+        "total_verdes_filtrados": len(resumen_filtrado["estudiantes_verdes"]),
+        "total_amarillos_filtrados": len(resumen_filtrado["estudiantes_amarillos"]),
+        "total_rojos_filtrados": len(resumen_filtrado["estudiantes_rojos"]),
+        "total_neutros_filtrados": len(resumen_filtrado["estudiantes_neutros"]),
+
+        # Valores actuales de los filtros.
+        "busqueda": request.GET.get("buscar", "").strip(),
+        "filtro_estado": request.GET.get("estado", "").strip(),
+        "filtro_pais": request.GET.get("pais", "").strip(),
+        "filtro_universidad": request.GET.get("universidad", "").strip(),
+        "filtro_carrera": request.GET.get("carrera", "").strip(),
+        "filtro_institucion": request.GET.get("institucion", "").strip(),
+        "estado_seleccionado": request.GET.get("estado", "").strip(),
+        "pais_seleccionado": request.GET.get("pais", "").strip(),
+        "universidad_seleccionada": request.GET.get("universidad", "").strip(),
+        "carrera_seleccionada": request.GET.get("carrera", "").strip(),
+        "institucion_seleccionada": request.GET.get("institucion", "").strip(),
+
+        # Permisos y datos del panel.
+        "puede_crear_estudiantes": asesor_tiene_permiso(request.user, "crear_estudiantes"),
+        "puede_ver_historial": asesor_tiene_permiso(request.user, "ver_historial"),
+        "puede_gestionar_documentos": asesor_tiene_permiso(request.user, "gestionar_documentos"),
+        "puede_revisar_documentos": asesor_tiene_permiso(request.user, "revisar_documentos"),
+        "puede_registrar_notas": asesor_tiene_permiso(request.user, "registrar_notas"),
+        "puede_gestionar_tipos_documentales": asesor_tiene_permiso(request.user, "gestionar_tipos_documentales"),
+        "es_administrador_principal": request.user.is_superuser,
+    }
+
+    return render(
+        request,
+        "portal/admin/estudiantes_registrados.html",
         contexto
     )

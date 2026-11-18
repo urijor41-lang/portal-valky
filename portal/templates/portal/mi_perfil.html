@@ -6,6 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Mi perfil | Valky Estudios en el Exterior</title>
 
     <style>
@@ -83,7 +84,6 @@
             line-height: 1;
         }
 
-
         /* ==========================================================
            2. CONTENEDOR PRINCIPAL
            ========================================================== */
@@ -110,7 +110,6 @@
             font-size: 15px;
         }
 
-
         /* ==========================================================
            3. TARJETAS Y TÍTULOS
            ========================================================== */
@@ -131,8 +130,46 @@
             margin: 0 0 23px;
             padding-bottom: 14px;
             border-bottom: 2px solid #eaf0f7;
+            line-height: 1.8;
         }
 
+        /* ==========================================================
+           3.1 INDICADORES DE COMPLETITUD
+           ========================================================== */
+
+        .estado-seccion {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 6px 11px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .estado-pendiente {
+            background: #fdecea;
+            color: #c0392b;
+            border: 1px solid #f5c6c2;
+        }
+
+        .estado-completado {
+            background: #e8f7ed;
+            color: #247342;
+            border: 1px solid #c6e8d1;
+        }
+
+        .obligatorio {
+            color: #d93025;
+            font-weight: 700;
+        }
+
+        .ayuda-campo {
+            color: #d93025;
+            font-size: 12px;
+            line-height: 1.5;
+        }
 
         /* ==========================================================
            4. CAMPOS DE INFORMACIÓN PERSONAL
@@ -180,9 +217,17 @@
             box-shadow: 0 0 0 3px rgba(52, 120, 199, 0.12);
         }
 
+        .campo input:disabled {
+            background: #edf1f6;
+            color: #64748b;
+            cursor: not-allowed;
+            opacity: 1;
+        }
+
         .campo-error {
             color: #c0392b;
             font-size: 12px;
+            line-height: 1.4;
         }
 
         .error-general {
@@ -192,8 +237,14 @@
             background: #fff0ef;
             color: #a93226;
             font-size: 14px;
+            line-height: 1.6;
+            border: 1px solid #f5c6c2;
         }
 
+        .error-general ul {
+            margin: 0;
+            padding-left: 20px;
+        }
 
         /* ==========================================================
            5. PREFERENCIAS UNIVERSITARIAS
@@ -280,7 +331,6 @@
             border-color: #3478c7;
         }
 
-
         /* ==========================================================
            6. MENSAJES Y BOTONES
            ========================================================== */
@@ -340,7 +390,6 @@
             font-size: 12px;
             line-height: 1.5;
         }
-
 
         /* ==========================================================
            7. DISEÑO RESPONSIVE
@@ -421,11 +470,15 @@
 
         <div class="encabezado">
             <h1>Mi perfil</h1>
-            <p>Administra tu información personal y tus preferencias académicas.</p>
+            <p>
+                Administra tu información personal y tus preferencias académicas.
+            </p>
         </div>
 
 
-        <!-- MENSAJES DEL SISTEMA -->
+        <!-- ======================================================
+             2.1 MENSAJES DEL SISTEMA
+             ====================================================== -->
 
         {% if messages %}
             {% for message in messages %}
@@ -439,8 +492,14 @@
         <form method="POST">
             {% csrf_token %}
 
+
+            <!-- ==================================================
+                 2.2 ERRORES GENERALES DEL FORMULARIO
+                 ================================================== -->
+
             {% if formulario.non_field_errors %}
                 <div class="error-general">
+                    <strong>Revisa la siguiente información:</strong>
                     {{ formulario.non_field_errors }}
                 </div>
             {% endif %}
@@ -453,75 +512,167 @@
             <div class="tarjeta">
 
                 <h2 class="titulo-seccion">
+
                     Información personal y de acceso
+
+                    {% if perfil_completo %}
+                        <span class="estado-seccion estado-completado">
+                            COMPLETADO
+                        </span>
+                    {% else %}
+                        <span class="estado-seccion estado-pendiente">
+                            PENDIENTE
+                        </span>
+                    {% endif %}
+
                 </h2>
+
 
                 <div class="campos-grid">
 
+
+                    <!-- NOMBRE DE USUARIO -->
+
                     <div class="campo">
+
                         <label for="{{ formulario.username.id_for_label }}">
                             Nombre de usuario
+                            <span class="obligatorio">*</span>
                         </label>
+
                         {{ formulario.username }}
+
                         {% for error in formulario.username.errors %}
                             <span class="campo-error">{{ error }}</span>
                         {% endfor %}
+
                     </div>
 
+
+                    <!-- CORREO ELECTRÓNICO -->
+
                     <div class="campo">
+
                         <label for="{{ formulario.email.id_for_label }}">
-                            Correo electrónico
+                            Confirma tu correo
+                            <span class="obligatorio">*</span>
                         </label>
+
                         {{ formulario.email }}
+
                         {% for error in formulario.email.errors %}
                             <span class="campo-error">{{ error }}</span>
                         {% endfor %}
+
                     </div>
 
+
+                    <!-- NOMBRES -->
+
                     <div class="campo">
+
                         <label for="{{ formulario.nombres.id_for_label }}">
                             Nombres
+                            <span class="obligatorio">*</span>
                         </label>
+
                         {{ formulario.nombres }}
+
                         {% for error in formulario.nombres.errors %}
                             <span class="campo-error">{{ error }}</span>
                         {% endfor %}
+
                     </div>
 
+
+                    <!-- APELLIDOS -->
+
                     <div class="campo">
+
                         <label for="{{ formulario.apellidos.id_for_label }}">
                             Apellidos
+                            <span class="obligatorio">*</span>
                         </label>
+
                         {{ formulario.apellidos }}
+
                         {% for error in formulario.apellidos.errors %}
                             <span class="campo-error">{{ error }}</span>
                         {% endfor %}
+
                     </div>
 
+
+                    <!-- EDAD -->
+
                     <div class="campo">
+
                         <label for="{{ formulario.edad.id_for_label }}">
                             Edad
+                            <span class="obligatorio">*</span>
                         </label>
+
                         {{ formulario.edad }}
+
                         {% for error in formulario.edad.errors %}
                             <span class="campo-error">{{ error }}</span>
                         {% endfor %}
+
                     </div>
 
+
+                    <!-- TELÉFONO -->
+
                     <div class="campo">
+
                         <label for="{{ formulario.telefono.id_for_label }}">
                             Teléfono de contacto
+                            <span class="obligatorio">*</span>
                         </label>
+
                         {{ formulario.telefono }}
+
                         {% for error in formulario.telefono.errors %}
                             <span class="campo-error">{{ error }}</span>
                         {% endfor %}
+
                     </div>
+
+
+                    <!-- INSTITUCIÓN EDUCATIVA -->
+
+                    <div class="campo">
+
+                        <label for="{{ formulario.institucion_educativa.id_for_label }}">
+                            Institución educativa
+                            <span class="obligatorio">*</span>
+                        </label>
+
+                        {{ formulario.institucion_educativa }}
+
+                        <span class="ayuda-campo">
+                            Escribe el nombre del colegio o universidad donde
+                            estudias actualmente o de la institución de la
+                            que te graduaste.
+                        </span>
+
+                        {% for error in formulario.institucion_educativa.errors %}
+                            <span class="campo-error">{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
 
                 </div>
 
+
                 <p class="nota">
-                    Tu nombre de usuario y correo electrónico se utilizan para acceder a tu cuenta.
+                    Los campos marcados con
+                    <span class="obligatorio">*</span>
+                    son obligatorios.
+
+                    Tu nombre de usuario no puede ser modificado
+                    desde esta sección.
                 </p>
 
             </div>
@@ -537,17 +688,43 @@
                     class="titulo-seccion"
                     id="preferencias-universitarias"
                 >
+
                     Preferencias universitarias
+
+                    {% if preferencias_completas %}
+                        <span class="estado-seccion estado-completado">
+                            COMPLETADO
+                        </span>
+                    {% else %}
+                        <span class="estado-seccion estado-pendiente">
+                            PENDIENTE
+                        </span>
+                    {% endif %}
+
                 </h2>
 
+
                 <p class="descripcion-preferencias">
-                    Registra hasta cuatro opciones de programas y universidades de tu interés.
+                    Registra hasta cuatro opciones de programas y
+                    universidades de tu interés.
+
+                    Debes completar carrera, universidad y país en
+                    al menos una opción.
+
+                    Si comienzas otra opción, también deberás completar
+                    sus tres campos.
+
+                    Los asteriscos rojos indican los campos que deben
+                    completarse dentro de cada opción iniciada.
                 </p>
+
 
                 <div class="preferencias-grid">
 
 
-                    <!-- PRIMERA OPCIÓN -->
+                    <!-- ==================================================
+                         4.1 PRIMERA OPCIÓN
+                         ================================================== -->
 
                     <div class="preferencia">
 
@@ -556,40 +733,60 @@
                             <h3>Primera opción</h3>
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.carrera_1.id_for_label }}">
                                 Carrera o programa
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.carrera_1 }}
+
                             {% for error in formulario.carrera_1.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.universidad_1.id_for_label }}">
                                 Universidad
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.universidad_1 }}
+
                             {% for error in formulario.universidad_1.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.pais_1.id_for_label }}">
                                 País
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.pais_1 }}
+
                             {% for error in formulario.pais_1.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
                     </div>
 
 
-                    <!-- SEGUNDA OPCIÓN -->
+                    <!-- ==================================================
+                         4.2 SEGUNDA OPCIÓN
+                         ================================================== -->
 
                     <div class="preferencia">
 
@@ -598,40 +795,60 @@
                             <h3>Segunda opción</h3>
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.carrera_2.id_for_label }}">
                                 Carrera o programa
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.carrera_2 }}
+
                             {% for error in formulario.carrera_2.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.universidad_2.id_for_label }}">
                                 Universidad
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.universidad_2 }}
+
                             {% for error in formulario.universidad_2.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.pais_2.id_for_label }}">
                                 País
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.pais_2 }}
+
                             {% for error in formulario.pais_2.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
                     </div>
 
 
-                    <!-- TERCERA OPCIÓN -->
+                    <!-- ==================================================
+                         4.3 TERCERA OPCIÓN
+                         ================================================== -->
 
                     <div class="preferencia">
 
@@ -640,40 +857,60 @@
                             <h3>Tercera opción</h3>
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.carrera_3.id_for_label }}">
                                 Carrera o programa
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.carrera_3 }}
+
                             {% for error in formulario.carrera_3.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.universidad_3.id_for_label }}">
                                 Universidad
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.universidad_3 }}
+
                             {% for error in formulario.universidad_3.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.pais_3.id_for_label }}">
                                 País
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.pais_3 }}
+
                             {% for error in formulario.pais_3.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
                     </div>
 
 
-                    <!-- CUARTA OPCIÓN -->
+                    <!-- ==================================================
+                         4.4 CUARTA OPCIÓN
+                         ================================================== -->
 
                     <div class="preferencia">
 
@@ -682,37 +919,56 @@
                             <h3>Cuarta opción</h3>
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.carrera_4.id_for_label }}">
                                 Carrera o programa
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.carrera_4 }}
+
                             {% for error in formulario.carrera_4.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.universidad_4.id_for_label }}">
                                 Universidad
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.universidad_4 }}
+
                             {% for error in formulario.universidad_4.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
+
                         <div class="campo">
+
                             <label for="{{ formulario.pais_4.id_for_label }}">
                                 País
+                                <span class="obligatorio">*</span>
                             </label>
+
                             {{ formulario.pais_4 }}
+
                             {% for error in formulario.pais_4.errors %}
                                 <span class="campo-error">{{ error }}</span>
                             {% endfor %}
+
                         </div>
 
                     </div>
+
 
                 </div>
 
@@ -725,11 +981,17 @@
 
             <div class="acciones">
 
-                <a href="{% url 'inicio' %}" class="boton boton-volver">
+                <a
+                    href="{% url 'inicio' %}"
+                    class="boton boton-volver"
+                >
                     Volver al inicio
                 </a>
 
-                <button type="submit" class="boton boton-guardar">
+                <button
+                    type="submit"
+                    class="boton boton-guardar"
+                >
                     Guardar cambios
                 </button>
 

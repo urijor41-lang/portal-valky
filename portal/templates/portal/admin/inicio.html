@@ -162,37 +162,107 @@
 
         /* TARJETAS DE RESUMEN */
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 17px;
-            margin-bottom: 28px;
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 17px;
+    margin-bottom: 28px;
+    align-items: stretch;
+}
+
+.stat-card {
+    min-width: 0;
+    padding: 22px 18px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,.05);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 14px rgba(0,0,0,.08);
+}
+
+.stat-card p {
+    color: #526477;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    min-height: 36px;
+    margin: 0 0 12px;
+}
+
+.stat-card strong {
+    display: block;
+    font-size: 30px;
+    line-height: 1.2;
+}
+
+.stat-description {
+    color: #718096;
+    font-size: 11px;
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+/* TABLETAS */
+@media (max-width: 1000px) {
+    .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* CELULARES */
+@media (max-width: 550px) {
+    .stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 18px;
+    }
+}
+    /* COLORES DE LAS TARJETAS DEL RESUMEN GENERAL */
+
+        .stat-green {
+            background: #edf8f0;
+            border: 1px solid #ccebd4;
+            border-left: 5px solid #2e9d59;
         }
 
-        .stat-card {
-            background: white;
-            padding: 22px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.04);
-            border: 1px solid #edf1f5;
+        .stat-green strong {
+            color: #237a43;
         }
 
-        .stat-card p {
-            color: #718096;
-            font-size: 13px;
-            margin: 0 0 13px;
+        .stat-blue {
+            background: #eef4fc;
+            border: 1px solid #d5e3f5;
+            border-left: 5px solid #3978bd;
         }
 
-        .stat-card strong {
-            display: block;
-            font-size: 29px;
-            color: #142b49;
+        .stat-blue strong {
+            color: #285d98;
         }
 
-        .stat-description {
-            color: #91a0b1;
-            font-size: 11px;
-            margin-top: 9px;
+        .stat-gray {
+            background: #f1f4f7;
+            border: 1px solid #dfe5eb;
+            border-left: 5px solid #8494a7;
+        }
+
+        .stat-gray strong {
+            color: #526477;
+        }
+
+        .stat-orange {
+            background: #fff4e8;
+            border: 1px solid #f5dfc3;
+            border-left: 5px solid #e89535;
+        }
+
+        .stat-orange strong {
+            color: #bd701c;
         }
 
         /* SEMÁFORO Y ALERTAS */
@@ -320,9 +390,44 @@
             margin: -7px 0 15px;
         }
 
-        .deadline-table {
-            overflow-x: auto;
-        }
+        /* TABLA DE DEADLINES: DESPLAZAMIENTO VERTICAL */
+
+.deadline-table {
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #edf1f5;
+    border-radius: 8px;
+    position: relative;
+}
+
+/* ENCABEZADOS FIJOS AL DESPLAZARSE */
+
+.deadline-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8fafc;
+}
+
+/* BARRA DE DESPLAZAMIENTO */
+
+.deadline-table::-webkit-scrollbar {
+    width: 9px;
+}
+
+.deadline-table::-webkit-scrollbar-track {
+    background: #edf1f5;
+}
+
+.deadline-table::-webkit-scrollbar-thumb {
+    background: #9aabc0;
+    border-radius: 10px;
+}
+
+.deadline-table::-webkit-scrollbar-thumb:hover {
+    background: #18375d;
+}
 
         .deadline-table table,
         .students-table,
@@ -519,10 +624,25 @@
             font-weight: bold;
         }
 
+/* ====================================================== */
+/* TABLA DE DOCUMENTOS: ALTURA LIMITADA Y SCROLL */
+/* ====================================================== */
+
         .documents-table-wrap {
-            overflow-x: auto;
+            max-height: 460px;
+            overflow: auto;
             border: 1px solid #edf1f5;
             border-radius: 8px;
+            position: relative;
+        }
+
+/* ENCABEZADOS FIJOS AL DESPLAZARSE */
+
+        .documents-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: #f8fafc;
         }
 
         .documents-table {
@@ -568,14 +688,36 @@
             color: #475569;
         }
 
-        /* LISTADO DE ESTUDIANTES */
+      /* ====================================================== */
+/* LISTADO DE ESTUDIANTES */
+/* ====================================================== */
 
-        .panel {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.04);
-        }
+.panel {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+/* TABLA DE ESTUDIANTES: ALTURA LIMITADA Y SCROLL */
+
+.students-table-wrap {
+    width: 100%;
+    max-height: 620px;
+    overflow: auto;
+    border: 1px solid #edf1f5;
+    border-radius: 8px;
+    position: relative;
+}
+
+/* ENCABEZADOS FIJOS AL DESPLAZARSE */
+
+.students-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8fafc;
+}
 
         .panel-header {
             display: flex;
@@ -821,8 +963,8 @@
                 Inicio
             </a>
 
-            <a href="{% url 'admin_inicio' %}#lista-estudiantes">
-                Estudiantes
+            <a href="{% url 'admin_estudiantes_registrados' %}">
+            Estudiantes registrados
             </a>
 
             <a href="{% url 'admin_crear_estudiante' %}">
@@ -900,52 +1042,51 @@
             </div>
         {% endif %}
 
-        <!-- RESUMEN GENERAL -->
+       <!-- RESUMEN GENERAL -->
 
-        <h2 class="section-title">
-            Resumen general
-        </h2>
+<h2 class="section-title">
+    Resumen general
+</h2>
 
-        <section class="stats">
+<section class="stats">
 
-            <div class="stat-card">
-                <p>Total de estudiantes</p>
-                <strong>{{ total_estudiantes }}</strong>
+    <!-- ESTUDIANTES -->
+    <div class="stat-card stat-green">
+        <p>Total de estudiantes</p>
+        <strong>{{ total_estudiantes }}</strong>
+        <div class="stat-description">
+            Estudiantes registrados en Valky
+        </div>
+    </div>
 
-                <div class="stat-description">
-                    Estudiantes registrados en Valky
-                </div>
-            </div>
+    <!-- DOCUMENTOS REGISTRADOS -->
+    <div class="stat-card stat-blue">
+        <p>Documentos registrados</p>
+        <strong>{{ total_documentos }}</strong>
+        <div class="stat-description">
+            Archivos cargados por estudiantes
+        </div>
+    </div>
 
-            <div class="stat-card">
-                <p>Documentos registrados</p>
-                <strong>{{ total_documentos }}</strong>
+    <!-- TIPOS DE DOCUMENTOS -->
+    <div class="stat-card stat-gray">
+        <p>Tipos de documentos</p>
+        <strong>{{ total_tipos }}</strong>
+        <div class="stat-description">
+            Categorías del catálogo documental
+        </div>
+    </div>
 
-                <div class="stat-description">
-                    Archivos cargados por estudiantes
-                </div>
-            </div>
+    <!-- DOCUMENTOS PENDIENTES -->
+    <div class="stat-card stat-orange">
+        <p>Documentos pendientes de revisión</p>
+        <strong>{{ total_documentos_pendientes_revision }}</strong>
+        <div class="stat-description">
+            Documentos cargados por estudiantes que esperan revisión
+        </div>
+    </div>
 
-            <div class="stat-card">
-                <p>Tipos de documentos</p>
-                <strong>{{ total_tipos }}</strong>
-
-                <div class="stat-description">
-                    Categorías del catálogo documental
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <p>Documentos sin aprobar</p>
-                <strong>{{ total_alertas_documentos }}</strong>
-
-                <div class="stat-description">
-                    Solicitudes antiguas sin aprobación
-                </div>
-            </div>
-
-        </section>
-
+</section>
         <!-- SEMÁFORO GENERAL -->
 
         <section class="alert-section" id="alertas">
@@ -1288,133 +1429,6 @@
 
         </section>
 
-        <!-- LISTADO DE ESTUDIANTES -->
-
-        <section class="panel" id="lista-estudiantes">
-
-            <div class="panel-header">
-
-                <h2>Estudiantes registrados</h2>
-
-                <form method="GET" class="search">
-
-                    <input
-                        type="text"
-                        name="buscar"
-                        placeholder="Buscar estudiante..."
-                        value="{{ busqueda }}"
-                    >
-
-                    <button type="submit">
-                        Buscar
-                    </button>
-
-                </form>
-
-            </div>
-
-            <div class="filter-bar">
-
-                <div>
-                    Filtro actual:
-                    <strong id="filter-title">
-                        Todos los estudiantes
-                    </strong>
-                </div>
-
-                <button type="button" id="clear-filter">
-                    Mostrar todos
-                </button>
-
-            </div>
-
-            <div style="overflow-x:auto;">
-
-                <table class="students-table">
-
-                    <thead>
-                        <tr>
-                            <th>Estudiante</th>
-                            <th>Usuario</th>
-                            <th>Fecha de registro</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="students-table-body">
-
-                        {% for estudiante in estudiantes %}
-
-                            <tr data-student-id="{{ estudiante.id }}">
-
-                                <td>
-
-                                    <a class="student-name"
-                                       href="{% url 'admin_perfil_estudiante' estudiante.id %}">
-                                        {{ estudiante.perfil.nombres|default:estudiante.username }}
-                                        {{ estudiante.perfil.apellidos }}
-                                    </a>
-
-                                    <div class="email">
-                                        {{ estudiante.email|default:"Sin correo registrado" }}
-                                    </div>
-
-                                </td>
-
-                                <td>
-                                    {{ estudiante.username }}
-                                </td>
-
-                                <td>
-                                    {{ estudiante.date_joined|date:"d/m/Y" }}
-                                </td>
-
-                                <td class="student-status">
-                                    <span class="state-label state-neutral">
-                                        Sin clasificar
-                                    </span>
-                                </td>
-
-                            </tr>
-
-                        {% empty %}
-
-                            <tr>
-                                <td colspan="4" class="empty">
-                                    No se encontraron estudiantes registrados.
-                                </td>
-                            </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <div id="student-status-data" hidden>
-
-                {% for fila in estudiantes_rojos %}
-                    <span data-state="rojo" data-id="{{ fila.estudiante.id }}"></span>
-                {% endfor %}
-
-                {% for fila in estudiantes_amarillos %}
-                    <span data-state="amarillo" data-id="{{ fila.estudiante.id }}"></span>
-                {% endfor %}
-
-                {% for fila in estudiantes_verdes %}
-                    <span data-state="verde" data-id="{{ fila.estudiante.id }}"></span>
-                {% endfor %}
-
-                {% for fila in estudiantes_neutros %}
-                    <span data-state="neutro" data-id="{{ fila.estudiante.id }}"></span>
-                {% endfor %}
-
-            </div>
-
-        </section>
-
     </main>
 
 </div>
@@ -1427,104 +1441,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* FILTROS DEL SEMÁFORO */
 
-    const botones = document.querySelectorAll(".alert-card[data-filter]");
+const botones = document.querySelectorAll(".alert-card[data-filter]");
 
-    const filas = document.querySelectorAll(
-        "#students-table-body tr[data-student-id]"
-    );
+const nombresEstados = {
+    rojo: "rojo",
+    amarillo: "amarillo",
+    verde: "verde",
+    neutro: "neutro"
+};
 
-    const datosEstado = document.querySelectorAll(
-        "#student-status-data span"
-    );
+botones.forEach(function (boton) {
 
-    const tituloFiltro = document.getElementById("filter-title");
-    const botonLimpiar = document.getElementById("clear-filter");
+    boton.addEventListener("click", function () {
 
-    const nombresEstados = {
-        rojo: "Estudiantes en rojo",
-        amarillo: "Estudiantes en amarillo",
-        verde: "Estudiantes en verde",
-        neutro: "Estudiantes sin alerta"
-    };
+        const estado = nombresEstados[boton.dataset.filter];
 
-    const clasesEstados = {
-        rojo: "state-red",
-        amarillo: "state-yellow",
-        verde: "state-green",
-        neutro: "state-neutral"
-    };
-
-    const etiquetasEstados = {
-        rojo: "Rojo",
-        amarillo: "Amarillo",
-        verde: "Verde",
-        neutro: "Sin alerta"
-    };
-
-    const estadosPorEstudiante = {};
-
-    datosEstado.forEach(function (elemento) {
-        const id = elemento.dataset.id;
-        const estado = elemento.dataset.state;
-        estadosPorEstudiante[id] = estado;
-    });
-
-    filas.forEach(function (fila) {
-
-        const id = fila.dataset.studentId;
-        const estado = estadosPorEstudiante[id] || "neutro";
-
-        fila.dataset.state = estado;
-
-        const celdaEstado = fila.querySelector(".student-status");
-
-        if (celdaEstado) {
-            celdaEstado.innerHTML =
-                '<span class="state-label ' + clasesEstados[estado] + '">' +
-                etiquetasEstados[estado] +
-                '</span>';
+        if (!estado) {
+            return;
         }
 
-    });
-
-    function aplicarFiltro(estado) {
-
-        filas.forEach(function (fila) {
-            fila.style.display =
-                (!estado || fila.dataset.state === estado) ? "" : "none";
-        });
-
-        botones.forEach(function (boton) {
-            boton.classList.toggle(
-                "selected",
-                boton.dataset.filter === estado
-            );
-        });
-
-        tituloFiltro.textContent = estado
-            ? nombresEstados[estado]
-            : "Todos los estudiantes";
-    }
-
-    botones.forEach(function (boton) {
-
-        boton.addEventListener("click", function () {
-
-            aplicarFiltro(boton.dataset.filter);
-
-            document.getElementById("lista-estudiantes").scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-        });
+        window.location.href =
+            "{% url 'admin_estudiantes_registrados' %}?estado=" +
+            encodeURIComponent(estado);
 
     });
 
-    botonLimpiar.addEventListener("click", function () {
-        aplicarFiltro(null);
-    });
-
+});
     /* GRÁFICO CIRCULAR Y TABLA DOCUMENTAL */
 
     const datosGrafico = document.getElementById(

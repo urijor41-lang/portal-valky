@@ -131,87 +131,11 @@ class PerfilEstudiante(models.Model):
     edad = models.PositiveIntegerField(null=True, blank=True)
     telefono = models.CharField(max_length=30, blank=True)
 
-    # --------------------------------------------------------
-    # CONTACTO DE EMERGENCIA
-    # --------------------------------------------------------
-
-    contacto_emergencia_nombre = models.CharField(
-        max_length=150,
-        blank=True
+    institucion_educativa = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Institución educativa"
     )
-
-    contacto_emergencia_parentesco = models.CharField(
-        max_length=100,
-        blank=True
-    )
-
-    contacto_emergencia_telefono = models.CharField(
-        max_length=30,
-        blank=True
-    )
-
-    # --------------------------------------------------------
-    # FORMACIÓN ACADÉMICA: SECUNDARIA
-    # --------------------------------------------------------
-
-    secundaria_institucion = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
-    secundaria_estado = models.CharField(
-        max_length=20,
-        choices=ESTADOS_ACADEMICOS,
-        blank=True
-    )
-
-    secundaria_observaciones = models.TextField(blank=True)
-
-    # --------------------------------------------------------
-    # FORMACIÓN ACADÉMICA: PREGRADO
-    # --------------------------------------------------------
-
-    pregrado_institucion = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
-    pregrado_estado = models.CharField(
-        max_length=20,
-        choices=ESTADOS_ACADEMICOS,
-        blank=True
-    )
-
-    pregrado_observaciones = models.TextField(blank=True)
-
-    # --------------------------------------------------------
-    # FORMACIÓN ACADÉMICA: POSGRADO
-    # --------------------------------------------------------
-
-    posgrado_institucion = models.CharField(
-        max_length=200,
-        blank=True
-    )
-
-    posgrado_estado = models.CharField(
-        max_length=20,
-        choices=ESTADOS_ACADEMICOS,
-        blank=True
-    )
-
-    posgrado_observaciones = models.TextField(blank=True)
-
-    # --------------------------------------------------------
-    # IDIOMAS
-    # --------------------------------------------------------
-
-    idioma_ingles = models.BooleanField(default=False)
-    idioma_frances = models.BooleanField(default=False)
-    idioma_italiano = models.BooleanField(default=False)
-    idioma_mandarin = models.BooleanField(default=False)
-    idioma_espanol = models.BooleanField(default=False)
-
-    idiomas_observaciones = models.TextField(blank=True)
 
     # --------------------------------------------------------
     # PERIODO DE INGRESO ANTIGUO
@@ -314,7 +238,34 @@ class HistorialEstudiante(models.Model):
         ("otro", "Otro motivo"),
     ]
 
+    # --------------------------------------------------------
+    # INFORMACIÓN GENERAL DEL CIERRE
+    # --------------------------------------------------------
+
     nombre_estudiante = models.CharField(max_length=300)
+
+    correo_estudiante = models.EmailField(
+        blank=True
+    )
+
+    edad = models.PositiveIntegerField(
+        null=True,
+        blank=True
+    )
+
+    telefono = models.CharField(
+        max_length=30,
+        blank=True
+    )
+
+    institucion_educativa = models.CharField(
+        max_length=255,
+        blank=True
+    )
+
+    # --------------------------------------------------------
+    # RESULTADO DEL PROCESO
+    # --------------------------------------------------------
 
     resultado = models.CharField(
         max_length=30,
@@ -341,7 +292,77 @@ class HistorialEstudiante(models.Model):
 
 
 # ============================================================
-# 7. PERMISOS DE ASESORES
+# 7. RESULTADOS DE APLICACIÓN POR UNIVERSIDAD
+# ============================================================
+
+class ResultadoUniversidad(models.Model):
+
+    ESTADOS_APLICACION = [
+        ("aplicado", "Aplicado"),
+        ("no_aplicado", "No aplicado"),
+    ]
+
+    historial = models.ForeignKey(
+        HistorialEstudiante,
+        on_delete=models.CASCADE,
+        related_name="universidades"
+    )
+
+    # Número de preferencia original: 1, 2, 3 o 4.
+    numero_preferencia = models.PositiveSmallIntegerField()
+
+    universidad = models.CharField(
+        max_length=200
+    )
+
+    carrera = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    pais = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    intake = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    deadline = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    estado_aplicacion = models.CharField(
+        max_length=20,
+        choices=ESTADOS_APLICACION
+    )
+
+    class Meta:
+        ordering = ["numero_preferencia"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["historial", "numero_preferencia"],
+                name="universidad_unica_por_historial"
+            )
+        ]
+
+        verbose_name = "Resultado por universidad"
+        verbose_name_plural = "Resultados por universidad"
+
+    def __str__(self):
+        return (
+            f"{self.universidad} - "
+            f"{self.get_estado_aplicacion_display()} "
+            f"({self.historial.nombre_estudiante})"
+        )
+
+
+# ============================================================
+# 8. PERMISOS DE ASESORES
 # ============================================================
 
 class PermisosAsesor(models.Model):

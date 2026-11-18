@@ -1,0 +1,1913 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudiantes registrados | Valky</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #243247;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ==================================================
+           1. MENÚ LATERAL
+           ================================================== */
+
+        .sidebar {
+            width: 250px;
+            flex-shrink: 0;
+            background: #142b49;
+            color: white;
+            padding: 28px 18px;
+        }
+
+        .brand {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: fit-content;
+            max-width: 100%;
+            margin: 0 auto 18px;
+            padding: 9px 12px;
+            background: white;
+            border-radius: 9px;
+        }
+
+        .logo-valky {
+            display: block;
+            width: 190px;
+            max-width: 100%;
+            max-height: 75px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .role {
+            margin: 25px 8px 12px;
+            padding: 10px;
+            background: #203d60;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #d9e3ef;
+        }
+
+        .menu-label {
+            color: #91a8c1;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 25px 10px 10px;
+        }
+
+        .menu a {
+            display: block;
+            color: #d9e3ef;
+            text-decoration: none;
+            padding: 13px 12px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .menu a.active,
+        .menu a:hover {
+            background: #29496e;
+            color: white;
+        }
+
+        .menu form {
+            margin: 0;
+        }
+
+        .logout-button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            color: #d9e3ef;
+            border: none;
+            padding: 13px 12px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background: #29496e;
+            color: white;
+        }
+
+        /* ==================================================
+           2. CONTENIDO PRINCIPAL
+           ================================================== */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 35px 40px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 27px;
+            color: #142b49;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .user {
+            background: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        }
+
+        .section-title {
+            font-size: 17px;
+            color: #142b49;
+            margin: 0 0 17px;
+        }
+
+        /* ==================================================
+           3. MENSAJES
+           ================================================== */
+
+        .message {
+            background: #fff7ed;
+            color: #9a3412;
+            border: 1px solid #fed7aa;
+            border-left: 4px solid #ea580c;
+            padding: 13px 16px;
+            border-radius: 7px;
+            margin-bottom: 9px;
+            font-size: 13px;
+        }
+
+        /* ==================================================
+           4. TARJETAS DE RESUMEN
+           ================================================== */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            display: block;
+            padding: 21px;
+            border-radius: 12px;
+            text-decoration: none;
+            border: 1px solid transparent;
+            transition: transform .18s, box-shadow .18s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,.08);
+        }
+
+        .stat-blue {
+            background: #e5efff;
+            border-color: #cbdcff;
+        }
+
+        .stat-green {
+            background: #e5f5eb;
+            border-color: #c9e9d3;
+        }
+
+        .stat-orange {
+            background: #fff0df;
+            border-color: #f8ddbd;
+        }
+
+        .stat-purple {
+            background: #f0eaff;
+            border-color: #ded2ff;
+        }
+
+        .stat-card p {
+            color: #52647a;
+            font-size: 13px;
+            margin: 0 0 12px;
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 29px;
+            color: #142b49;
+        }
+
+        .stat-description {
+            color: #718096;
+            font-size: 11px;
+            margin-top: 9px;
+            line-height: 1.5;
+        }
+
+        /* ==================================================
+           5. TARJETAS DE ESTADÍSTICAS
+           ================================================== */
+
+        .statistics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .statistics-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.035);
+            border: 1px solid #e5ebf2;
+            border-top: 4px solid #b9cde3;
+            min-width: 0;
+        }
+
+        .country-card {
+            border-top-color: #78b99a;
+        }
+
+        .university-card {
+            border-top-color: #e7ad70;
+        }
+
+        .career-card {
+            border-top-color: #ad99e4;
+        }
+
+        .institution-card {
+            border-top-color: #83a9cf;
+        }
+
+        .statistics-card h3 {
+            color: #142b49;
+            font-size: 15px;
+            margin: 0 0 6px;
+        }
+
+        .statistics-description {
+            color: #718096;
+            font-size: 11px;
+            line-height: 1.5;
+            margin: 0 0 15px;
+        }
+
+        /* ==================================================
+           6. GRÁFICO DE PAÍSES
+           ================================================== */
+
+        .country-content {
+            display: grid;
+            grid-template-columns: minmax(180px, .85fr) minmax(0, 1.15fr);
+            align-items: center;
+            gap: 18px;
+        }
+
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 0;
+        }
+
+        #countries-chart {
+            width: 100%;
+            max-width: 245px;
+            height: auto;
+            overflow: visible;
+        }
+
+        .chart-slice {
+            cursor: pointer;
+            stroke: white;
+            stroke-width: 1.5;
+            transition: opacity .15s, stroke-width .15s;
+        }
+
+        .chart-slice:hover {
+            opacity: .78;
+            stroke: #142b49;
+            stroke-width: 3;
+        }
+
+        .chart-slice.selected {
+            stroke: #142b49;
+            stroke-width: 3;
+        }
+
+        .chart-empty {
+            color: #91a0b1;
+            font-size: 12px;
+            text-align: center;
+            padding: 35px 10px;
+        }
+
+        .chart-legend {
+            width: 100%;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: left;
+            padding: 4px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            color: #52647a;
+            font-size: 11px;
+        }
+
+        .legend-item:hover,
+        .legend-item.selected {
+            background: #edf3f8;
+            color: #142b49;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            flex-shrink: 0;
+            border-radius: 3px;
+        }
+
+        .legend-name {
+            flex: 1;
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .legend-percent {
+            color: #718096;
+            white-space: nowrap;
+        }
+
+        /* ==================================================
+           7. TABLAS DE ESTADÍSTICAS
+           ================================================== */
+
+        .statistics-table-wrap {
+            max-height: 270px;
+            overflow: auto;
+            border: 1px solid #e5ebf2;
+            border-radius: 8px;
+        }
+
+        .statistics-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .statistics-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: #edf3f8;
+        }
+
+        th {
+            text-align: left;
+            color: #52647a;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            padding: 12px;
+            border-bottom: 1px solid #e0e8f0;
+        }
+
+        td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #edf1f5;
+            font-size: 12px;
+        }
+
+        .statistics-table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .statistics-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .quantity {
+            font-weight: bold;
+            color: #245b91;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .filter-value {
+            width: 100%;
+            display: block;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: #245b91;
+            font-family: inherit;
+            font-size: 12px;
+            text-align: left;
+            cursor: pointer;
+            overflow-wrap: anywhere;
+        }
+
+        .filter-value:hover {
+            color: #142b49;
+            text-decoration: underline;
+        }
+
+        .filter-value.selected {
+            font-weight: bold;
+            color: #166534;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 25px;
+            color: #718096;
+        }
+
+        /* ==================================================
+           8. FILTROS ACTIVOS
+           ================================================== */
+
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .active-filters-label {
+            color: #52647a;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e5efff;
+            color: #245b91;
+            padding: 7px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        .filter-chip a {
+            color: #245b91;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .clear-filters {
+            color: #b45309;
+            font-size: 12px;
+            font-weight: bold;
+            text-decoration: none;
+            margin-left: 5px;
+        }
+
+        .clear-filters:hover {
+            text-decoration: underline;
+        }
+
+        /* ==================================================
+           9. LISTADO DE ESTUDIANTES
+           ================================================== */
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.035);
+            border: 1px solid #e5ebf2;
+            margin-top: 28px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            font-size: 19px;
+            color: #142b49;
+        }
+
+        .search {
+            display: flex;
+            gap: 9px;
+        }
+
+        .search input {
+            width: 260px;
+            padding: 11px 13px;
+            border: 1px solid #d8e0e9;
+            border-radius: 7px;
+            font-size: 13px;
+        }
+
+        .search button {
+            background: #142b49;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 11px 17px;
+            cursor: pointer;
+        }
+
+        .search button:hover {
+            background: #29496e;
+        }
+
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 15px;
+            margin-bottom: 18px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .filter-bar strong {
+            color: #142b49;
+        }
+
+        .filter-bar a {
+            display: inline-block;
+            background: white;
+            color: #245b91;
+            border: 1px solid #cbd5e0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .filter-bar a:hover {
+            background: #e8eef5;
+        }
+
+        .students-table-wrap {
+            width: 100%;
+            max-height: 620px;
+            overflow: auto;
+            border: 1px solid #e5ebf2;
+            border-radius: 8px;
+        }
+
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        .students-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: #edf3f8;
+        }
+
+        .students-table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .student-name {
+            font-weight: bold;
+            color: #245b91;
+            text-decoration: none;
+        }
+
+        .student-name:hover {
+            text-decoration: underline;
+        }
+
+        .email {
+            color: #718096;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .state-label {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .state-red {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .state-yellow {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .state-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .state-neutral {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .result-count {
+            margin: 0 0 12px;
+            color: #718096;
+            font-size: 12px;
+        }
+ /* ==================================================
+   BOTONES DE EXPORTACIÓN
+   ================================================== */
+
+.export-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.export-button {
+    display: inline-block;
+    padding: 11px 14px;
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    transition: background .2s;
+}
+
+.export-excel {
+    background: #e5f5eb;
+    color: #166534;
+    border: 1px solid #b9dfc5;
+}
+
+.export-excel:hover {
+    background: #d1ead9;
+}
+
+.export-pdf {
+    background: #feecec;
+    color: #b42318;
+    border: 1px solid #f3c4c0;
+}
+
+.export-pdf:hover {
+    background: #fbdada;
+}
+/* ==================================================
+   9. BOTONES DE EXPORTACIÓN
+   ================================================== */
+
+.export-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.export-button {
+    display: inline-block;
+    padding: 11px 14px;
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    transition: background .2s;
+}
+
+.export-excel {
+    background: #e5f5eb;
+    color: #166534;
+    border: 1px solid #b9dfc5;
+}
+
+.export-excel:hover {
+    background: #d1ead9;
+}
+
+.export-pdf {
+    background: #feecec;
+    color: #b42318;
+    border: 1px solid #f3c4c0;
+}
+
+.export-pdf:hover {
+    background: #fbdada;
+}
+        /* ==================================================
+           10. RESPONSIVE
+           ================================================== */
+
+        @media (max-width: 1150px) {
+            .main {
+                padding: 28px 22px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .country-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 20px;
+            }
+
+            .brand {
+                margin-bottom: 15px;
+            }
+
+            .menu {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .menu-label {
+                width: 100%;
+            }
+
+            .menu a {
+                margin: 0;
+            }
+
+            .statistics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .search,
+            .search input {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .main {
+                padding: 22px 14px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .search {
+                flex-direction: column;
+            }
+
+            .filter-bar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .panel {
+                padding: 17px;
+            }
+
+            .statistics-card {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- ==================================================
+         11. MENÚ LATERAL
+         ================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <img
+                src="{% static 'portal/img/logo_valky.png' %}"
+                alt="Valky Estudios en el Exterior"
+                class="logo-valky"
+            >
+        </div>
+
+        <div class="role">
+            {% if request.user.is_superuser %}
+                Administrador principal
+            {% else %}
+                Asesor Valky
+            {% endif %}
+        </div>
+
+        <nav class="menu">
+
+            <div class="menu-label">General</div>
+
+            <a href="{% url 'admin_inicio' %}">
+                Inicio
+            </a>
+
+            <a href="{% url 'admin_estudiantes_registrados' %}" class="active">
+                Estudiantes registrados
+            </a>
+
+            <a href="{% url 'admin_crear_estudiante' %}">
+                Crear estudiante
+            </a>
+
+            <a href="{% url 'admin_historial_estudiantes' %}">
+                Historial de estudiantes
+            </a>
+
+            <div class="menu-label">Gestión documental</div>
+
+            <a href="{% url 'admin_tipos_documentos' %}">
+                Tipos de documentos
+            </a>
+
+            <a href="{% url 'admin_inicio' %}#alertas">
+                Alertas y seguimiento
+            </a>
+
+            <div class="menu-label">Administración</div>
+
+            <a href="{% url 'admin_inicio' %}#estadisticas">
+                Estadísticas generales
+            </a>
+
+            {% if request.user.is_superuser %}
+                <a href="{% url 'admin_asesores' %}">
+                    Gestión de asesores
+                </a>
+            {% endif %}
+
+            <form method="POST" action="{% url 'cerrar_sesion' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">
+                    Cerrar sesión
+                </button>
+            </form>
+
+        </nav>
+
+    </aside>
+
+    <!-- ==================================================
+         12. CONTENIDO PRINCIPAL
+         ================================================== -->
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+                <h1>Estudiantes registrados</h1>
+
+                <p class="subtitle">
+                    Seguimiento y estadísticas de los estudiantes registrados en Valky.
+                </p>
+            </div>
+
+            <div class="user">
+                {{ request.user.get_full_name|default:request.user.username }}
+            </div>
+
+        </div>
+
+        <!-- MENSAJES DEL SISTEMA -->
+
+        {% if messages %}
+            <div style="margin-bottom: 22px;">
+                {% for message in messages %}
+                    <div class="message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- ==================================================
+             13. TARJETAS DE RESUMEN
+             ================================================== -->
+
+        <h2 class="section-title">
+            Resumen de estudiantes
+        </h2>
+
+        <section class="stats">
+
+            <a
+                class="stat-card stat-blue"
+                href="{% url 'admin_estudiantes_registrados' %}#lista-estudiantes"
+                title="Mostrar todos los estudiantes"
+            >
+                <p>Total de estudiantes</p>
+
+                <strong>{{ total_estudiantes }}</strong>
+
+                <div class="stat-description">
+                    Estudiantes registrados en Valky
+                </div>
+            </a>
+
+            <a
+                class="stat-card stat-green"
+                href="#paises"
+            >
+                <p>Países de preferencia</p>
+
+                <strong>{{ paises_preferencia|length }}</strong>
+
+                <div class="stat-description">
+                    Países registrados en las preferencias
+                </div>
+            </a>
+
+            <a
+                class="stat-card stat-orange"
+                href="#universidades"
+            >
+                <p>Universidades consideradas</p>
+
+                <strong>{{ universidades_preferencia|length }}</strong>
+
+                <div class="stat-description">
+                    Universidades registradas por los estudiantes
+                </div>
+            </a>
+
+            <a
+                class="stat-card stat-purple"
+                href="#carreras"
+            >
+                <p>Carreras o programas</p>
+
+                <strong>{{ carreras_preferencia|length }}</strong>
+
+                <div class="stat-description">
+                    Áreas académicas de interés registradas
+                </div>
+            </a>
+
+        </section>
+
+        <!-- ==================================================
+             14. PREFERENCIAS ACADÉMICAS
+             ================================================== -->
+
+        <h2 class="section-title">
+            Preferencias académicas
+        </h2>
+
+        <!-- PAÍSES: GRÁFICO Y TABLA -->
+
+        <section class="statistics-grid">
+
+            <div class="statistics-card country-card" id="paises">
+
+                <h3>Países de preferencia</h3>
+
+                <p class="statistics-description">
+                    Selecciona una porción del gráfico o un país de la tabla
+                    para filtrar los estudiantes.
+                </p>
+
+                <div class="country-content">
+
+                    <div class="chart-container">
+
+                        <svg
+                            id="countries-chart"
+                            viewBox="0 0 220 220"
+                            role="img"
+                            aria-label="Gráfico de torta de países de preferencia"
+                        >
+                        </svg>
+
+                        <div id="chart-empty" class="chart-empty" hidden>
+                            No hay países registrados para mostrar.
+                        </div>
+
+                        <div id="chart-legend" class="chart-legend"></div>
+
+                    </div>
+
+                    <div class="statistics-table-wrap">
+
+                        <table class="statistics-table">
+
+                            <thead>
+                                <tr>
+                                    <th>País</th>
+                                    <th style="text-align:center;">Estudiantes</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for fila in paises_preferencia %}
+
+                                    <tr>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="filter-value"
+                                                data-filter-type="pais"
+                                                data-filter-value="{{ fila.nombre }}"
+                                            >
+                                                {{ fila.nombre }}
+                                            </button>
+                                        </td>
+
+                                        <td class="quantity">
+                                            {{ fila.cantidad }}
+                                        </td>
+                                    </tr>
+
+                                {% empty %}
+
+                                    <tr>
+                                        <td colspan="2" class="empty">
+                                            No hay países registrados.
+                                        </td>
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- UNIVERSIDADES -->
+
+            <div class="statistics-card university-card" id="universidades">
+
+                <h3>Universidades consideradas</h3>
+
+                <p class="statistics-description">
+                    Selecciona una universidad para filtrar los estudiantes
+                    interesados en ella.
+                </p>
+
+                <div class="statistics-table-wrap">
+
+                    <table class="statistics-table">
+
+                        <thead>
+                            <tr>
+                                <th>Universidad</th>
+                                <th style="text-align:center;">Estudiantes</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for fila in universidades_preferencia %}
+
+                                <tr>
+                                    <td>
+                                        <button
+                                            type="button"
+                                            class="filter-value"
+                                            data-filter-type="universidad"
+                                            data-filter-value="{{ fila.nombre }}"
+                                        >
+                                            {{ fila.nombre }}
+                                        </button>
+                                    </td>
+
+                                    <td class="quantity">
+                                        {{ fila.cantidad }}
+                                    </td>
+                                </tr>
+
+                            {% empty %}
+
+                                <tr>
+                                    <td colspan="2" class="empty">
+                                        No hay universidades registradas.
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- CARRERAS -->
+
+            <div class="statistics-card career-card" id="carreras">
+
+                <h3>Carreras o programas de interés</h3>
+
+                <p class="statistics-description">
+                    Selecciona una carrera o programa para filtrar los estudiantes.
+                </p>
+
+                <div class="statistics-table-wrap">
+
+                    <table class="statistics-table">
+
+                        <thead>
+                            <tr>
+                                <th>Carrera o programa</th>
+                                <th style="text-align:center;">Estudiantes</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for fila in carreras_preferencia %}
+
+                                <tr>
+                                    <td>
+                                        <button
+                                            type="button"
+                                            class="filter-value"
+                                            data-filter-type="carrera"
+                                            data-filter-value="{{ fila.nombre }}"
+                                        >
+                                            {{ fila.nombre }}
+                                        </button>
+                                    </td>
+
+                                    <td class="quantity">
+                                        {{ fila.cantidad }}
+                                    </td>
+                                </tr>
+
+                            {% empty %}
+
+                                <tr>
+                                    <td colspan="2" class="empty">
+                                        No hay carreras registradas.
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- INSTITUCIONES EDUCATIVAS -->
+
+            <div class="statistics-card institution-card" id="instituciones">
+
+                <h3>Instituciones educativas de procedencia</h3>
+
+                <p class="statistics-description">
+                    Selecciona una institución para consultar los estudiantes
+                    procedentes de ella.
+                </p>
+
+                <div class="statistics-table-wrap">
+
+                    <table class="statistics-table">
+
+                        <thead>
+                            <tr>
+                                <th>Institución educativa</th>
+                                <th style="text-align:center;">Estudiantes</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for fila in instituciones_educativas %}
+
+                                <tr>
+                                    <td>
+                                        <button
+                                            type="button"
+                                            class="filter-value"
+                                            data-filter-type="institucion"
+                                            data-filter-value="{{ fila.nombre }}"
+                                        >
+                                            {{ fila.nombre }}
+                                        </button>
+                                    </td>
+
+                                    <td class="quantity">
+                                        {{ fila.cantidad }}
+                                    </td>
+                                </tr>
+
+                            {% empty %}
+
+                                <tr>
+                                    <td colspan="2" class="empty">
+                                        No hay instituciones registradas.
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ==================================================
+         15. LISTADO DE ESTUDIANTES
+         ================================================== -->
+
+        <section class="panel" id="lista-estudiantes">
+
+            
+<div class="panel-header">
+
+    <h2>Listado de estudiantes</h2>
+
+    <div class="export-actions">
+
+        <form
+            method="GET"
+            class="search"
+            action="{% url 'admin_estudiantes_registrados' %}"
+        >
+
+            <input
+                type="text"
+                name="buscar"
+                placeholder="Buscar estudiante..."
+                value="{{ busqueda }}"
+            >
+
+            {% if estado_actual %}
+                <input type="hidden" name="estado" value="{{ estado_actual }}">
+            {% endif %}
+
+            {% if pais_actual %}
+                <input type="hidden" name="pais" value="{{ pais_actual }}">
+            {% endif %}
+
+            {% if universidad_actual %}
+                <input type="hidden" name="universidad" value="{{ universidad_actual }}">
+            {% endif %}
+
+            {% if carrera_actual %}
+                <input type="hidden" name="carrera" value="{{ carrera_actual }}">
+            {% endif %}
+
+            {% if institucion_actual %}
+                <input type="hidden" name="institucion" value="{{ institucion_actual }}">
+            {% endif %}
+
+            <button type="submit">
+                Buscar
+            </button>
+
+        </form>
+
+        <a
+            href="{% url 'exportar_estudiantes_excel' %}?{{ request.GET.urlencode }}"
+            class="export-button export-excel"
+        >
+            Excel
+        </a>
+
+        <a
+            href="{% url 'exportar_estudiantes_pdf' %}?{{ request.GET.urlencode }}"
+            class="export-button export-pdf"
+        >
+            PDF
+        </a>
+
+    </div>
+
+</div>
+
+
+            <!-- FILTROS ACTIVOS -->
+
+            <div class="filter-bar">
+
+                <div>
+                    Filtro del semáforo:
+                    <strong>
+                        {% if estado_actual == "rojo" %}
+                            Estudiantes en rojo
+                        {% elif estado_actual == "amarillo" %}
+                            Estudiantes en amarillo
+                        {% elif estado_actual == "verde" %}
+                            Estudiantes en verde
+                        {% elif estado_actual == "neutro" %}
+                            Estudiantes sin alerta
+                        {% else %}
+                            Todos los estados
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <a href="{% url 'admin_estudiantes_registrados' %}#lista-estudiantes">
+                    Limpiar todos los filtros
+                </a>
+
+            </div>
+
+            {% if pais_actual or universidad_actual or carrera_actual or institucion_actual %}
+
+                <div class="active-filters">
+
+                    <span class="active-filters-label">
+                        Preferencias seleccionadas:
+                    </span>
+
+                    {% if pais_actual %}
+                        <span class="filter-chip">
+                            País: {{ pais_actual }}
+                            <a href="#" data-remove-filter="pais" title="Quitar filtro">×</a>
+                        </span>
+                    {% endif %}
+
+                    {% if universidad_actual %}
+                        <span class="filter-chip">
+                            Universidad: {{ universidad_actual }}
+                            <a href="#" data-remove-filter="universidad" title="Quitar filtro">×</a>
+                        </span>
+                    {% endif %}
+
+                    {% if carrera_actual %}
+                        <span class="filter-chip">
+                            Carrera: {{ carrera_actual }}
+                            <a href="#" data-remove-filter="carrera" title="Quitar filtro">×</a>
+                        </span>
+                    {% endif %}
+
+                    {% if institucion_actual %}
+                        <span class="filter-chip">
+                            Institución: {{ institucion_actual }}
+                            <a href="#" data-remove-filter="institucion" title="Quitar filtro">×</a>
+                        </span>
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+            <p class="result-count">
+                Resultados encontrados: <strong>{{ estudiantes|length }}</strong>
+            </p>
+
+            <div class="students-table-wrap">
+
+                <table class="students-table">
+
+                    <thead>
+                        <tr>
+                            <th>Estudiante</th>
+                            <th>Usuario</th>
+                            <th>Fecha de registro</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="students-table-body">
+
+                        {% for estudiante in estudiantes %}
+
+                            <tr data-student-id="{{ estudiante.id }}">
+
+                                <td>
+                                    <a
+                                        class="student-name"
+                                        href="{% url 'admin_perfil_estudiante' estudiante.id %}"
+                                    >
+                                        {{ estudiante.perfil.nombres|default:estudiante.username }}
+                                        {{ estudiante.perfil.apellidos }}
+                                    </a>
+
+                                    <div class="email">
+                                        {{ estudiante.email|default:"Sin correo registrado" }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {{ estudiante.username }}
+                                </td>
+
+                                <td>
+                                    {{ estudiante.date_joined|date:"d/m/Y" }}
+                                </td>
+
+                                <td class="student-status">
+                                    <span class="state-label state-neutral">
+                                        Sin clasificar
+                                    </span>
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+                                <td colspan="4" class="empty">
+                                    No se encontraron estudiantes con los filtros seleccionados.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- DATOS PARA IDENTIFICAR EL ESTADO DE CADA ESTUDIANTE -->
+
+            <div id="student-status-data" hidden>
+
+                {% for fila in estudiantes_rojos %}
+                    <span data-state="rojo" data-id="{{ fila.estudiante.id }}"></span>
+                {% endfor %}
+
+                {% for fila in estudiantes_amarillos %}
+                    <span data-state="amarillo" data-id="{{ fila.estudiante.id }}"></span>
+                {% endfor %}
+
+                {% for fila in estudiantes_verdes %}
+                    <span data-state="verde" data-id="{{ fila.estudiante.id }}"></span>
+                {% endfor %}
+
+                {% for fila in estudiantes_neutros %}
+                    <span data-state="neutro" data-id="{{ fila.estudiante.id }}"></span>
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<!-- ==================================================
+     16. DATOS DEL GRÁFICO DE PAÍSES
+     ================================================== -->
+
+{{ paises_preferencia|json_script:"countries-chart-data" }}
+
+<!-- ==================================================
+     17. FUNCIONES JAVASCRIPT
+     ================================================== -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* --------------------------------------------------
+       1. APLICAR ESTADOS DEL SEMÁFORO
+       -------------------------------------------------- */
+
+    const filas = document.querySelectorAll(
+        "#students-table-body tr[data-student-id]"
+    );
+
+    const datosEstado = document.querySelectorAll(
+        "#student-status-data span"
+    );
+
+    const clasesEstados = {
+        rojo: "state-red",
+        amarillo: "state-yellow",
+        verde: "state-green",
+        neutro: "state-neutral"
+    };
+
+    const etiquetasEstados = {
+        rojo: "Rojo",
+        amarillo: "Amarillo",
+        verde: "Verde",
+        neutro: "Sin alerta"
+    };
+
+    const estadosPorEstudiante = {};
+
+    datosEstado.forEach(function (elemento) {
+        estadosPorEstudiante[elemento.dataset.id] =
+            elemento.dataset.state;
+    });
+
+    filas.forEach(function (fila) {
+
+        const id = fila.dataset.studentId;
+        const estado = estadosPorEstudiante[id] || "neutro";
+        const celdaEstado = fila.querySelector(".student-status");
+
+        if (celdaEstado) {
+            celdaEstado.innerHTML =
+                '<span class="state-label ' +
+                clasesEstados[estado] + '">' +
+                etiquetasEstados[estado] +
+                '</span>';
+        }
+
+    });
+
+    /* --------------------------------------------------
+       2. GESTIONAR FILTROS COMBINADOS
+       -------------------------------------------------- */
+
+    function cambiarFiltro(tipo, valor) {
+
+        const parametros = new URLSearchParams(
+            window.location.search
+        );
+
+        const valorActual = parametros.get(tipo);
+
+        if (valorActual === valor) {
+            parametros.delete(tipo);
+        } else {
+            parametros.set(tipo, valor);
+        }
+
+        const nuevaUrl =
+            window.location.pathname +
+            (parametros.toString()
+                ? "?" + parametros.toString()
+                : "") +
+            "#lista-estudiantes";
+
+        window.location.href = nuevaUrl;
+    }
+
+    document.querySelectorAll(
+        ".filter-value"
+    ).forEach(function (boton) {
+
+        boton.addEventListener("click", function () {
+
+            cambiarFiltro(
+                boton.dataset.filterType,
+                boton.dataset.filterValue
+            );
+
+        });
+
+    });
+
+    /* --------------------------------------------------
+       3. QUITAR UN FILTRO INDIVIDUAL
+       -------------------------------------------------- */
+
+    document.querySelectorAll(
+        "[data-remove-filter]"
+    ).forEach(function (enlace) {
+
+        enlace.addEventListener("click", function (evento) {
+
+            evento.preventDefault();
+
+            const parametros = new URLSearchParams(
+                window.location.search
+            );
+
+            parametros.delete(
+                enlace.dataset.removeFilter
+            );
+
+            const nuevaUrl =
+                window.location.pathname +
+                (parametros.toString()
+                    ? "?" + parametros.toString()
+                    : "") +
+                "#lista-estudiantes";
+
+            window.location.href = nuevaUrl;
+
+        });
+
+    });
+
+    /* --------------------------------------------------
+       4. LEER LOS DATOS DEL GRÁFICO
+       -------------------------------------------------- */
+
+    const elementoDatos = document.getElementById(
+        "countries-chart-data"
+    );
+
+    let datosPaises = [];
+
+    if (elementoDatos) {
+        try {
+            datosPaises = JSON.parse(
+                elementoDatos.textContent
+            );
+        } catch (error) {
+            console.error(
+                "No se pudieron leer los datos de países.",
+                error
+            );
+        }
+    }
+
+    const grafico = document.getElementById(
+        "countries-chart"
+    );
+
+    const leyenda = document.getElementById(
+        "chart-legend"
+    );
+
+    const mensajeVacio = document.getElementById(
+        "chart-empty"
+    );
+
+    const colores = [
+        "#78b99a",
+        "#6c9ed2",
+        "#e7ad70",
+        "#ad99e4",
+        "#df8e9a",
+        "#8bb9c9",
+        "#b5b96e",
+        "#d49bc4",
+        "#8d9ecb",
+        "#c49b75",
+        "#78aaa1",
+        "#a4a0b8"
+    ];
+
+    /* --------------------------------------------------
+       5. CONSTRUIR EL GRÁFICO DE TORTA
+       -------------------------------------------------- */
+
+    function crearSector(inicio, fin, radio) {
+
+        const centro = 110;
+
+        const x1 = centro + radio * Math.cos(inicio);
+        const y1 = centro + radio * Math.sin(inicio);
+
+        const x2 = centro + radio * Math.cos(fin);
+        const y2 = centro + radio * Math.sin(fin);
+
+        const angulo = fin - inicio;
+        const arcoGrande = angulo > Math.PI ? 1 : 0;
+
+        return [
+            "M", centro, centro,
+            "L", x1, y1,
+            "A", radio, radio, 0, arcoGrande, 1, x2, y2,
+            "Z"
+        ].join(" ");
+    }
+
+    function dibujarGrafico() {
+
+        if (!grafico || !leyenda) {
+            return;
+        }
+
+        grafico.innerHTML = "";
+        leyenda.innerHTML = "";
+
+        const total = datosPaises.reduce(
+            function (suma, fila) {
+                return suma + Number(fila.cantidad);
+            },
+            0
+        );
+
+        if (!datosPaises.length || total === 0) {
+
+            grafico.hidden = true;
+            mensajeVacio.hidden = false;
+
+            return;
+        }
+
+        grafico.hidden = false;
+        mensajeVacio.hidden = true;
+
+        const parametros = new URLSearchParams(
+            window.location.search
+        );
+
+        const paisSeleccionado = parametros.get("pais");
+
+        let anguloActual = -Math.PI / 2;
+
+        datosPaises.forEach(function (fila, indice) {
+
+            const cantidad = Number(fila.cantidad);
+            const proporcion = cantidad / total;
+            const anguloFinal =
+                anguloActual + proporcion * Math.PI * 2;
+
+            const color = colores[indice % colores.length];
+
+            const sector = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "path"
+            );
+
+            sector.setAttribute(
+                "d",
+                crearSector(anguloActual, anguloFinal, 100)
+            );
+
+            sector.setAttribute("fill", color);
+            sector.setAttribute("class", "chart-slice");
+
+            sector.setAttribute(
+                "aria-label",
+                fila.nombre + ": " + cantidad + " estudiantes"
+            );
+
+            sector.setAttribute("tabindex", "0");
+
+            if (paisSeleccionado === fila.nombre) {
+                sector.classList.add("selected");
+            }
+
+            sector.addEventListener("click", function () {
+                cambiarFiltro("pais", fila.nombre);
+            });
+
+            sector.addEventListener("keydown", function (evento) {
+
+                if (
+                    evento.key === "Enter" ||
+                    evento.key === " "
+                ) {
+                    evento.preventDefault();
+                    cambiarFiltro("pais", fila.nombre);
+                }
+
+            });
+
+            grafico.appendChild(sector);
+
+            /* LEYENDA */
+
+            const elementoLeyenda = document.createElement("button");
+
+            elementoLeyenda.type = "button";
+            elementoLeyenda.className = "legend-item";
+
+            if (paisSeleccionado === fila.nombre) {
+                elementoLeyenda.classList.add("selected");
+            }
+
+            const punto = document.createElement("span");
+            punto.className = "legend-color";
+            punto.style.backgroundColor = color;
+
+            const nombre = document.createElement("span");
+            nombre.className = "legend-name";
+            nombre.textContent = fila.nombre;
+
+            const porcentaje = document.createElement("span");
+            porcentaje.className = "legend-percent";
+            porcentaje.textContent =
+                Math.round(proporcion * 100) + "%";
+
+            elementoLeyenda.appendChild(punto);
+            elementoLeyenda.appendChild(nombre);
+            elementoLeyenda.appendChild(porcentaje);
+
+            elementoLeyenda.addEventListener("click", function () {
+                cambiarFiltro("pais", fila.nombre);
+            });
+
+            leyenda.appendChild(elementoLeyenda);
+
+            anguloActual = anguloFinal;
+
+        });
+
+    }
+
+    dibujarGrafico();
+
+    /* --------------------------------------------------
+       6. MARCAR LOS VALORES QUE YA ESTÁN FILTRADOS
+       -------------------------------------------------- */
+
+    const parametrosActuales = new URLSearchParams(
+        window.location.search
+    );
+
+    document.querySelectorAll(
+        ".filter-value"
+    ).forEach(function (boton) {
+
+        const tipo = boton.dataset.filterType;
+        const valor = boton.dataset.filterValue;
+
+        if (parametrosActuales.get(tipo) === valor) {
+            boton.classList.add("selected");
+        }
+
+    });
+
+});
+</script>
+
+</body>
+</html>

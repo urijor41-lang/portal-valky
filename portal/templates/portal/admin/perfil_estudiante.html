@@ -1,9 +1,11 @@
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Perfil del estudiante | Valky</title>
 
     <style>
@@ -375,6 +377,31 @@
             font-size: 13px;
             line-height: 1.6;
             margin: -10px 0 22px;
+        }
+
+        /* ====================================================== */
+        /* ESTADOS DE COMPLETITUD DEL PERFIL */
+        /* ====================================================== */
+
+        .completion-status {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: .4px;
+            vertical-align: middle;
+        }
+
+        .completion-status.completed {
+            color: #237343;
+            background: #e2f5e9;
+        }
+
+        .completion-status.pending {
+            color: #a33c3c;
+            background: #fde8e8;
         }
 
         /* ====================================================== */
@@ -773,6 +800,74 @@
         }
 
         /* ====================================================== */
+        /* UNIVERSIDADES Y RESULTADOS DEL CIERRE */
+        /* ====================================================== */
+
+        .university-results {
+            display: none;
+            background: #f5f8fc;
+            border: 1px solid #dce5ef;
+            border-radius: 9px;
+            padding: 20px;
+            margin-bottom: 22px;
+        }
+
+        .university-results h4 {
+            color: #142b49;
+            font-size: 15px;
+            margin: 0 0 8px;
+        }
+
+        .university-results-description {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 18px;
+        }
+
+        .university-result-card {
+            background: white;
+            border: 1px solid #e1e8f0;
+            border-radius: 8px;
+            padding: 17px;
+            margin-bottom: 12px;
+        }
+
+        .university-result-name {
+            color: #142b49;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .university-result-details {
+            color: #718096;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        .university-result-card select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #d8e0e9;
+            border-radius: 7px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            background: white;
+        }
+
+        .no-universities-message {
+            background: #fff8e8;
+            border: 1px solid #f0dfb5;
+            color: #806323;
+            border-radius: 7px;
+            padding: 13px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* ====================================================== */
         /* 13. DISEÑO RESPONSIVE */
         /* ====================================================== */
 
@@ -824,6 +919,7 @@
         }
 
     </style>
+
 </head>
 
 <body>
@@ -873,8 +969,6 @@
 
     <main class="main">
 
-        <!-- ENCABEZADO DEL PERFIL -->
-
         <a class="back" href="{% url 'admin_inicio' %}">
             ← Volver a estudiantes
         </a>
@@ -886,8 +980,6 @@
         <p class="subtitle">
             Información y seguimiento del proceso académico.
         </p>
-
-        <!-- TARJETA DE IDENTIFICACIÓN DEL ESTUDIANTE -->
 
         <section class="student-card">
 
@@ -910,8 +1002,6 @@
             </div>
 
         </section>
-
-        <!-- MENSAJES DEL SISTEMA -->
 
         {% if messages %}
 
@@ -955,181 +1045,221 @@
 
         <section id="informacion" class="tab-content active">
 
-            <!-- INFORMACIÓN PERSONAL -->
+            <div class="panel">
 
-<div class="panel">
+                <h3>
+                    Información personal
 
-    <h3>Información personal</h3>
+                    {% if perfil_completo %}
+                        <span class="completion-status completed">COMPLETADO</span>
+                    {% else %}
+                        <span class="completion-status pending">PENDIENTE</span>
+                    {% endif %}
 
-    <p class="section-description">
-        Desde aquí puedes consultar y actualizar los datos personales
-        y de contacto del estudiante.
-    </p>
+                </h3>
 
-    <form method="POST">
+                <p class="section-description">
+                    Desde aquí puedes consultar y actualizar los datos personales
+                    y de contacto del estudiante.
+                </p>
 
-        {% csrf_token %}
+                <form method="POST">
 
-        <input
-            type="hidden"
-            name="accion"
-            value="guardar_informacion_personal"
-        >
+                    {% csrf_token %}
 
-        <div class="preference-grid">
+                    <input
+                        type="hidden"
+                        name="accion"
+                        value="guardar_informacion_personal"
+                    >
 
-            <div class="field-group">
-                <label for="nombres">Nombres</label>
-                <input
-                    type="text"
-                    id="nombres"
-                    name="nombres"
-                    value="{{ perfil.nombres|default_if_none:'' }}"
-                >
-            </div>
+                    <div class="preference-grid">
 
-            <div class="field-group">
-                <label for="apellidos">Apellidos</label>
-                <input
-                    type="text"
-                    id="apellidos"
-                    name="apellidos"
-                    value="{{ perfil.apellidos|default_if_none:'' }}"
-                >
-            </div>
+                        <div class="field-group">
 
-            <div class="field-group">
-                <label for="edad">Edad</label>
-                <input
-                    type="number"
-                    id="edad"
-                    name="edad"
-                    min="0"
-                    value="{{ perfil.edad|default_if_none:'' }}"
-                >
-            </div>
+                            <label for="nombres">Nombres</label>
 
-            <div class="field-group">
-                <label for="telefono">Teléfono</label>
-                <input
-                    type="text"
-                    id="telefono"
-                    name="telefono"
-                    value="{{ perfil.telefono|default_if_none:'' }}"
-                >
-            </div>
+                            <input
+                                type="text"
+                                id="nombres"
+                                name="nombres"
+                                value="{{ perfil.nombres|default_if_none:'' }}"
+                            >
 
-            <div class="field-group">
-                <label for="correo">Correo electrónico / Usuario</label>
-                <input
-                    type="email"
-                    id="correo"
-                    name="correo"
-                    value="{{ estudiante.email|default_if_none:'' }}"
-                    required
-                >
-                <div class="date-help">
-                    Este correo también será el nombre de usuario del estudiante.
-                </div>
-            </div>
+                        </div>
 
-        </div>
+                        <div class="field-group">
 
-        <div class="preference-actions">
+                            <label for="apellidos">Apellidos</label>
 
-            <button type="submit" class="save-button">
-                Guardar información personal
-            </button>
+                            <input
+                                type="text"
+                                id="apellidos"
+                                name="apellidos"
+                                value="{{ perfil.apellidos|default_if_none:'' }}"
+                            >
 
-        </div>
+                        </div>
 
-    </form>
+                        <div class="field-group">
 
-</div>
+                            <label for="edad">Edad</label>
 
-            
-<!-- RESTABLECIMIENTO DE CONTRASEÑA -->
+                            <input
+                                type="number"
+                                id="edad"
+                                name="edad"
+                                min="0"
+                                value="{{ perfil.edad|default_if_none:'' }}"
+                            >
 
-<div class="password-panel">
+                        </div>
 
-    <h3>Acceso y contraseña del estudiante</h3>
+                        <div class="field-group">
 
-    <p class="password-description">
-        Desde aquí puedes generar una nueva contraseña temporal
-        para el estudiante si ha olvidado sus datos de acceso
-        o necesita recuperar el ingreso al portal.
-    </p>
+                            <label for="telefono">Teléfono</label>
 
-    <!-- FORMULARIO PARA GENERAR CONTRASEÑA -->
+                            <input
+                                type="text"
+                                id="telefono"
+                                name="telefono"
+                                value="{{ perfil.telefono|default_if_none:'' }}"
+                            >
 
-    <form
-        method="POST"
-        onsubmit="return confirm('¿Estás seguro de que deseas generar una nueva contraseña? La contraseña anterior dejará de funcionar inmediatamente.');"
-    >
+                        </div>
 
-        {% csrf_token %}
+                        <div class="field-group">
 
-        <input
-            type="hidden"
-            name="accion"
-            value="restablecer_contrasena"
-        >
+                            <label for="institucion_educativa">
+                                Institución educativa
+                            </label>
 
-        <button type="submit" class="password-button">
-            Generar nueva contraseña temporal
-        </button>
+                            <input
+                                type="text"
+                                id="institucion_educativa"
+                                name="institucion_educativa"
+                                value="{{ perfil.institucion_educativa|default_if_none:'' }}"
+                            >
 
-    </form>
+                            <div class="date-help">
+                                Colegio o universidad donde estudia actualmente
+                                o institución de la que se graduó.
+                            </div>
 
-    <!-- RESULTADO DEL RESTABLECIMIENTO -->
+                        </div>
 
-    {% if contraseña_temporal %}
+                        <div class="field-group">
 
-        <div class="password-result">
+                            <label for="correo">
+                                Correo electrónico / Usuario
+                            </label>
 
-            <h4>Nueva contraseña generada</h4>
+                            <input
+                                type="email"
+                                id="correo"
+                                name="correo"
+                                value="{{ estudiante.email|default_if_none:'' }}"
+                                required
+                            >
 
-            <p class="password-warning">
-                La contraseña anterior ya no funciona.
-                Copia esta nueva contraseña y entrégasela
-                al estudiante de manera segura.
-            </p>
+                            <div class="date-help">
+                                Este correo también será el nombre de usuario
+                                del estudiante.
+                            </div>
 
-            <div class="password-display">
+                        </div>
 
-                <input
-                    type="text"
-                    id="contraseña-temporal"
-                    value="{{ contraseña_temporal }}"
-                    readonly
-                >
+                    </div>
 
-                <button
-                    type="button"
-                    class="copy-password-button"
-                    onclick="copiarContraseña()"
-                >
-                    Copiar contraseña
-                </button>
+                    <div class="preference-actions">
+
+                        <button type="submit" class="save-button">
+                            Guardar información personal
+                        </button>
+
+                    </div>
+
+                </form>
 
             </div>
 
-            <p
-                id="mensaje-copia"
-                class="password-copy-message"
-                style="display: none;"
-            >
-                Contraseña copiada correctamente.
-            </p>
+            <!-- RESTABLECIMIENTO DE CONTRASEÑA -->
 
-        </div>
+            <div class="password-panel">
 
-    {% endif %}
+                <h3>Acceso y contraseña del estudiante</h3>
 
-</div>
+                <p class="password-description">
+                    Desde aquí puedes generar una nueva contraseña temporal
+                    para el estudiante si ha olvidado sus datos de acceso
+                    o necesita recuperar el ingreso al portal.
+                </p>
+
+                <form
+                    method="POST"
+                    onsubmit="return confirm('¿Estás seguro de que deseas generar una nueva contraseña? La contraseña anterior dejará de funcionar inmediatamente.');"
+                >
+
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="accion"
+                        value="restablecer_contrasena"
+                    >
+
+                    <button type="submit" class="password-button">
+                        Generar nueva contraseña temporal
+                    </button>
+
+                </form>
+
+                {% if contraseña_temporal %}
+
+                    <div class="password-result">
+
+                        <h4>Nueva contraseña generada</h4>
+
+                        <p class="password-warning">
+                            La contraseña anterior ya no funciona.
+                            Copia esta nueva contraseña y entrégasela
+                            al estudiante de manera segura.
+                        </p>
+
+                        <div class="password-display">
+
+                            <input
+                                type="text"
+                                id="contraseña-temporal"
+                                value="{{ contraseña_temporal }}"
+                                readonly
+                            >
+
+                            <button
+                                type="button"
+                                class="copy-password-button"
+                                onclick="copiarContraseña()"
+                            >
+                                Copiar contraseña
+                            </button>
+
+                        </div>
+
+                        <p
+                            id="mensaje-copia"
+                            class="password-copy-message"
+                            style="display: none;"
+                        >
+                            Contraseña copiada correctamente.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
 
         </section>
-
 
         <!-- ================================================== -->
         <!-- 18. PESTAÑA: PREFERENCIAS ACADÉMICAS -->
@@ -1139,7 +1269,17 @@
 
             <div class="panel">
 
-                <h3>Preferencias académicas</h3>
+                <h3>
+
+                    Preferencias académicas
+
+                    {% if preferencias_completas %}
+                        <span class="completion-status completed">COMPLETADO</span>
+                    {% else %}
+                        <span class="completion-status pending">PENDIENTE</span>
+                    {% endif %}
+
+                </h3>
 
                 <p class="section-description">
                     Registra las universidades a las que aplica el estudiante.
@@ -1157,287 +1297,104 @@
                         value="guardar_preferencias"
                     >
 
-                    <!-- OPCIÓN 1 -->
+                    {% for numero in "1234" %}
 
-                    <div class="preference-card">
+                        <div class="preference-card">
 
-                        <div class="preference-title">
-                            Opción 1
-                        </div>
-
-                        <div class="preference-grid">
-
-                            <div class="field-group">
-                                <label for="carrera_1">Carrera o programa</label>
-                                <input
-                                    type="text"
-                                    id="carrera_1"
-                                    name="carrera_1"
-                                    value="{{ perfil.carrera_1|default_if_none:'' }}"
-                                >
+                            <div class="preference-title">
+                                Opción {{ forloop.counter }}
                             </div>
 
-                            <div class="field-group">
-                                <label for="universidad_1">Universidad</label>
-                                <input
-                                    type="text"
-                                    id="universidad_1"
-                                    name="universidad_1"
-                                    value="{{ perfil.universidad_1|default_if_none:'' }}"
-                                >
-                            </div>
+                            <div class="preference-grid">
 
-                            <div class="field-group">
-                                <label for="pais_1">País</label>
-                                <input
-                                    type="text"
-                                    id="pais_1"
-                                    name="pais_1"
-                                    value="{{ perfil.pais_1|default_if_none:'' }}"
-                                >
-                            </div>
+                                <div class="field-group">
 
-                            <div class="field-group">
-                                <label for="intake_1">Intake – Fecha de ingreso</label>
-                                <input
-                                    type="date"
-                                    id="intake_1"
-                                    name="intake_1"
-                                    value="{{ perfil.intake_1|date:'Y-m-d' }}"
-                                >
-                                <div class="date-help">
-                                    Fecha en la que comienza el programa.
+                                    <label for="carrera_{{ forloop.counter }}">
+                                        Carrera o programa
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="carrera_{{ forloop.counter }}"
+                                        name="carrera_{{ forloop.counter }}"
+                                        value="{% if forloop.counter == 1 %}{{ perfil.carrera_1|default_if_none:'' }}{% elif forloop.counter == 2 %}{{ perfil.carrera_2|default_if_none:'' }}{% elif forloop.counter == 3 %}{{ perfil.carrera_3|default_if_none:'' }}{% else %}{{ perfil.carrera_4|default_if_none:'' }}{% endif %}"
+                                    >
+
                                 </div>
-                            </div>
 
-                            <div class="field-group">
-                                <label for="deadline_1">Deadline – Fecha límite</label>
-                                <input
-                                    type="date"
-                                    id="deadline_1"
-                                    name="deadline_1"
-                                    value="{{ perfil.deadline_1|date:'Y-m-d' }}"
-                                >
-                                <div class="date-help">
-                                    Último día para presentar la aplicación.
+                                <div class="field-group">
+
+                                    <label for="universidad_{{ forloop.counter }}">
+                                        Universidad
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="universidad_{{ forloop.counter }}"
+                                        name="universidad_{{ forloop.counter }}"
+                                        value="{% if forloop.counter == 1 %}{{ perfil.universidad_1|default_if_none:'' }}{% elif forloop.counter == 2 %}{{ perfil.universidad_2|default_if_none:'' }}{% elif forloop.counter == 3 %}{{ perfil.universidad_3|default_if_none:'' }}{% else %}{{ perfil.universidad_4|default_if_none:'' }}{% endif %}"
+                                    >
+
                                 </div>
-                            </div>
 
-                        </div>
+                                <div class="field-group">
 
-                    </div>
+                                    <label for="pais_{{ forloop.counter }}">
+                                        País
+                                    </label>
 
-                    <!-- OPCIÓN 2 -->
+                                    <input
+                                        type="text"
+                                        id="pais_{{ forloop.counter }}"
+                                        name="pais_{{ forloop.counter }}"
+                                        value="{% if forloop.counter == 1 %}{{ perfil.pais_1|default_if_none:'' }}{% elif forloop.counter == 2 %}{{ perfil.pais_2|default_if_none:'' }}{% elif forloop.counter == 3 %}{{ perfil.pais_3|default_if_none:'' }}{% else %}{{ perfil.pais_4|default_if_none:'' }}{% endif %}"
+                                    >
 
-                    <div class="preference-card">
-
-                        <div class="preference-title">
-                            Opción 2
-                        </div>
-
-                        <div class="preference-grid">
-
-                            <div class="field-group">
-                                <label for="carrera_2">Carrera o programa</label>
-                                <input
-                                    type="text"
-                                    id="carrera_2"
-                                    name="carrera_2"
-                                    value="{{ perfil.carrera_2|default_if_none:'' }}"
-                                >
-                            </div>
-
-                            <div class="field-group">
-                                <label for="universidad_2">Universidad</label>
-                                <input
-                                    type="text"
-                                    id="universidad_2"
-                                    name="universidad_2"
-                                    value="{{ perfil.universidad_2|default_if_none:'' }}"
-                                >
-                            </div>
-
-                            <div class="field-group">
-                                <label for="pais_2">País</label>
-                                <input
-                                    type="text"
-                                    id="pais_2"
-                                    name="pais_2"
-                                    value="{{ perfil.pais_2|default_if_none:'' }}"
-                                >
-                            </div>
-
-                            <div class="field-group">
-                                <label for="intake_2">Intake – Fecha de ingreso</label>
-                                <input
-                                    type="date"
-                                    id="intake_2"
-                                    name="intake_2"
-                                    value="{{ perfil.intake_2|date:'Y-m-d' }}"
-                                >
-                                <div class="date-help">
-                                    Fecha en la que comienza el programa.
                                 </div>
-                            </div>
 
-                            <div class="field-group">
-                                <label for="deadline_2">Deadline – Fecha límite</label>
-                                <input
-                                    type="date"
-                                    id="deadline_2"
-                                    name="deadline_2"
-                                    value="{{ perfil.deadline_2|date:'Y-m-d' }}"
-                                >
-                                <div class="date-help">
-                                    Último día para presentar la aplicación.
+                                <div class="field-group">
+
+                                    <label for="intake_{{ forloop.counter }}">
+                                        Intake – Fecha de ingreso
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="intake_{{ forloop.counter }}"
+                                        name="intake_{{ forloop.counter }}"
+                                        value="{% if forloop.counter == 1 %}{{ perfil.intake_1|date:'Y-m-d' }}{% elif forloop.counter == 2 %}{{ perfil.intake_2|date:'Y-m-d' }}{% elif forloop.counter == 3 %}{{ perfil.intake_3|date:'Y-m-d' }}{% else %}{{ perfil.intake_4|date:'Y-m-d' }}{% endif %}"
+                                    >
+
+                                    <div class="date-help">
+                                        Fecha en la que comienza el programa.
+                                    </div>
+
                                 </div>
+
+                                <div class="field-group">
+
+                                    <label for="deadline_{{ forloop.counter }}">
+                                        Deadline – Fecha límite
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="deadline_{{ forloop.counter }}"
+                                        name="deadline_{{ forloop.counter }}"
+                                        value="{% if forloop.counter == 1 %}{{ perfil.deadline_1|date:'Y-m-d' }}{% elif forloop.counter == 2 %}{{ perfil.deadline_2|date:'Y-m-d' }}{% elif forloop.counter == 3 %}{{ perfil.deadline_3|date:'Y-m-d' }}{% else %}{{ perfil.deadline_4|date:'Y-m-d' }}{% endif %}"
+                                    >
+
+                                    <div class="date-help">
+                                        Último día para presentar la aplicación.
+                                    </div>
+
+                                </div>
+
                             </div>
 
                         </div>
 
-                    </div>
-
-                    <!-- OPCIÓN 3 -->
-
-                    <div class="preference-card">
-
-                        <div class="preference-title">
-                            Opción 3
-                        </div>
-
-                        <div class="preference-grid">
-
-                            <div class="field-group">
-                                <label for="carrera_3">Carrera o programa</label>
-                                <input
-                                    type="text"
-                                    id="carrera_3"
-                                    name="carrera_3"
-                                    value="{{ perfil.carrera_3|default_if_none:'' }}"
-                                >
-                            </div>
-
-                            <div class="field-group">
-                                <label for="universidad_3">Universidad</label>
-                                <input
-                                    type="text"
-                                    id="universidad_3"
-                                    name="universidad_3"
-                                    value="{{ perfil.universidad_3|default_if_none:'' }}"
-                                >
-                            </div>
-
-                            <div class="field-group">
-                                <label for="pais_3">País</label>
-                                <input
-                                    type="text"
-                                    id="pais_3"
-                                    name="pais_3"
-                                    value="{{ perfil.pais_3|default_if_none:'' }}"
-                                >
-                            </div>
-
-                            <div class="field-group">
-                                <label for="intake_3">Intake – Fecha de ingreso</label>
-                                <input
-                                    type="date"
-                                    id="intake_3"
-                                    name="intake_3"
-                                    value="{{ perfil.intake_3|date:'Y-m-d' }}"
-                                >
-                                <div class="date-help">
-                                    Fecha en la que comienza el programa.
-                                </div>
-                            </div>
-
-                            <div class="field-group">
-                                <label for="deadline_3">Deadline – Fecha límite</label>
-                                <input
-                                    type="date"
-                                    id="deadline_3"
-                                    name="deadline_3"
-                                    value="{{ perfil.deadline_3|date:'Y-m-d' }}"
-                                >
-                                <div class="date-help">
-                                    Último día para presentar la aplicación.
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- OPCIÓN 4 -->
-
-                    <div class="preference-card">
-
-                        <div class="preference-title">
-                            Opción 4
-                        </div>
-
-                        <div class="preference-grid">
-
-                            <div class="field-group">
-                                <label for="carrera_4">Carrera o programa</label>
-                                <input
-                                    type="text"
-                                    id="carrera_4"
-                                    name="carrera_4"
-                                    value="{{ perfil.carrera_4|default_if_none:'' }}"
-                                >
-                            </div>
-
-                            <div class="field-group">
-                                <label for="universidad_4">Universidad</label>
-                                <input
-                                    type="text"
-                                    id="universidad_4"
-                                    name="universidad_4"
-                                    value="{{ perfil.universidad_4|default_if_none:'' }}"
-                                >
-                            </div>
-
-                            <div class="field-group">
-                                <label for="pais_4">País</label>
-                                <input
-                                    type="text"
-                                    id="pais_4"
-                                    name="pais_4"
-                                    value="{{ perfil.pais_4|default_if_none:'' }}"
-                                >
-                            </div>
-
-                            <div class="field-group">
-                                <label for="intake_4">Intake – Fecha de ingreso</label>
-                                <input
-                                    type="date"
-                                    id="intake_4"
-                                    name="intake_4"
-                                    value="{{ perfil.intake_4|date:'Y-m-d' }}"
-                                >
-                                <div class="date-help">
-                                    Fecha en la que comienza el programa.
-                                </div>
-                            </div>
-
-                            <div class="field-group">
-                                <label for="deadline_4">Deadline – Fecha límite</label>
-                                <input
-                                    type="date"
-                                    id="deadline_4"
-                                    name="deadline_4"
-                                    value="{{ perfil.deadline_4|date:'Y-m-d' }}"
-                                >
-                                <div class="date-help">
-                                    Último día para presentar la aplicación.
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- GUARDAR PREFERENCIAS -->
+                    {% endfor %}
 
                     <div class="preference-actions">
 
@@ -1460,8 +1417,6 @@
         <section id="documentos" class="tab-content">
 
             <div class="panel">
-
-                <!-- ASIGNACIÓN DE DOCUMENTOS -->
 
                 <h3>Documentos del estudiante</h3>
 
@@ -1525,8 +1480,6 @@
 
                 </div>
 
-                <!-- SEGUIMIENTO DE DOCUMENTOS -->
-
                 <h3>Seguimiento de documentos</h3>
 
                 <div class="documents-table-container">
@@ -1534,6 +1487,7 @@
                     <table class="documents-table">
 
                         <thead>
+
                             <tr>
                                 <th>Tipo de documento</th>
                                 <th>Estado</th>
@@ -1541,6 +1495,7 @@
                                 <th>Archivo</th>
                                 <th>Fecha de carga</th>
                             </tr>
+
                         </thead>
 
                         <tbody>
@@ -1548,8 +1503,6 @@
                             {% for item in documentos_unificados %}
 
                                 <tr>
-
-                                    <!-- TIPO DE DOCUMENTO -->
 
                                     <td>
 
@@ -1583,8 +1536,6 @@
                                         {% endif %}
 
                                     </td>
-
-                                    <!-- ESTADO DEL DOCUMENTO -->
 
                                     <td>
 
@@ -1649,8 +1600,6 @@
 
                                     </td>
 
-                                    <!-- OBSERVACIONES -->
-
                                     <td>
 
                                         {% if item.documento %}
@@ -1688,8 +1637,6 @@
 
                                     </td>
 
-                                    <!-- ARCHIVO DEL ESTUDIANTE -->
-
                                     <td>
 
                                         {% if item.documento %}
@@ -1721,8 +1668,6 @@
                                         {% endif %}
 
                                     </td>
-
-                                    <!-- FECHA DE CARGA -->
 
                                     <td>
 
@@ -1773,8 +1718,6 @@
 
         <section id="notas" class="tab-content">
 
-            <!-- REGISTRAR NOTA -->
-
             <div class="panel">
 
                 <h3>Registrar nota de seguimiento</h3>
@@ -1802,8 +1745,6 @@
                 </form>
 
             </div>
-
-            <!-- HISTORIAL DE NOTAS -->
 
             <div class="panel">
 
@@ -1861,8 +1802,7 @@
 
             <p class="delete-description">
                 Utiliza esta opción cuando el proceso del estudiante haya finalizado
-                o cuando ya no continúe con Valky. Se conservará un registro básico
-                en el historial de estudiantes.
+                o cuando ya no continúe con Valky.
             </p>
 
             <details class="delete-details">
@@ -1881,28 +1821,21 @@
                         value="eliminar_estudiante"
                     >
 
-                    <!-- ADVERTENCIA -->
-
                     <div class="delete-warning">
 
-                        <strong>Atención:</strong> esta operación eliminará la cuenta
-                        del estudiante, su perfil, sus documentos cargados, los requisitos
-                        asignados y las notas de seguimiento. La información personal
-                        no se conservará en el historial.
+                        <strong>Atención:</strong> se eliminarán la cuenta,
+                        el perfil, los documentos cargados, los requisitos
+                        y las notas de seguimiento. Se conservarán en el
+                        historial los datos personales, las preferencias
+                        académicas y los resultados universitarios registrados.
 
                     </div>
-
-                    <!-- RESULTADO DEL CIERRE -->
 
                     <label for="resultado-cierre">
                         Resultado del proceso
                     </label>
 
-                    <select
-                        id="resultado-cierre"
-                        name="resultado"
-                        required
-                    >
+                    <select id="resultado-cierre" name="resultado" required>
 
                         <option value="">
                             Selecciona un resultado
@@ -1916,17 +1849,198 @@
                             Desistió del proceso
                         </option>
 
-                        <option value="otra_agencia">
-                            Se fue con otra agencia
-                        </option>
-
-                        <option value="otro">
-                            Otro motivo
-                        </option>
-
                     </select>
 
-                    <!-- OBSERVACIÓN DEL CIERRE -->
+                    <!-- RESULTADOS POR UNIVERSIDAD -->
+
+                    <div
+                        id="universidades-cierre"
+                        class="university-results"
+                    >
+
+                        <h4>Resultados por universidad</h4>
+
+                        <p class="university-results-description">
+                            Indica si el estudiante fue aplicado o no aplicado
+                            en cada una de las universidades de sus preferencias.
+                        </p>
+
+                        {% if perfil.universidad_1 %}
+
+                            <div class="university-result-card">
+
+                                <div class="university-result-name">
+                                    {{ perfil.universidad_1 }}
+                                </div>
+
+                                <div class="university-result-details">
+                                    Carrera: {{ perfil.carrera_1|default:"No registrada" }}<br>
+                                    País: {{ perfil.pais_1|default:"No registrado" }}
+                                </div>
+
+                                <label for="universidad_estado_1">
+                                    Resultado de aplicación
+                                </label>
+
+                                <select
+                                    id="universidad_estado_1"
+                                    name="universidad_estado_1"
+                                    class="universidad-estado"
+                                >
+
+                                    <option value="">
+                                        Selecciona el resultado
+                                    </option>
+
+                                    <option value="aplicado">
+                                        Aplicado
+                                    </option>
+
+                                    <option value="no_aplicado">
+                                        No aplicado
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        {% endif %}
+
+                        {% if perfil.universidad_2 %}
+
+                            <div class="university-result-card">
+
+                                <div class="university-result-name">
+                                    {{ perfil.universidad_2 }}
+                                </div>
+
+                                <div class="university-result-details">
+                                    Carrera: {{ perfil.carrera_2|default:"No registrada" }}<br>
+                                    País: {{ perfil.pais_2|default:"No registrado" }}
+                                </div>
+
+                                <label for="universidad_estado_2">
+                                    Resultado de aplicación
+                                </label>
+
+                                <select
+                                    id="universidad_estado_2"
+                                    name="universidad_estado_2"
+                                    class="universidad-estado"
+                                >
+
+                                    <option value="">
+                                        Selecciona el resultado
+                                    </option>
+
+                                    <option value="aplicado">
+                                        Aplicado
+                                    </option>
+
+                                    <option value="no_aplicado">
+                                        No aplicado
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        {% endif %}
+
+                        {% if perfil.universidad_3 %}
+
+                            <div class="university-result-card">
+
+                                <div class="university-result-name">
+                                    {{ perfil.universidad_3 }}
+                                </div>
+
+                                <div class="university-result-details">
+                                    Carrera: {{ perfil.carrera_3|default:"No registrada" }}<br>
+                                    País: {{ perfil.pais_3|default:"No registrado" }}
+                                </div>
+
+                                <label for="universidad_estado_3">
+                                    Resultado de aplicación
+                                </label>
+
+                                <select
+                                    id="universidad_estado_3"
+                                    name="universidad_estado_3"
+                                    class="universidad-estado"
+                                >
+
+                                    <option value="">
+                                        Selecciona el resultado
+                                    </option>
+
+                                    <option value="aplicado">
+                                        Aplicado
+                                    </option>
+
+                                    <option value="no_aplicado">
+                                        No aplicado
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        {% endif %}
+
+                        {% if perfil.universidad_4 %}
+
+                            <div class="university-result-card">
+
+                                <div class="university-result-name">
+                                    {{ perfil.universidad_4 }}
+                                </div>
+
+                                <div class="university-result-details">
+                                    Carrera: {{ perfil.carrera_4|default:"No registrada" }}<br>
+                                    País: {{ perfil.pais_4|default:"No registrado" }}
+                                </div>
+
+                                <label for="universidad_estado_4">
+                                    Resultado de aplicación
+                                </label>
+
+                                <select
+                                    id="universidad_estado_4"
+                                    name="universidad_estado_4"
+                                    class="universidad-estado"
+                                >
+
+                                    <option value="">
+                                        Selecciona el resultado
+                                    </option>
+
+                                    <option value="aplicado">
+                                        Aplicado
+                                    </option>
+
+                                    <option value="no_aplicado">
+                                        No aplicado
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        {% endif %}
+
+                        {% if not perfil.universidad_1 and not perfil.universidad_2 and not perfil.universidad_3 and not perfil.universidad_4 %}
+
+                            <div class="no-universities-message">
+                                Este estudiante no tiene universidades registradas
+                                en sus preferencias académicas.
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                    <!-- OBSERVACIÓN -->
 
                     <label for="observacion-cierre">
                         Observación (opcional)
@@ -1938,7 +2052,7 @@
                         placeholder="Puedes agregar una explicación breve del cierre del proceso..."
                     ></textarea>
 
-                    <!-- CONFIRMACIÓN DE ELIMINACIÓN -->
+                    <!-- CONFIRMACIÓN -->
 
                     <label class="delete-confirmation">
 
@@ -1951,12 +2065,13 @@
 
                         <span>
                             Confirmo que deseo cerrar el proceso y eliminar
-                            permanentemente la cuenta y los datos del estudiante.
+                            permanentemente la cuenta y los datos operativos
+                            del estudiante.
                         </span>
 
                     </label>
 
-                    <!-- BOTONES DE ACCIÓN -->
+                    <!-- BOTONES -->
 
                     <div class="delete-actions">
 
@@ -1989,106 +2104,155 @@
 
 <script>
 
-    /* ====================================================== */
-    /* NAVEGACIÓN ENTRE PESTAÑAS */
-    /* ====================================================== */
+/* ====================================================== */
+/* 1. NAVEGACIÓN ENTRE PESTAÑAS */
+/* ====================================================== */
 
-    const botones = document.querySelectorAll(".tab");
-    const secciones = document.querySelectorAll(".tab-content");
+const botones = document.querySelectorAll(".tab");
+const secciones = document.querySelectorAll(".tab-content");
 
-    botones.forEach(boton => {
+botones.forEach(boton => {
 
-        boton.addEventListener("click", function () {
+    boton.addEventListener("click", function () {
 
-            botones.forEach(item => {
-                item.classList.remove("active");
-            });
-
-            secciones.forEach(item => {
-                item.classList.remove("active");
-            });
-
-            this.classList.add("active");
-
-            const destino = this.dataset.tab;
-
-            document.getElementById(destino).classList.add("active");
-
+        botones.forEach(item => {
+            item.classList.remove("active");
         });
+
+        secciones.forEach(item => {
+            item.classList.remove("active");
+        });
+
+        this.classList.add("active");
+
+        const destino = this.dataset.tab;
+
+        document.getElementById(destino).classList.add("active");
 
     });
 
-    /* ====================================================== */
-    /* ABRIR UNA PESTAÑA INDICADA DESDE LA URL */
-    /* ====================================================== */
+});
 
-    const parametros = new URLSearchParams(window.location.search);
-    const pestanaInicial = parametros.get("tab");
 
-    if (pestanaInicial) {
+/* ====================================================== */
+/* 2. ABRIR UNA PESTAÑA INDICADA DESDE LA URL */
+/* ====================================================== */
 
-        const botonInicial = document.querySelector(
-            `.tab[data-tab="${pestanaInicial}"]`
-        );
+const parametros = new URLSearchParams(window.location.search);
+const pestanaInicial = parametros.get("tab");
 
-        const seccionInicial = document.getElementById(pestanaInicial);
+if (pestanaInicial) {
 
-        if (botonInicial && seccionInicial) {
+    const botonInicial = document.querySelector(
+        `.tab[data-tab="${pestanaInicial}"]`
+    );
 
-            botones.forEach(item => {
-                item.classList.remove("active");
-            });
+    const seccionInicial = document.getElementById(pestanaInicial);
 
-            secciones.forEach(item => {
-                item.classList.remove("active");
-            });
+    if (botonInicial && seccionInicial) {
 
-            botonInicial.classList.add("active");
-            seccionInicial.classList.add("active");
+        botones.forEach(item => {
+            item.classList.remove("active");
+        });
 
-        }
+        secciones.forEach(item => {
+            item.classList.remove("active");
+        });
+
+        botonInicial.classList.add("active");
+        seccionInicial.classList.add("active");
 
     }
 
+}
 
-    /* ====================================================== */
-    /* COPIAR CONTRASEÑA TEMPORAL */
-    /* ====================================================== */
 
-    function copiarContraseña() {
+/* ====================================================== */
+/* 3. COPIAR CONTRASEÑA TEMPORAL */
+/* ====================================================== */
 
-        const campo = document.getElementById("contraseña-temporal");
-        const mensaje = document.getElementById("mensaje-copia");
+function copiarContraseña() {
 
-        if (!campo || !mensaje) {
-            return;
-        }
+    const campo = document.getElementById("contraseña-temporal");
+    const mensaje = document.getElementById("mensaje-copia");
 
-        campo.select();
-        campo.setSelectionRange(0, 99999);
+    if (!campo || !mensaje) {
+        return;
+    }
 
-        navigator.clipboard.writeText(campo.value)
+    campo.select();
+    campo.setSelectionRange(0, 99999);
 
-            .then(function () {
+    navigator.clipboard.writeText(campo.value)
 
+        .then(function () {
+
+            mensaje.style.display = "block";
+
+        })
+
+        .catch(function () {
+
+            campo.focus();
+            campo.select();
+
+            const copiado = document.execCommand("copy");
+
+            if (copiado) {
                 mensaje.style.display = "block";
+            }
 
-            })
+        });
 
-            .catch(function () {
+}
 
-                campo.focus();
-                campo.select();
 
-                const copiado = document.execCommand("copy");
+/* ====================================================== */
+/* 4. RESULTADOS UNIVERSITARIOS AL CERRAR EL PROCESO */
+/* ====================================================== */
 
-                if (copiado) {
-                    mensaje.style.display = "block";
-                }
+const resultadoCierre = document.getElementById("resultado-cierre");
 
-            });
+const bloqueUniversidades = document.getElementById("universidades-cierre");
 
+const estadosUniversidades = document.querySelectorAll(".universidad-estado");
+
+
+function actualizarUniversidadesCierre() {
+
+    if (!resultadoCierre || !bloqueUniversidades) {
+        return;
     }
+
+    const esCompletado = resultadoCierre.value === "completado";
+
+    bloqueUniversidades.style.display = esCompletado ? "block" : "none";
+
+    estadosUniversidades.forEach(select => {
+
+        select.disabled = !esCompletado;
+
+        select.required = esCompletado;
+
+        if (!esCompletado) {
+            select.value = "";
+        }
+
+    });
+
+}
+
+
+if (resultadoCierre) {
+
+    resultadoCierre.addEventListener(
+        "change",
+        actualizarUniversidadesCierre
+    );
+
+    actualizarUniversidadesCierre();
+
+}
 
 </script>
 

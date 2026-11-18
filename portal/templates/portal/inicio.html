@@ -1,3 +1,4 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
@@ -413,6 +414,41 @@
 
 
         /* ==========================================================
+           8.1 INDICADORES DE COMPLETITUD
+           ========================================================== */
+
+        .acceso-contenido .acceso-titulo {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .acceso-contenido .estado-mini {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1.3;
+            white-space: nowrap;
+            margin-bottom: 0;
+        }
+
+        .estado-mini-pendiente {
+            background: #fdecea;
+            color: #c0392b !important;
+            border: 1px solid #f5c6c2;
+        }
+
+        .estado-mini-completado {
+            background: #e8f7ed;
+            color: #247342 !important;
+            border: 1px solid #c6e8d1;
+        }
+
+
+        /* ==========================================================
            9. MENSAJES DEL SISTEMA
            ========================================================== */
 
@@ -593,6 +629,15 @@
 
             .acceso-publico {
                 padding: 25px 18px;
+            }
+
+            .acceso-contenido .acceso-titulo {
+                gap: 6px;
+            }
+
+            .acceso-contenido .estado-mini {
+                font-size: 9px;
+                padding: 3px 6px;
             }
         }
 
@@ -818,7 +863,9 @@
                 </p>
 
 
-                <!-- INFORMACIÓN PERSONAL -->
+                <!-- ==========================================
+                     INFORMACIÓN PERSONAL
+                     ========================================== -->
 
                 <a href="{% url 'mi_perfil' %}" class="acceso-perfil">
 
@@ -826,7 +873,25 @@
 
                     <div class="acceso-contenido">
 
-                        <strong>Mi perfil</strong>
+                        <strong class="acceso-titulo">
+
+                            Mi perfil
+
+                            {% if perfil_completo %}
+
+                                <span class="estado-mini estado-mini-completado">
+                                    COMPLETADO
+                                </span>
+
+                            {% else %}
+
+                                <span class="estado-mini estado-mini-pendiente">
+                                    PENDIENTE
+                                </span>
+
+                            {% endif %}
+
+                        </strong>
 
                         <span>
                             Información personal y de contacto.
@@ -839,7 +904,9 @@
                 </a>
 
 
-                <!-- PREFERENCIAS UNIVERSITARIAS -->
+                <!-- ==========================================
+                     PREFERENCIAS UNIVERSITARIAS
+                     ========================================== -->
 
                 <a
                     href="{% url 'mi_perfil' %}#preferencias-universitarias"
@@ -850,7 +917,25 @@
 
                     <div class="acceso-contenido">
 
-                        <strong>Preferencias universitarias</strong>
+                        <strong class="acceso-titulo">
+
+                            Preferencias universitarias
+
+                            {% if preferencias_completas %}
+
+                                <span class="estado-mini estado-mini-completado">
+                                    COMPLETADO
+                                </span>
+
+                            {% else %}
+
+                                <span class="estado-mini estado-mini-pendiente">
+                                    PENDIENTE
+                                </span>
+
+                            {% endif %}
+
+                        </strong>
 
                         <span>
                             Carreras, universidades y países de interés.
