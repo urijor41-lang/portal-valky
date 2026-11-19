@@ -789,13 +789,23 @@
 
 
 
-                                        <!-- Botón para editar permisos -->
+                                                                                <!-- Botón para editar permisos -->
 
                                         <a
                                             href="{% url 'admin_editar_permisos_asesor' asesor.id %}"
                                             class="btn-edit-permissions"
                                         >
                                             Editar permisos
+                                        </a>
+
+
+                                        <!-- Botón para editar datos del asesor -->
+
+                                        <a
+                                            href="{% url 'admin_editar_asesor' asesor.id %}"
+                                            class="btn-edit-permissions"
+                                        >
+                                            Editar asesor
                                         </a>
 
                                     </div>
@@ -822,7 +832,6 @@
                 </table>
 
             </div>
-
 
             <!-- Nota informativa -->
 

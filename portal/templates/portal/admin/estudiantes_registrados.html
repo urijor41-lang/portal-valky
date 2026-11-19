@@ -1031,6 +1031,236 @@
             </a>
 
         </section>
+        <!-- ==================================================
+         15. LISTADO DE ESTUDIANTES
+         ================================================== -->
+
+        <section class="panel" id="lista-estudiantes">
+
+            
+<div class="panel-header">
+
+    <h2>Listado de estudiantes</h2>
+
+    <div class="export-actions">
+
+        <form
+            method="GET"
+            class="search"
+            action="{% url 'admin_estudiantes_registrados' %}"
+        >
+
+            <input
+                type="text"
+                name="buscar"
+                placeholder="Buscar estudiante..."
+                value="{{ busqueda }}"
+            >
+
+            {% if estado_actual %}
+                <input type="hidden" name="estado" value="{{ estado_actual }}">
+            {% endif %}
+
+            {% if pais_actual %}
+                <input type="hidden" name="pais" value="{{ pais_actual }}">
+            {% endif %}
+
+            {% if universidad_actual %}
+                <input type="hidden" name="universidad" value="{{ universidad_actual }}">
+            {% endif %}
+
+            {% if carrera_actual %}
+                <input type="hidden" name="carrera" value="{{ carrera_actual }}">
+            {% endif %}
+
+            {% if institucion_actual %}
+                <input type="hidden" name="institucion" value="{{ institucion_actual }}">
+            {% endif %}
+
+            <button type="submit">
+                Buscar
+            </button>
+
+        </form>
+
+        <a
+            href="{% url 'exportar_estudiantes_excel' %}?{{ request.GET.urlencode }}"
+            class="export-button export-excel"
+        >
+            Excel
+        </a>
+
+        <a
+            href="{% url 'exportar_estudiantes_pdf' %}?{{ request.GET.urlencode }}"
+            class="export-button export-pdf"
+        >
+            PDF
+        </a>
+
+    </div>
+
+</div>
+
+
+            <!-- FILTROS ACTIVOS -->
+
+            <div class="filter-bar">
+
+                <div>
+                    Filtro del semáforo:
+                    <strong>
+                        {% if estado_actual == "rojo" %}
+                            Estudiantes en rojo
+                        {% elif estado_actual == "amarillo" %}
+                            Estudiantes en amarillo
+                        {% elif estado_actual == "verde" %}
+                            Estudiantes en verde
+                        {% elif estado_actual == "neutro" %}
+                            Estudiantes sin alerta
+                        {% else %}
+                            Todos los estados
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <a href="{% url 'admin_estudiantes_registrados' %}#lista-estudiantes">
+                    Limpiar todos los filtros
+                </a>
+
+            </div>
+
+            {% if pais_actual or universidad_actual or carrera_actual or institucion_actual %}
+
+                <div class="active-filters">
+
+                    <span class="active-filters-label">
+                        Preferencias seleccionadas:
+                    </span>
+
+                    {% if pais_actual %}
+                        <span class="filter-chip">
+                            País: {{ pais_actual }}
+                            <a href="#" data-remove-filter="pais" title="Quitar filtro">×</a>
+                        </span>
+                    {% endif %}
+
+                    {% if universidad_actual %}
+                        <span class="filter-chip">
+                            Universidad: {{ universidad_actual }}
+                            <a href="#" data-remove-filter="universidad" title="Quitar filtro">×</a>
+                        </span>
+                    {% endif %}
+
+                    {% if carrera_actual %}
+                        <span class="filter-chip">
+                            Carrera: {{ carrera_actual }}
+                            <a href="#" data-remove-filter="carrera" title="Quitar filtro">×</a>
+                        </span>
+                    {% endif %}
+
+                    {% if institucion_actual %}
+                        <span class="filter-chip">
+                            Institución: {{ institucion_actual }}
+                            <a href="#" data-remove-filter="institucion" title="Quitar filtro">×</a>
+                        </span>
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+            <p class="result-count">
+                Resultados encontrados: <strong>{{ estudiantes|length }}</strong>
+            </p>
+
+            <div class="students-table-wrap">
+
+                <table class="students-table">
+
+                    <thead>
+                        <tr>
+                            <th>Estudiante</th>
+                            <th>Usuario</th>
+                            <th>Fecha de registro</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="students-table-body">
+
+                        {% for estudiante in estudiantes %}
+
+                            <tr data-student-id="{{ estudiante.id }}">
+
+                                <td>
+                                    <a
+                                        class="student-name"
+                                        href="{% url 'admin_perfil_estudiante' estudiante.id %}"
+                                    >
+                                        {{ estudiante.perfil.nombres|default:estudiante.username }}
+                                        {{ estudiante.perfil.apellidos }}
+                                    </a>
+
+                                    <div class="email">
+                                        {{ estudiante.email|default:"Sin correo registrado" }}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {{ estudiante.username }}
+                                </td>
+
+                                <td>
+                                    {{ estudiante.date_joined|date:"d/m/Y" }}
+                                </td>
+
+                                <td class="student-status">
+                                    <span class="state-label state-neutral">
+                                        Sin clasificar
+                                    </span>
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+                                <td colspan="4" class="empty">
+                                    No se encontraron estudiantes con los filtros seleccionados.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- DATOS PARA IDENTIFICAR EL ESTADO DE CADA ESTUDIANTE -->
+
+            <div id="student-status-data" hidden>
+
+                {% for fila in estudiantes_rojos %}
+                    <span data-state="rojo" data-id="{{ fila.estudiante.id }}"></span>
+                {% endfor %}
+
+                {% for fila in estudiantes_amarillos %}
+                    <span data-state="amarillo" data-id="{{ fila.estudiante.id }}"></span>
+                {% endfor %}
+
+                {% for fila in estudiantes_verdes %}
+                    <span data-state="verde" data-id="{{ fila.estudiante.id }}"></span>
+                {% endfor %}
+
+                {% for fila in estudiantes_neutros %}
+                    <span data-state="neutro" data-id="{{ fila.estudiante.id }}"></span>
+                {% endfor %}
+
+            </div>
+
+        </section>
 
         <!-- ==================================================
              14. PREFERENCIAS ACADÉMICAS
@@ -1304,237 +1534,6 @@
                     </table>
 
                 </div>
-
-            </div>
-
-        </section>
-
-        <!-- ==================================================
-         15. LISTADO DE ESTUDIANTES
-         ================================================== -->
-
-        <section class="panel" id="lista-estudiantes">
-
-            
-<div class="panel-header">
-
-    <h2>Listado de estudiantes</h2>
-
-    <div class="export-actions">
-
-        <form
-            method="GET"
-            class="search"
-            action="{% url 'admin_estudiantes_registrados' %}"
-        >
-
-            <input
-                type="text"
-                name="buscar"
-                placeholder="Buscar estudiante..."
-                value="{{ busqueda }}"
-            >
-
-            {% if estado_actual %}
-                <input type="hidden" name="estado" value="{{ estado_actual }}">
-            {% endif %}
-
-            {% if pais_actual %}
-                <input type="hidden" name="pais" value="{{ pais_actual }}">
-            {% endif %}
-
-            {% if universidad_actual %}
-                <input type="hidden" name="universidad" value="{{ universidad_actual }}">
-            {% endif %}
-
-            {% if carrera_actual %}
-                <input type="hidden" name="carrera" value="{{ carrera_actual }}">
-            {% endif %}
-
-            {% if institucion_actual %}
-                <input type="hidden" name="institucion" value="{{ institucion_actual }}">
-            {% endif %}
-
-            <button type="submit">
-                Buscar
-            </button>
-
-        </form>
-
-        <a
-            href="{% url 'exportar_estudiantes_excel' %}?{{ request.GET.urlencode }}"
-            class="export-button export-excel"
-        >
-            Excel
-        </a>
-
-        <a
-            href="{% url 'exportar_estudiantes_pdf' %}?{{ request.GET.urlencode }}"
-            class="export-button export-pdf"
-        >
-            PDF
-        </a>
-
-    </div>
-
-</div>
-
-
-            <!-- FILTROS ACTIVOS -->
-
-            <div class="filter-bar">
-
-                <div>
-                    Filtro del semáforo:
-                    <strong>
-                        {% if estado_actual == "rojo" %}
-                            Estudiantes en rojo
-                        {% elif estado_actual == "amarillo" %}
-                            Estudiantes en amarillo
-                        {% elif estado_actual == "verde" %}
-                            Estudiantes en verde
-                        {% elif estado_actual == "neutro" %}
-                            Estudiantes sin alerta
-                        {% else %}
-                            Todos los estados
-                        {% endif %}
-                    </strong>
-                </div>
-
-                <a href="{% url 'admin_estudiantes_registrados' %}#lista-estudiantes">
-                    Limpiar todos los filtros
-                </a>
-
-            </div>
-
-            {% if pais_actual or universidad_actual or carrera_actual or institucion_actual %}
-
-                <div class="active-filters">
-
-                    <span class="active-filters-label">
-                        Preferencias seleccionadas:
-                    </span>
-
-                    {% if pais_actual %}
-                        <span class="filter-chip">
-                            País: {{ pais_actual }}
-                            <a href="#" data-remove-filter="pais" title="Quitar filtro">×</a>
-                        </span>
-                    {% endif %}
-
-                    {% if universidad_actual %}
-                        <span class="filter-chip">
-                            Universidad: {{ universidad_actual }}
-                            <a href="#" data-remove-filter="universidad" title="Quitar filtro">×</a>
-                        </span>
-                    {% endif %}
-
-                    {% if carrera_actual %}
-                        <span class="filter-chip">
-                            Carrera: {{ carrera_actual }}
-                            <a href="#" data-remove-filter="carrera" title="Quitar filtro">×</a>
-                        </span>
-                    {% endif %}
-
-                    {% if institucion_actual %}
-                        <span class="filter-chip">
-                            Institución: {{ institucion_actual }}
-                            <a href="#" data-remove-filter="institucion" title="Quitar filtro">×</a>
-                        </span>
-                    {% endif %}
-
-                </div>
-
-            {% endif %}
-
-            <p class="result-count">
-                Resultados encontrados: <strong>{{ estudiantes|length }}</strong>
-            </p>
-
-            <div class="students-table-wrap">
-
-                <table class="students-table">
-
-                    <thead>
-                        <tr>
-                            <th>Estudiante</th>
-                            <th>Usuario</th>
-                            <th>Fecha de registro</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="students-table-body">
-
-                        {% for estudiante in estudiantes %}
-
-                            <tr data-student-id="{{ estudiante.id }}">
-
-                                <td>
-                                    <a
-                                        class="student-name"
-                                        href="{% url 'admin_perfil_estudiante' estudiante.id %}"
-                                    >
-                                        {{ estudiante.perfil.nombres|default:estudiante.username }}
-                                        {{ estudiante.perfil.apellidos }}
-                                    </a>
-
-                                    <div class="email">
-                                        {{ estudiante.email|default:"Sin correo registrado" }}
-                                    </div>
-                                </td>
-
-                                <td>
-                                    {{ estudiante.username }}
-                                </td>
-
-                                <td>
-                                    {{ estudiante.date_joined|date:"d/m/Y" }}
-                                </td>
-
-                                <td class="student-status">
-                                    <span class="state-label state-neutral">
-                                        Sin clasificar
-                                    </span>
-                                </td>
-
-                            </tr>
-
-                        {% empty %}
-
-                            <tr>
-                                <td colspan="4" class="empty">
-                                    No se encontraron estudiantes con los filtros seleccionados.
-                                </td>
-                            </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <!-- DATOS PARA IDENTIFICAR EL ESTADO DE CADA ESTUDIANTE -->
-
-            <div id="student-status-data" hidden>
-
-                {% for fila in estudiantes_rojos %}
-                    <span data-state="rojo" data-id="{{ fila.estudiante.id }}"></span>
-                {% endfor %}
-
-                {% for fila in estudiantes_amarillos %}
-                    <span data-state="amarillo" data-id="{{ fila.estudiante.id }}"></span>
-                {% endfor %}
-
-                {% for fila in estudiantes_verdes %}
-                    <span data-state="verde" data-id="{{ fila.estudiante.id }}"></span>
-                {% endfor %}
-
-                {% for fila in estudiantes_neutros %}
-                    <span data-state="neutro" data-id="{{ fila.estudiante.id }}"></span>
-                {% endfor %}
 
             </div>
 

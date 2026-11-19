@@ -127,8 +127,7 @@ urlpatterns = [
         "gestion/historial/",
         admin_views.admin_historial_estudiantes,
         name="admin_historial_estudiantes"
-    ),
-
+     ),
     # ==========================================================
     # GESTIÓN DE ASESORES
     # ==========================================================
@@ -146,9 +145,15 @@ urlpatterns = [
     ),
 
     path(
+        "gestion/asesores/<int:asesor_id>/editar/",
+        admin_views.admin_editar_asesor,
+        name="admin_editar_asesor"
+    ),
+
+    path(
         "gestion/asesores/<int:asesor_id>/permisos/",
         admin_views.admin_editar_permisos_asesor,
         name="admin_editar_permisos_asesor"
     ),
-
+    
 ]

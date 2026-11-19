@@ -804,38 +804,41 @@
                 </p>
 
 
-                <!-- CONTADORES -->
-
                 <div class="contadores">
 
-                    <div class="contador contador-pendiente">
+    <a href="{% url 'mis_documentos' %}?estado=pendiente"
+       class="contador contador-pendiente"
+       style="text-decoration: none;">
 
-                        <strong>{{ documentos_pendientes }}</strong>
+        <strong>{{ documentos_pendientes }}</strong>
 
-                        <span>Pendientes</span>
+        <span>Pendientes</span>
 
-                    </div>
-
-
-                    <div class="contador contador-aprobado">
-
-                        <strong>{{ documentos_aprobados }}</strong>
-
-                        <span>Aprobados</span>
-
-                    </div>
+    </a>
 
 
-                    <div class="contador contador-corregir">
+    <a href="{% url 'mis_documentos' %}?estado=aprobado"
+       class="contador contador-aprobado"
+       style="text-decoration: none;">
 
-                        <strong>{{ documentos_corregir }}</strong>
+        <strong>{{ documentos_aprobados }}</strong>
 
-                        <span>Por corregir</span>
+        <span>Aprobados</span>
 
-                    </div>
+    </a>
 
-                </div>
 
+    <a href="{% url 'mis_documentos' %}?estado=corregir"
+       class="contador contador-corregir"
+       style="text-decoration: none;">
+
+        <strong>{{ documentos_corregir }}</strong>
+
+        <span>Por corregir</span>
+
+    </a>
+
+</div>
 
                 <a href="{% url 'mis_documentos' %}" class="boton-principal">
                     Gestionar mis documentos →

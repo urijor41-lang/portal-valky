@@ -2362,7 +2362,7 @@ def admin_perfil_estudiante(request, estudiante_id):
                 "La operación solicitada no es válida."
             )
 
-        # --------------------------------------------------
+                # --------------------------------------------------
         # 11. REDIRECCIÓN O MOSTRAR CONTRASEÑA TEMPORAL
         # --------------------------------------------------
 
@@ -2374,11 +2374,19 @@ def admin_perfil_estudiante(request, estudiante_id):
             and contraseña_temporal
         ):
 
-            return redirect(
+            url_perfil = redirect(
                 "admin_perfil_estudiante",
                 estudiante_id=estudiante.id
-            )
+            ).url
 
+            if accion == "actualizar_documento":
+                return redirect(f"{url_perfil}?tab=documentos")
+
+            elif accion == "guardar_nota":
+                return redirect(f"{url_perfil}?tab=notas")
+
+            return redirect(url_perfil)
+        
     # ------------------------------------------------------
     # 12. INFORMACIÓN PARA MOSTRAR EN EL PERFIL
     # ------------------------------------------------------
@@ -3144,7 +3152,188 @@ def admin_crear_asesor(request):
     )
 
 
+
+
 # ==========================================================
+# EDITAR DATOS DE UN ASESOR
+# EXCLUSIVO DEL ADMINISTRADOR PRINCIPAL
+# ==========================================================
+
+@staff_member_required(login_url="/admin/login/")
+def admin_editar_asesor(request, asesor_id):
+
+    if not request.user.is_superuser:
+        messages.error(
+            request,
+            "No tienes permisos para editar asesores."
+        )
+        return redirect("admin_inicio")
+
+    asesor = get_object_or_404(
+        User,
+        id=asesor_id,
+        is_staff=True,
+        is_superuser=False
+    )
+
+    if request.method == "POST":
+
+        nombres = request.POST.get("nombres", "").strip()
+        apellidos = request.POST.get("apellidos", "").strip()
+        email = request.POST.get("email", "").strip().lower()
+        username = request.POST.get("username", "").strip()
+        activo = request.POST.get("is_active") == "on"
+
+        password = request.POST.get("password", "")
+        password_confirmacion = request.POST.get(
+            "password_confirmacion", ""
+        )
+
+        errores = []
+
+        # VALIDAR NOMBRES
+
+        if not nombres:
+            errores.append("Debes ingresar los nombres.")
+
+        # VALIDAR APELLIDOS
+
+        if not apellidos:
+            errores.append("Debes ingresar los apellidos.")
+
+        # VALIDAR CORREO
+
+        if not email:
+            errores.append(
+                "Debes ingresar el correo electrónico."
+            )
+        else:
+            try:
+                validate_email(email)
+            except ValidationError:
+                errores.append(
+                    "El correo electrónico no es válido."
+                )
+
+        # VALIDAR NOMBRE DE USUARIO
+
+        if not username:
+            errores.append(
+                "Debes ingresar un nombre de usuario."
+            )
+
+        elif User.objects.filter(
+            username__iexact=username
+        ).exclude(id=asesor.id).exists():
+
+            errores.append(
+                "Ese nombre de usuario ya está registrado."
+            )
+
+        # VALIDAR CORREO DUPLICADO
+
+        if email and User.objects.filter(
+            email__iexact=email
+        ).exclude(id=asesor.id).exists():
+
+            errores.append(
+                "Ese correo electrónico ya está registrado."
+            )
+
+        # VALIDAR CAMBIO OPCIONAL DE CONTRASEÑA
+
+        if password or password_confirmacion:
+
+            if not password:
+                errores.append(
+                    "Debes ingresar la nueva contraseña."
+                )
+
+            elif not password_confirmacion:
+                errores.append(
+                    "Debes confirmar la nueva contraseña."
+                )
+
+            elif password != password_confirmacion:
+                errores.append(
+                    "Las contraseñas no coinciden."
+                )
+
+            else:
+                try:
+                    validate_password(
+                        password,
+                        user=asesor
+                    )
+                except ValidationError as error:
+                    for mensaje in error.messages:
+                        errores.append(mensaje)
+
+        # MOSTRAR ERRORES
+
+        if errores:
+
+            for error in errores:
+                messages.error(request, error)
+
+            return render(
+                request,
+                "portal/admin/editar_asesor.html",
+                {
+                    "asesor": asesor,
+                    "datos": request.POST,
+                }
+            )
+
+        # GUARDAR CAMBIOS
+
+        try:
+
+            asesor.first_name = nombres
+            asesor.last_name = apellidos
+            asesor.email = email
+            asesor.username = username
+            asesor.is_active = activo
+
+            # CAMBIAR CONTRASEÑA SOLAMENTE SI SE INGRESÓ UNA
+
+            if password:
+                asesor.set_password(password)
+
+            asesor.save()
+
+            messages.success(
+                request,
+                f"Los datos del asesor {nombres} {apellidos} "
+                "fueron actualizados correctamente."
+            )
+
+            return redirect("admin_asesores")
+
+        except Exception:
+
+            messages.error(
+                request,
+                "No fue posible actualizar los datos del asesor."
+            )
+
+            return render(
+                request,
+                "portal/admin/editar_asesor.html",
+                {
+                    "asesor": asesor,
+                    "datos": request.POST,
+                }
+            )
+
+    return render(
+        request,
+        "portal/admin/editar_asesor.html",
+        {
+            "asesor": asesor,
+            "datos": {},
+        }
+    )
 
 # ============================================================
 # EDITAR PERMISOS DE ASESORES

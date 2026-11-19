@@ -30,7 +30,7 @@ from .forms import PerfilEstudianteForm
 # CONFIGURACIÓN Y VALIDACIÓN DE ARCHIVOS
 # ==========================================================
 
-TAMANO_MAXIMO_ARCHIVO = 10 * 1024 * 1024
+TAMANO_MAXIMO_ARCHIVO = 20 * 1024 * 1024
 
 FORMATOS_PERMITIDOS = {
     ".pdf",
@@ -60,7 +60,7 @@ def validar_archivo_documento(archivo):
 
         return (
             "El archivo supera el tamaño máximo permitido "
-            "de 10 MB."
+            "de 20 MB."
         )
 
     # ------------------------------------------------------
@@ -897,7 +897,38 @@ def mis_documentos(request):
             requisito.tipo_documento.archivo_ejemplo
         )
 
+    # ------------------------------------------------------
+    # 8.4 FILTRAR DOCUMENTOS SEGÚN LA TARJETA SELECCIONADA
+    # ------------------------------------------------------
+
+    filtro_estado = request.GET.get("estado", "").strip()
+
+    # PENDIENTES:
+    # Mostrar documentos sin cargar y documentos en revisión.
+    if filtro_estado == "pendiente":
+
+        requisitos = [
+            requisito
+            for requisito in requisitos
+            if (
+                requisito.documento_actual is None
+                or requisito.documento_actual.estado == "pendiente"
+            )
+        ]
+
+    # APROBADOS Y POR CORREGIR
+    elif filtro_estado in ["aprobado", "corregir"]:
+
+        requisitos = [
+            requisito
+            for requisito in requisitos
+            if (
+                requisito.documento_actual
+                and requisito.documento_actual.estado == filtro_estado
+            )
+        ]
     return render(request, "portal/mis_documentos.html", {
         "requisitos": requisitos,
-        "documentos": documentos
-    })
+        "documentos": documentos,
+        "filtro_estado": filtro_estado
+        })

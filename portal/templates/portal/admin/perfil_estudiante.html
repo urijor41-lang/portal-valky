@@ -561,19 +561,26 @@
         }
 
         .documents-table button {
-            background: #142b49;
-            color: white;
+            background: #e2e8f0;
+            color: #526174;
             border: none;
             padding: 9px 13px;
             border-radius: 6px;
             margin-top: 8px;
-            cursor: pointer;
+            cursor: not-allowed;
             font-weight: bold;
             font-size: 12px;
+            transition: background 0.2s ease, color 0.2s ease;
         }
 
-        .documents-table button:hover {
-            background: #29496e;
+        .documents-table button.has-changes {
+            background: #245b91;
+            color: white;
+            cursor: pointer;
+        }
+
+        .documents-table button.has-changes:hover {
+            background: #183f68;
         }
 
         .file-link {
@@ -2166,6 +2173,49 @@ if (pestanaInicial) {
 
 }
 
+/* ====================================================== */
+/* 3. DETECTAR CAMBIOS EN LOS DOCUMENTOS */
+/* ====================================================== */
+
+document.querySelectorAll(".documents-table select, .documents-table textarea").forEach(campo => {
+
+    campo.addEventListener("change", function () {
+
+        const formularioId = this.getAttribute("form");
+
+        if (!formularioId) {
+            return;
+        }
+
+        const botonGuardar = document.querySelector(
+            `button[form="${formularioId}"]`
+        );
+
+        if (botonGuardar) {
+            botonGuardar.classList.add("has-changes");
+        }
+
+    });
+
+    campo.addEventListener("input", function () {
+
+        const formularioId = this.getAttribute("form");
+
+        if (!formularioId) {
+            return;
+        }
+
+        const botonGuardar = document.querySelector(
+            `button[form="${formularioId}"]`
+        );
+
+        if (botonGuardar) {
+            botonGuardar.classList.add("has-changes");
+        }
+
+    });
+
+});
 
 /* ====================================================== */
 /* 3. COPIAR CONTRASEÑA TEMPORAL */
