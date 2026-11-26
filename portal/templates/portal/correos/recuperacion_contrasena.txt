@@ -1,0 +1,18 @@
+
+Hola {{ user.get_username }},
+
+Recibimos una solicitud para restablecer la contraseña de tu cuenta de Valky Estudios en el Exterior.
+
+Para crear una nueva contraseña, ingresa al siguiente enlace:
+
+{{ protocol }}://{{ domain }}{% url 'recuperar_confirmar' uidb64=uid token=token %}
+
+Por seguridad, este enlace tiene una validez de una hora.
+
+Si no solicitaste restablecer tu contraseña, puedes ignorar este mensaje. Tu contraseña actual seguirá siendo la misma.
+
+Atentamente,
+
+Equipo de soporte
+Valky Estudios en el Exterior
+soporteportalvalky@gmail.com

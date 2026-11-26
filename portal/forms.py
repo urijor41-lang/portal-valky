@@ -198,3 +198,57 @@ class PerfilEstudianteForm(forms.ModelForm):
             usuario.save(update_fields=["email"])
 
         return perfil
+
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import PasswordResetForm
+
+
+# ==========================================================
+# 8. FORMULARIOS DE RECUPERACIÓN DE CONTRASEÑA
+# ==========================================================
+
+Usuario = get_user_model()
+
+
+class FormularioRecuperacionEstudiante(PasswordResetForm):
+
+    """
+    Permite recuperar contraseñas únicamente a estudiantes.
+    """
+
+    def get_users(self, email):
+
+        usuarios = Usuario._default_manager.filter(
+            email__iexact=email,
+            is_active=True,
+            is_staff=False
+        )
+
+        return (
+            usuario
+            for usuario in usuarios
+            if usuario.has_usable_password()
+        )
+
+
+class FormularioRecuperacionAdministrativa(PasswordResetForm):
+
+    """
+    Permite recuperar contraseñas únicamente a asesores
+    y administradores.
+    """
+
+    def get_users(self, email):
+
+        usuarios = Usuario._default_manager.filter(
+            email__iexact=email,
+            is_active=True,
+            is_staff=True
+        )
+
+        return (
+            usuario
+            for usuario in usuarios
+            if usuario.has_usable_password()
+        )

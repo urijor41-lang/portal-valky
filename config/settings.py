@@ -186,3 +186,9 @@ DEFAULT_FROM_EMAIL = os.environ.get(
 )
 
 EMAIL_TIMEOUT = 20
+
+# =====================================================
+# SEGURIDAD DE RECUPERACIÓN DE CONTRASEÑA
+# =====================================================
+
+PASSWORD_RESET_TIMEOUT = 3600

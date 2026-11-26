@@ -156,4 +156,48 @@ urlpatterns = [
         name="admin_editar_permisos_asesor"
     ),
     
+        # ==========================================================
+    # RECUPERACIÓN DE CONTRASEÑA
+    # ==========================================================
+
+    # ESTUDIANTES
+    path(
+        "recuperar-contrasena/estudiantes/",
+        views.RecuperacionEstudianteView.as_view(),
+        name="recuperar_estudiante"
+    ),
+
+    # ADMINISTRACIÓN
+    path(
+        "recuperar-contrasena/administracion/",
+        views.RecuperacionAdministrativaView.as_view(),
+        name="recuperar_administracion"
+    ),
+
+    # CONFIRMACIÓN DE ENVÍO
+    path(
+        "recuperar-contrasena/estudiantes/enviado/",
+        views.RecuperacionEnviadaView.as_view(),
+        name="recuperacion_estudiante_enviada"
+    ),
+
+    path(
+        "recuperar-contrasena/administracion/enviado/",
+        views.RecuperacionEnviadaView.as_view(),
+        name="recuperacion_administracion_enviada"
+    ),
+
+    # INGRESAR NUEVA CONTRASEÑA
+    path(
+        "recuperar-contrasena/confirmar/<uidb64>/<token>/",
+        views.ConfirmarNuevaContrasenaView.as_view(),
+        name="recuperar_confirmar"
+    ),
+
+    # RECUPERACIÓN COMPLETADA
+    path(
+        "recuperacion-completada/",
+        views.RecuperacionCompletadaView.as_view(),
+        name="recuperacion_completada"
+    ),
 ]

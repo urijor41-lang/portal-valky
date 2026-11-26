@@ -23,8 +23,18 @@ from .models import (
     TipoDocumento
 
 )
-from .forms import PerfilEstudianteForm
+from .forms import (
+    PerfilEstudianteForm,
+    FormularioRecuperacionEstudiante,
+    FormularioRecuperacionAdministrativa,
+)
 
+from django.contrib.auth.views import (
+    PasswordResetView,
+    PasswordResetDoneView,
+    PasswordResetConfirmView,
+    PasswordResetCompleteView,
+)
 
 # ==========================================================
 # CONFIGURACIÓN Y VALIDACIÓN DE ARCHIVOS
@@ -303,6 +313,10 @@ def registro(request):
         if formulario.is_valid():
 
             usuario = formulario.save()
+            # Guardar el correo electrónico del estudiante
+            # También se utiliza como nombre de usuario.
+            usuario.email = usuario.username.strip().lower()
+            usuario.save(update_fields=["email"])
 
             PerfilEstudiante.objects.create(
                 estudiante=usuario
@@ -932,3 +946,77 @@ def mis_documentos(request):
         "documentos": documentos,
         "filtro_estado": filtro_estado
         })
+    
+# ==========================================================
+# 9. RECUPERACIÓN DE CONTRASEÑA
+# ==========================================================
+
+# ----------------------------------------------------------
+# 9.1 RECUPERACIÓN PARA ESTUDIANTES
+# ----------------------------------------------------------
+
+class RecuperacionEstudianteView(PasswordResetView):
+
+    template_name = "portal/recuperar_contrasena.html"
+
+    email_template_name = (
+        "portal/correos/recuperacion_contrasena.txt"
+    )
+
+    subject_template_name = (
+        "portal/correos/asunto_recuperacion.txt"
+    )
+
+    form_class = FormularioRecuperacionEstudiante
+
+    success_url = "/recuperar-contrasena/estudiantes/enviado/"
+
+
+# ----------------------------------------------------------
+# 9.2 RECUPERACIÓN PARA ADMINISTRACIÓN
+# ----------------------------------------------------------
+
+class RecuperacionAdministrativaView(PasswordResetView):
+
+    template_name = "portal/recuperar_contrasena.html"
+
+    email_template_name = (
+        "portal/correos/recuperacion_contrasena.txt"
+    )
+
+    subject_template_name = (
+        "portal/correos/asunto_recuperacion.txt"
+    )
+
+    form_class = FormularioRecuperacionAdministrativa
+
+    success_url = "/recuperar-contrasena/administracion/enviado/"
+
+
+# ----------------------------------------------------------
+# 9.3 CONFIRMACIÓN DE ENVÍO DEL CORREO
+# ----------------------------------------------------------
+
+class RecuperacionEnviadaView(PasswordResetDoneView):
+
+    template_name = "portal/recuperacion_enviada.html"
+
+
+# ----------------------------------------------------------
+# 9.4 CONFIRMACIÓN DEL CAMBIO DE CONTRASEÑA
+# ----------------------------------------------------------
+
+class ConfirmarNuevaContrasenaView(PasswordResetConfirmView):
+
+    template_name = "portal/nueva_contrasena.html"
+
+    success_url = "/recuperacion-completada/"
+
+
+# ----------------------------------------------------------
+# 9.5 RECUPERACIÓN COMPLETADA
+# ----------------------------------------------------------
+
+class RecuperacionCompletadaView(PasswordResetCompleteView):
+
+    template_name = "portal/recuperacion_completada.html"

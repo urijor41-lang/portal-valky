@@ -1,0 +1,218 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Nueva contraseña | Valky</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #26364a;
+        }
+
+        .contenedor {
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            padding: 38px 32px;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.09);
+            text-align: center;
+        }
+
+        .logo {
+            width: 175px;
+            max-width: 80%;
+            height: auto;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 23px;
+            color: #18375d;
+            margin: 0 0 12px;
+        }
+
+        .descripcion {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #687586;
+            margin-bottom: 25px;
+        }
+
+        .campo {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccd4df;
+            border-radius: 7px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #1765b1;
+            box-shadow: 0 0 0 2px rgba(23, 101, 177, 0.12);
+        }
+
+        .ayuda {
+            display: block;
+            margin-top: 7px;
+            color: #7a8795;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .errores {
+            color: #c62828;
+            font-size: 13px;
+            text-align: left;
+            margin-top: 7px;
+        }
+
+        .errores ul {
+            padding-left: 18px;
+        }
+
+        .boton {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 7px;
+            background: #18375d;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .boton:hover {
+            background: #24558a;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <main class="contenedor">
+
+        <img
+            src="{% static 'portal/img/logo_valky.png' %}"
+            alt="Valky Estudios en el Exterior"
+            class="logo"
+        >
+
+        <h1>Crear nueva contraseña</h1>
+
+        <p class="descripcion">
+            Ingresa tu nueva contraseña y confírmala
+            para recuperar el acceso a tu cuenta.
+        </p>
+
+        {% if validlink %}
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="errores">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="campo">
+
+                    <label for="{{ form.new_password1.id_for_label }}">
+                        Nueva contraseña
+                    </label>
+
+                    {{ form.new_password1 }}
+
+                    {% if form.new_password1.help_text %}
+                        <div class="ayuda">
+                            {{ form.new_password1.help_text|safe }}
+                        </div>
+                    {% endif %}
+
+                    {% if form.new_password1.errors %}
+                        <div class="errores">
+                            {{ form.new_password1.errors }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                <div class="campo">
+
+                    <label for="{{ form.new_password2.id_for_label }}">
+                        Confirmar nueva contraseña
+                    </label>
+
+                    {{ form.new_password2 }}
+
+                    {% if form.new_password2.errors %}
+                        <div class="errores">
+                            {{ form.new_password2.errors }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                <button type="submit" class="boton">
+                    Guardar nueva contraseña
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <div class="errores">
+                <p>
+                    El enlace de recuperación no es válido,
+                    ya fue utilizado o ha vencido.
+                </p>
+                <p>
+                    Solicita un nuevo enlace para continuar.
+                </p>
+            </div>
+
+            <a href="{% url 'recuperar_estudiante' %}">
+                Solicitar otro enlace
+            </a>
+
+        {% endif %}
+
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,139 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Contraseña actualizada | Valky</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #26364a;
+        }
+
+        .contenedor {
+            width: 100%;
+            max-width: 430px;
+            padding: 38px 32px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.09);
+            text-align: center;
+        }
+
+        .logo {
+            width: 175px;
+            max-width: 80%;
+            height: auto;
+            margin-bottom: 25px;
+        }
+
+        .icono {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #e7f5ec;
+            color: #23834a;
+            font-size: 32px;
+        }
+
+        h1 {
+            color: #18375d;
+            font-size: 22px;
+            margin-bottom: 14px;
+        }
+
+        p {
+            color: #687586;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .botones {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .boton {
+            display: block;
+            padding: 13px;
+            border-radius: 7px;
+            background: #18375d;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .boton:hover {
+            background: #24558a;
+        }
+
+        .boton-secundario {
+            background: #eef2f7;
+            color: #18375d;
+        }
+
+        .boton-secundario:hover {
+            background: #dfe7f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="contenedor">
+
+        <img
+            src="{% static 'portal/img/logo_valky.png' %}"
+            alt="Valky Estudios en el Exterior"
+            class="logo"
+        >
+
+        <div class="icono">✓</div>
+
+        <h1>¡Contraseña actualizada!</h1>
+
+        <p>
+            Tu contraseña se ha cambiado correctamente.
+            Ya puedes ingresar nuevamente a tu cuenta
+            utilizando tu nueva contraseña.
+        </p>
+
+        <div class="botones">
+
+            <a href="{% url 'iniciar_sesion' %}" class="boton">
+                Acceso de estudiantes
+            </a>
+
+            <a href="{% url 'admin_login' %}" class="boton boton-secundario">
+                Acceso administrativo
+            </a>
+
+        </div>
+
+    </main>
+
+</body>
+</html>
